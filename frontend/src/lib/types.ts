@@ -133,3 +133,75 @@ export interface FixtureProperty {
   address: string;
   listing_url: string;
 }
+
+export interface PropertyComparisonItem {
+  report_id: string;
+  project_name: string;
+  promoter_name: string;
+  rera_id: string;
+  city: string;
+  state: string;
+  trust_score: number;
+  trust_label: string;
+  dimension_scores: Record<string, number>;
+  key_strengths: string[];
+  key_red_flags: string[];
+  possession_date?: string;
+  pdf_url?: string;
+}
+
+export interface CompareResponse {
+  comparison_id: string;
+  properties: PropertyComparisonItem[];
+  dimension_comparison: Record<string, Record<string, number>>;
+  comparative_verdict: string;
+  winner_report_id?: string;
+  generated_at: string;
+}
+
+export interface WatchlistRecheckResponse {
+  watchlist_id: string;
+  property_name: string;
+  previous_score: number;
+  current_trust_score: number;
+  score_delta: number;
+  alert_triggered: boolean;
+  alert_message?: string;
+  last_checked_at: string;
+}
+
+export interface WatchlistAlert {
+  watchlist_id: string;
+  property_name: string;
+  delta: number;
+  message: string;
+}
+
+export interface WatchlistRecheckAllResponse {
+  status: string;
+  total_checked: number;
+  alerts_triggered: number;
+  alerts: WatchlistAlert[];
+  items: Array<{
+    watchlist_id: string;
+    property_name: string;
+    current_trust_score: number;
+    score_delta: number;
+    alert_triggered: boolean;
+    last_checked_at: string;
+  }>;
+  timestamp: string;
+}
+
+export interface BulkVerifyResponse {
+  batch_id: string;
+  total_enqueued: number;
+  status: string;
+  reports: Array<{
+    report_id: string;
+    status: string;
+    project_name: string;
+    trust_score?: number;
+  }>;
+}
+

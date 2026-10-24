@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { WatchlistItem } from '@/lib/types';
-import { getWatchlist } from '@/lib/api';
+import { WatchlistItem, WatchlistAlert } from '@/lib/types';
+import { getWatchlist, recheckAllWatchlist, recheckWatchlistItem } from '@/lib/api';
 import {
   BookmarkCheck,
   Building,
@@ -16,12 +16,19 @@ import {
   Clock,
   Plus,
   Loader2,
-  Activity,
+  RefreshCw,
+  GitCompare,
+  AlertTriangle,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 
 export default function DashboardPage() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rechecking, setRechecking] = useState(false);
+  const [activeAlerts, setActiveAlerts] = useState<WatchlistAlert[]>([]);
+  const [recheckStatus, setRecheckStatus] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -37,8 +44,53 @@ export default function DashboardPage() {
     load();
   }, []);
 
+  const handleRunNightlyRecheck = async () => {
+    setRechecking(true);
+    setRecheckStatus('Simulating automated pg_cron 02:00 IST batch execution...');
+    try {
+      const res = await recheckAllWatchlist();
+      setActiveAlerts(res.alerts || []);
+      setRecheckStatus(`✓ Nightly re-check complete. ${res.total_checked} properties audited. ${res.alerts_triggered} regulatory alerts raised.`);
+
+      // Refresh items list
+      const updated = await getWatchlist();
+      setItems(updated.items || []);
+    } catch (err) {
+      console.error('Failed batch re-check:', err);
+      setRecheckStatus('Notice: Worker re-check concluded with fallback state.');
+    } finally {
+      setRechecking(false);
+    }
+  };
+
+  const handleRecheckSingle = async (watchlistId: string) => {
+    try {
+      const res = await recheckWatchlistItem(watchlistId);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.watchlist_id === watchlistId
+            ? { ...item, last_checked_at: res.last_checked_at, current_trust_score: res.current_trust_score, score_delta_7d: res.score_delta }
+            : item
+        )
+      );
+      if (res.alert_triggered && res.alert_message) {
+        setActiveAlerts((prev) => [
+          ...prev,
+          {
+            watchlist_id: res.watchlist_id,
+            property_name: res.property_name,
+            delta: res.score_delta,
+            message: res.alert_message || 'Score delta detected.'
+          }
+        ]);
+      }
+    } catch (err) {
+      console.error('Single recheck error:', err);
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 pb-28">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 pb-32">
       {/* Dashboard Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
         <div>
@@ -50,18 +102,91 @@ export default function DashboardPage() {
             Monitored Property Watchlist
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Automated pg_cron workers re-scan official statutory portals every night at 02:00 IST. Receive proactive alerts on score drops &gt; 10 points or new court filings.
+            Automated pg_cron workers re-scan official statutory portals nightly at 02:00 IST. Receive proactive alerts on score drops &gt; 10 points or newly admitted litigation.
           </p>
         </div>
 
-        <Link
-          href="/#verify-section"
-          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white text-xs font-bold shadow-subtle hover:shadow-premium transition-all shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Monitor New Property</span>
-        </Link>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <Link
+            href="/compare?ids=rpt_sunshine_clean,rpt_green_valley_delayed"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200/80 transition-all active:scale-[0.98]"
+          >
+            <GitCompare className="w-3.5 h-3.5" />
+            <span>Compare Shortlist</span>
+          </Link>
+
+          <button
+            onClick={handleRunNightlyRecheck}
+            disabled={rechecking}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all disabled:opacity-50 active:scale-[0.98]"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${rechecking ? 'animate-spin' : ''}`} />
+            <span>{rechecking ? 'Auditing...' : 'Run Nightly Re-check'}</span>
+          </button>
+
+          <Link
+            href="/#verify-section"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white text-xs font-bold shadow-subtle hover:shadow-premium transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Property</span>
+          </Link>
+        </div>
       </div>
+
+      {/* Re-check Status Banner */}
+      {recheckStatus && (
+        <div className="p-4 rounded-xl border border-indigo-200 bg-indigo-50/70 text-indigo-900 text-xs font-medium flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
+            <span>{recheckStatus}</span>
+          </div>
+          <button
+            onClick={() => setRecheckStatus(null)}
+            className="text-xs font-bold text-indigo-700 hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Active Alerts Drawer */}
+      {activeAlerts.length > 0 && (
+        <div className="glass-card rounded-2xl p-5 border border-rose-300 bg-rose-50/40 shadow-premium space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-rose-800 font-extrabold text-xs uppercase tracking-wider font-mono">
+              <Bell className="w-4 h-4 text-rose-600" />
+              <span>Automated Watchlist Alerts Triggered ({activeAlerts.length})</span>
+            </div>
+            <button
+              onClick={() => setActiveAlerts([])}
+              className="text-[11px] font-bold text-rose-700 hover:underline"
+            >
+              Clear All
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {activeAlerts.map((alt, idx) => (
+              <div
+                key={idx}
+                className="p-3 bg-white/90 rounded-xl border border-rose-200 text-xs text-slate-800 flex items-center justify-between"
+              >
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <div>
+                    <strong className="font-bold text-slate-900">{alt.property_name}:</strong>{' '}
+                    <span>{alt.message}</span>
+                  </div>
+                </div>
+                <span className="font-mono text-xs font-bold text-rose-700 shrink-0 ml-4">
+                  {alt.delta < 0 ? `${alt.delta} pts` : `+${alt.delta} pts`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="py-24 flex flex-col items-center justify-center space-y-3">
@@ -138,10 +263,19 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 flex items-center space-x-1 font-mono text-[11px]">
-                    <Clock className="w-3 h-3" />
-                    <span>Checked {new Date(item.last_checked_at).toLocaleDateString()}</span>
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-slate-400 flex items-center space-x-1 font-mono text-[11px]">
+                      <Clock className="w-3 h-3" />
+                      <span>{new Date(item.last_checked_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </span>
+                    <button
+                      onClick={() => handleRecheckSingle(item.watchlist_id)}
+                      title="Run on-demand recheck"
+                      className="text-slate-400 hover:text-slate-700 transition-colors"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                    </button>
+                  </div>
 
                   <Link
                     href={`/report/${item.report_id || 'rpt_sunshine_clean'}`}

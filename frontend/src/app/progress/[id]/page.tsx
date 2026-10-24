@@ -17,9 +17,12 @@ import {
   UserCheck,
   Award,
   Star,
-  ExternalLink
+  ExternalLink,
+  KeyRound,
+  ShieldAlert,
+  Check
 } from 'lucide-react';
-import { getReport } from '@/lib/api';
+import { getReport, resolveHITL } from '@/lib/api';
 import { VerificationReport, CheckType } from '@/lib/types';
 
 interface AgentLog {
@@ -123,6 +126,10 @@ export default function ProgressScreen() {
   const [progressPct, setProgressPct] = useState<number>(15);
   const [elapsedSec, setElapsedSec] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [hilChallengeActive, setHilChallengeActive] = useState<boolean>(false);
+  const [hilInput, setHilInput] = useState<string>('7G4K9');
+  const [hilResolving, setHilResolving] = useState<boolean>(false);
+  const [hilResolved, setHilResolved] = useState<boolean>(false);
 
   // Fallback / simulated state for each dimension while agents are probing
   const [simSteps, setSimSteps] = useState<Record<CheckType, 'queued' | 'scanning' | 'passed' | 'flagged'>>({
