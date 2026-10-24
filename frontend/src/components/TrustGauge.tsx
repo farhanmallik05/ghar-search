@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TrustLabel } from '@/lib/types';
-import { ShieldCheck, AlertTriangle, AlertOctagon, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, AlertOctagon, CheckCircle2, Award } from 'lucide-react';
 
 interface TrustGaugeProps {
   score: number;
@@ -17,56 +17,99 @@ export default function TrustGauge({
   dimensionScores = {},
   maxDimensionScores = {},
 }: TrustGaugeProps) {
-  // Determine color palette
-  let strokeColor = '#10B981'; // green
-  let bgColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-  let badgeIcon = <ShieldCheck className="w-5 h-5 text-emerald-600" />;
+  // Determine color scheme based on score tier
+  let strokeColor = '#059669'; // Emerald 600
+  let strokeGradientId = 'gauge-emerald';
+  let badgeBg = 'bg-emerald-50 text-emerald-800 border-emerald-200/80';
+  let badgeIcon = <ShieldCheck className="w-4 h-4 text-emerald-600" />;
 
   if (score < 40) {
-    strokeColor = '#EF4444'; // red
-    bgColor = 'bg-rose-50 text-rose-700 border-rose-200';
-    badgeIcon = <AlertOctagon className="w-5 h-5 text-rose-600" />;
+    strokeColor = '#dc2626'; // Red 600
+    strokeGradientId = 'gauge-rose';
+    badgeBg = 'bg-rose-50 text-rose-800 border-rose-200/80';
+    badgeIcon = <AlertOctagon className="w-4 h-4 text-rose-600" />;
   } else if (score < 60) {
-    strokeColor = '#F97316'; // orange
-    bgColor = 'bg-orange-50 text-orange-700 border-orange-200';
-    badgeIcon = <AlertTriangle className="w-5 h-5 text-orange-600" />;
+    strokeColor = '#ea580c'; // Orange 600
+    strokeGradientId = 'gauge-orange';
+    badgeBg = 'bg-orange-50 text-orange-800 border-orange-200/80';
+    badgeIcon = <AlertTriangle className="w-4 h-4 text-orange-600" />;
   } else if (score < 80) {
-    strokeColor = '#F59E0B'; // amber
-    bgColor = 'bg-amber-50 text-amber-700 border-amber-200';
-    badgeIcon = <AlertTriangle className="w-5 h-5 text-amber-600" />;
+    strokeColor = '#d97706'; // Amber 600
+    strokeGradientId = 'gauge-amber';
+    badgeBg = 'bg-amber-50 text-amber-800 border-amber-200/80';
+    badgeIcon = <AlertTriangle className="w-4 h-4 text-amber-600" />;
   }
 
   // Calculate SVG circular arc
-  const radius = 80;
+  const radius = 70;
   const circumference = 2 * Math.PI * radius;
-  // Use 75% arc (semi-circle plus wings)
-  const strokeDashoffset = circumference - (score / 100) * circumference;
+  const strokeDashoffset = circumference - (Math.min(100, Math.max(0, score)) / 100) * circumference;
 
   const dimensions = [
-    { key: 'rera_status', label: '1. RERA Status & Validity', defaultMax: 60 },
-    { key: 'court_signals', label: '2. Litigation & Court Signals', defaultMax: 40 },
+    { key: 'rera_status', label: '1. RERA Status & Validity', defaultMax: 30 },
+    { key: 'claim_match', label: '2. Marketing Claim Match', defaultMax: 20 },
+    { key: 'court_signals', label: '3. Litigation & Court Records', defaultMax: 20 },
+    { key: 'promoter_record', label: '4. Promoter Track Record', defaultMax: 10 },
+    { key: 'approvals', label: '5. Municipal Approvals & NOCs', defaultMax: 10 },
+    { key: 'reputation', label: '6. Buyer Sentiment & Grievances', defaultMax: 10 },
   ];
 
   return (
-    <div className="glass-card rounded-2xl p-6 shadow-sm border border-slate-200/80">
-      <div className="flex flex-col md:flex-row items-center gap-8">
-        {/* Radial Meter */}
-        <div className="relative flex flex-col items-center justify-center">
-          <svg className="w-52 h-52 transform -rotate-90">
+    <div className="glass-card rounded-2xl p-6 border border-slate-200/80 shadow-premium flex flex-col justify-between h-full">
+      <div>
+        {/* Header Label */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-5">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">
+              Mathematical Due Diligence
+            </span>
+            <h3 className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight">
+              Deterministic Trust Score
+            </h3>
+          </div>
+          <span className="text-[11px] font-mono font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+            Scale: 0-100
+          </span>
+        </div>
+
+        {/* Circular Gauge Centerpiece */}
+        <div className="relative flex flex-col items-center justify-center my-3">
+          <svg className="w-48 h-48 transform -rotate-90">
+            <defs>
+              <linearGradient id="gauge-emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#059669" />
+              </linearGradient>
+              <linearGradient id="gauge-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#fbbf24" />
+                <stop offset="100%" stopColor="#d97706" />
+              </linearGradient>
+              <linearGradient id="gauge-orange" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#fb923c" />
+                <stop offset="100%" stopColor="#ea580c" />
+              </linearGradient>
+              <linearGradient id="gauge-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#f87171" />
+                <stop offset="100%" stopColor="#dc2626" />
+              </linearGradient>
+            </defs>
+
+            {/* Background ring */}
             <circle
-              cx="104"
-              cy="104"
+              cx="96"
+              cy="96"
               r={radius}
-              stroke="#e2e8f0"
-              strokeWidth="14"
+              stroke="#f1f5f9"
+              strokeWidth="12"
               fill="transparent"
             />
+            {/* Value ring */}
             <circle
-              cx="104"
-              cy="104"
+              cx="96"
+              cy="96"
               r={radius}
-              stroke={strokeColor}
-              strokeWidth="14"
+              stroke={`url(#${strokeGradientId})`}
+              strokeWidth="12"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
@@ -75,71 +118,78 @@ export default function TrustGauge({
             />
           </svg>
 
+          {/* Center Text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-5xl font-black tracking-tight text-slate-900">{score}</span>
-            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">out of 100</span>
+            <span className="text-5xl font-black tracking-tight text-slate-900 font-mono tabular-nums">
+              {score}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 font-mono mt-0.5">
+              out of 100
+            </span>
           </div>
         </div>
 
-        {/* Verdict & Dimension Breakdown */}
-        <div className="flex-1 space-y-4 w-full">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
-              Deterministic Trust Score
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold border ${bgColor}`}>
-                {badgeIcon}
-                <span>{label}</span>
-              </span>
-              <span className="text-xs text-slate-500">
-                • 2-Check Statutory Due-Diligence Engine
-              </span>
-            </div>
+        {/* Rating Tier Pill */}
+        <div className="flex flex-col items-center justify-center mt-2 mb-6">
+          <span className={`inline-flex items-center space-x-1.5 px-3.5 py-1 rounded-full text-xs font-bold border shadow-subtle ${badgeBg}`}>
+            {badgeIcon}
+            <span>{label}</span>
+          </span>
+          <span className="text-[11px] text-slate-500 mt-1 font-medium">
+            6-Dimension Statutory Engine
+          </span>
+        </div>
+
+        {/* Sub-Dimension Breakdown List */}
+        <div className="space-y-2.5 pt-3 border-t border-slate-100">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono mb-2">
+            Statutory Weights & Breakdown
           </div>
 
-          {/* Sub-Dimension Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            {dimensions.map((dim) => {
-              const rawCurrent = dimensionScores[dim.key];
-              const rawMax = maxDimensionScores[dim.key];
-              
-              // Scale to 60/40 if 30/20 weights are received
-              let current = rawCurrent !== undefined ? rawCurrent : 0;
-              let max = rawMax || dim.defaultMax;
-              if (max === 30 && dim.key === 'rera_status') {
-                current = Math.round((current / 30) * 60);
-                max = 60;
-              } else if (max === 20 && dim.key === 'court_signals') {
-                current = Math.round((current / 20) * 40);
-                max = 40;
-              }
+          {dimensions.map((dim) => {
+            const rawCurrent = dimensionScores[dim.key];
+            const rawMax = maxDimensionScores[dim.key];
+            const current = rawCurrent !== undefined ? rawCurrent : 0;
+            const max = rawMax || dim.defaultMax;
+            const pct = max > 0 ? Math.round((current / max) * 100) : 0;
 
-              const pct = max > 0 ? Math.round((current / max) * 100) : 0;
+            let barColor = 'bg-emerald-500';
+            let pillBadge = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+            if (pct < 40) {
+              barColor = 'bg-rose-500';
+              pillBadge = 'bg-rose-50 text-rose-800 border-rose-200';
+            } else if (pct < 75) {
+              barColor = 'bg-amber-500';
+              pillBadge = 'bg-amber-50 text-amber-800 border-amber-200';
+            }
 
-              let pillColor = 'bg-emerald-500';
-              if (pct < 40) pillColor = 'bg-rose-500';
-              else if (pct < 75) pillColor = 'bg-amber-500';
-
-              return (
-                <div key={dim.key} className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-                  <div className="flex justify-between items-center text-xs mb-1.5">
-                    <span className="font-semibold text-slate-800">{dim.label}</span>
-                    <span className="font-bold text-slate-900 ml-1">
-                      {current}/{max} pts
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${pillColor} transition-all duration-700`}
-                      style={{ width: `${Math.min(100, Math.max(5, pct))}%` }}
-                    />
-                  </div>
+            return (
+              <div
+                key={dim.key}
+                className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-100 hover:border-slate-200 transition-colors"
+              >
+                <div className="flex justify-between items-center text-xs mb-1.5 gap-2">
+                  <span className="font-semibold text-slate-800 truncate text-[11px]">
+                    {dim.label}
+                  </span>
+                  <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border tabular-nums shrink-0 ${pillBadge}`}>
+                    {current}/{max} pts
+                  </span>
                 </div>
-              );
-            })}
-          </div>
+                <div className="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${barColor} transition-all duration-700 ease-out rounded-full`}
+                    style={{ width: `${Math.min(100, Math.max(4, pct))}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-slate-100 text-[10px] text-slate-500 font-mono text-center">
+        Zero LLM Math Hallucinations · Pure Deterministic Scoring
       </div>
     </div>
   );

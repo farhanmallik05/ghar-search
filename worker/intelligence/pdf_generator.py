@@ -152,7 +152,7 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     y += 12
 
     # 5. Auditable Deductions
-    deductions = breakdown.get("deductions") or []
+    deductions = (breakdown.get("deductions") if isinstance(breakdown, dict) else getattr(breakdown, "deductions", [])) or []
     if deductions:
         page.insert_text((margin_x, y), f"AUDITABLE SCORE DEDUCTIONS ({len(deductions)})", fontsize=10, fontname="helv", color=(0.85, 0.15, 0.15))
         y += 6
@@ -162,8 +162,16 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
         for d in deductions[:3]:
             d_rect = fitz.Rect(margin_x, y, page_width - margin_x, y + 20)
             page.draw_rect(d_rect, color=(0.95, 0.8, 0.8), fill=(0.99, 0.95, 0.95))
-            page.insert_text((margin_x + 8, y + 13), f"[{d.get('rule', 'DEDUCTION')}] {d.get('reason', '')}", fontsize=7.5, fontname="helv", color=(0.7, 0.1, 0.1))
-            page.insert_text((page_width - margin_x - 55, y + 13), f"-{d.get('points_deducted', 0)} pts", fontsize=8, fontname="helv", color=(0.8, 0.1, 0.1))
+            if isinstance(d, dict):
+                rule_name = d.get('rule') or d.get('rule_code') or 'DEDUCTION'
+                reason_text = d.get('reason', '')
+                pts_deducted = d.get('points_deducted', 0)
+            else:
+                rule_name = getattr(d, 'rule', None) or getattr(d, 'rule_code', 'DEDUCTION')
+                reason_text = getattr(d, 'reason', '')
+                pts_deducted = getattr(d, 'points_deducted', 0)
+            page.insert_text((margin_x + 8, y + 13), f"[{rule_name}] {reason_text}", fontsize=7.5, fontname="helv", color=(0.7, 0.1, 0.1))
+            page.insert_text((page_width - margin_x - 55, y + 13), f"-{pts_deducted} pts", fontsize=8, fontname="helv", color=(0.8, 0.1, 0.1))
             y += 22
         y += 6
 

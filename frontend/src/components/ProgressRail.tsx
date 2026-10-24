@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   XCircle,
   CheckCircle2,
+  Activity,
 } from 'lucide-react';
 
 interface ProgressRailProps {
@@ -23,37 +24,43 @@ interface ProgressRailProps {
 
 const CHECK_CONFIG: Record<
   CheckType,
-  { label: string; icon: React.ReactNode; desc: string }
+  { label: string; icon: React.ReactNode; desc: string; authority: string }
 > = {
   rera_status: {
     label: 'RERA Registration & Status',
     icon: <Building2 className="w-4 h-4" />,
     desc: 'Querying state RERA portal for active certificate, expiry & escrow account',
+    authority: 'MahaRERA / State Authority',
   },
   claim_match: {
     label: 'Marketing Claim Match',
     icon: <FileCheck2 className="w-4 h-4" />,
     desc: 'Cross-referencing brochure possession date, unit count & sanctioned floors',
-  },
-  promoter_record: {
-    label: 'Promoter Background & MCA',
-    icon: <UserCheck className="w-4 h-4" />,
-    desc: 'Scanning MCA21 director master data, past delivery track record & charges',
+    authority: 'Brochure vs RERA Record',
   },
   court_signals: {
     label: 'eCourts & NCLT Insolvency',
     icon: <Scale className="w-4 h-4" />,
     desc: 'Checking National Judicial Data Grid, consumer forums & CIRP filings',
+    authority: 'eCourts India (NJDG) & IBBI',
+  },
+  promoter_record: {
+    label: 'Promoter Background & MCA',
+    icon: <UserCheck className="w-4 h-4" />,
+    desc: 'Scanning MCA21 director master data, past delivery track record & charges',
+    authority: 'MCA21 Database',
   },
   approvals: {
     label: 'Municipal Sanctions & NOCs',
     icon: <CheckCircle className="w-4 h-4" />,
     desc: 'Verifying Commencement Certificate (CC), Fire NOC & Environmental Clearance',
+    authority: 'Municipal Corporation (PMC/TMC)',
   },
   reputation: {
     label: 'Public Reputation & Sentiment',
     icon: <MessageSquareWarning className="w-4 h-4" />,
     desc: 'Synthesizing buyer forum grievances, news archives & consumer complaints',
+    authority: 'Consumer Forums & Web Index',
   },
 };
 
@@ -61,107 +68,140 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
   const checkMap = new Map<CheckType, CheckResult>();
   checks.forEach((c) => checkMap.set(c.check_type, c));
 
-  const allTypes: CheckType[] = [
-    'rera_status',
-    'court_signals',
-  ];
+  // Determine if this report is in 2-core statutory mode or 6-dimension mode
+  const isTwoCheckMode =
+    checks.length > 0 &&
+    checks.length <= 2 &&
+    checks.every((c) => c.check_type === 'rera_status' || c.check_type === 'court_signals');
 
-  const relevantChecks = checks.filter(c => c.check_type === 'rera_status' || c.check_type === 'court_signals');
-  const completedCount = relevantChecks.filter(
+  const activeTypes: CheckType[] = isTwoCheckMode
+    ? ['rera_status', 'court_signals']
+    : ['rera_status', 'claim_match', 'court_signals', 'promoter_record', 'approvals', 'reputation'];
+
+  const completedCount = checks.filter(
     (c) => c.status === 'passed' || c.status === 'flagged' || c.status === 'failed'
   ).length;
 
+  const totalChecks = activeTypes.length;
+
   return (
-    <div className="glass-card rounded-2xl p-6 shadow-sm border border-slate-200">
-      <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+    <div className="glass-card rounded-2xl p-6 border border-slate-200/80 shadow-premium transition-all">
+      {/* Top Header & Summary */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-3">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm flex items-center space-x-2">
-            <span>Agentic Verification Pipeline</span>
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 font-mono">
+              Live Agentic Audit
+            </span>
             {overallStatus === 'running' && (
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-600"></span>
               </span>
             )}
+          </div>
+          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
+            Agentic Verification Pipeline
           </h3>
-          <p className="text-xs text-slate-500">
-            2 core statutory web agent checkers querying official portals & judicial ledgers
+          <p className="text-xs text-slate-500 mt-0.5">
+            {isTwoCheckMode
+              ? '2 core statutory web agent checkers querying official portals & judicial ledgers'
+              : '6 core statutory web agent checkers querying official portals & judicial ledgers'}
           </p>
         </div>
-        <div className="text-right">
-          <span className="text-xs font-semibold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-full border border-brand-100">
-            {completedCount} of 2 Checks Completed
+
+        <div className="flex items-center space-x-2 self-start sm:self-auto">
+          <span className="inline-flex items-center space-x-1.5 text-xs font-bold font-mono text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200/80 shadow-subtle">
+            <Activity className="w-3.5 h-3.5 text-brand-600" />
+            <span>
+              {completedCount} of {totalChecks} Checks Completed
+            </span>
           </span>
         </div>
       </div>
 
+      {/* Check Items List */}
       <div className="space-y-3">
-        {allTypes.map((type) => {
+        {activeTypes.map((type) => {
           const config = CHECK_CONFIG[type];
           const result = checkMap.get(type);
           const status: CheckStatus = result ? result.status : 'pending';
 
           let statusBadge = (
-            <span className="flex items-center space-x-1 text-slate-400 text-xs font-medium">
+            <span className="inline-flex items-center space-x-1 text-slate-400 text-xs font-medium bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/60 font-mono">
               <Clock className="w-3.5 h-3.5" />
               <span>Queued</span>
             </span>
           );
 
-          let borderHighlight = 'border-slate-100 bg-white/50';
+          let rowStyle = 'border-slate-200/80 bg-white hover:border-slate-300';
+          let iconBg = 'bg-slate-100 text-slate-600';
 
           if (status === 'running') {
             statusBadge = (
-              <span className="flex items-center space-x-1.5 text-brand-600 text-xs font-semibold">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Scanning...</span>
+              <span className="inline-flex items-center space-x-1.5 text-brand-700 bg-brand-50 px-3 py-1 rounded-full text-xs font-bold border border-brand-200 shadow-subtle animate-pulse">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-600" />
+                <span>Scanning Portal...</span>
               </span>
             );
-            borderHighlight = 'border-brand-300 bg-brand-50/40 shadow-sm';
+            rowStyle = 'border-brand-300 bg-brand-50/30 ring-2 ring-brand-500/10 shadow-sm';
+            iconBg = 'bg-brand-100 text-brand-700';
           } else if (status === 'passed') {
             statusBadge = (
-              <span className="flex items-center space-x-1 text-emerald-600 text-xs font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center space-x-1.5 text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200/80 shadow-subtle">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Verified Clean</span>
               </span>
             );
-            borderHighlight = 'border-emerald-200 bg-emerald-50/20';
+            rowStyle = 'border-slate-200/90 bg-emerald-50/10 hover:border-emerald-200';
+            iconBg = 'bg-emerald-100 text-emerald-700';
           } else if (status === 'flagged' || status === 'needs_review') {
             statusBadge = (
-              <span className="flex items-center space-x-1 text-amber-600 text-xs font-bold">
-                <AlertTriangle className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center space-x-1.5 text-amber-800 bg-amber-50 px-3 py-1 rounded-full text-xs font-bold border border-amber-200 shadow-subtle">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                 <span>Discrepancy</span>
               </span>
             );
-            borderHighlight = 'border-amber-200 bg-amber-50/20';
+            rowStyle = 'border-amber-200/90 bg-amber-50/20';
+            iconBg = 'bg-amber-100 text-amber-700';
           } else if (status === 'failed') {
             statusBadge = (
-              <span className="flex items-center space-x-1 text-rose-600 text-xs font-bold">
-                <XCircle className="w-3.5 h-3.5" />
-                <span>Flagged</span>
+              <span className="inline-flex items-center space-x-1.5 text-rose-800 bg-rose-50 px-3 py-1 rounded-full text-xs font-bold border border-rose-200 shadow-subtle">
+                <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Flagged Issue</span>
               </span>
             );
-            borderHighlight = 'border-rose-200 bg-rose-50/20';
+            rowStyle = 'border-rose-200 bg-rose-50/20';
+            iconBg = 'bg-rose-100 text-rose-700';
           }
 
           return (
             <div
               key={type}
-              className={`flex items-center justify-between p-3 rounded-xl border transition-all ${borderHighlight}`}
+              className={`flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 rounded-xl border transition-all duration-200 gap-3 ${rowStyle}`}
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+              <div className="flex items-center space-x-3.5">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-subtle ring-1 ring-inset ring-black/5 ${iconBg}`}>
                   {config.icon}
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-slate-900">{config.label}</div>
-                  <div className="text-[11px] text-slate-500 hidden sm:block max-w-md truncate">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                      {config.label}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400 hidden md:inline">
+                      [{config.authority}]
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
                     {config.desc}
                   </div>
                 </div>
               </div>
 
-              <div>{statusBadge}</div>
+              <div className="self-end sm:self-auto shrink-0">
+                {statusBadge}
+              </div>
             </div>
           );
         })}
