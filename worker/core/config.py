@@ -1,10 +1,20 @@
 import os
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
-from typing import Optional
+from pydantic import ConfigDict, model_validator
+from typing import Optional, Any
 
 class Settings(BaseSettings):
     model_config = ConfigDict(env_file=[".env", "../.env"], extra="allow")
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_supabase_fallbacks(cls, values: Any) -> Any:
+        if isinstance(values, dict):
+            if not values.get("SUPABASE_URL"):
+                values["SUPABASE_URL"] = values.get("NEXT_PUBLIC_SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+            if not values.get("SUPABASE_ANON_KEY"):
+                values["SUPABASE_ANON_KEY"] = values.get("NEXT_PUBLIC_SUPABASE_ANON_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+        return values
 
     PROJECT_NAME: str = "Ghar Search Due-Diligence Worker"
     VERSION: str = "1.0.0"
