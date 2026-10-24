@@ -78,6 +78,18 @@ function ComparePageContent() {
     { key: 'reputation', label: 'Public Sentiment & Reviews', max: 10, icon: Star },
   ];
 
+  const exportComparisonJson = () => {
+    if (!comparison) return;
+    const blob = new Blob([JSON.stringify(comparison, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `ghar-search-comparison-${comparison.comparison_id || 'benchmark'}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 pb-32">
       {/* Header */}
@@ -95,26 +107,38 @@ function ComparePageContent() {
           </p>
         </div>
 
-        {/* Quick Selector Pills */}
-        <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/80 shrink-0">
-          <span className="text-[11px] font-bold text-slate-500 px-2 font-mono">Toggle Assets:</span>
-          {CANONICAL_IDS.map((id) => {
-            const isSelected = selectedIds.includes(id);
-            const label = id.includes('clean') ? 'Sunshine (92)' : id.includes('delayed') ? 'Green Valley (68)' : 'Royal Empire (18)';
-            return (
-              <button
-                key={id}
-                onClick={() => toggleProperty(id)}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                  isSelected
-                    ? 'bg-white text-indigo-700 shadow-subtle border border-indigo-200 font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+        {/* Quick Selector Pills & Export */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/80">
+            <span className="text-[11px] font-bold text-slate-500 px-2 font-mono">Toggle Assets:</span>
+            {CANONICAL_IDS.map((id) => {
+              const isSelected = selectedIds.includes(id);
+              const label = id.includes('clean') ? 'Sunshine (92)' : id.includes('delayed') ? 'Green Valley (68)' : 'Royal Empire (18)';
+              return (
+                <button
+                  key={id}
+                  onClick={() => toggleProperty(id)}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
+                    isSelected
+                      ? 'bg-white text-indigo-700 shadow-subtle border border-indigo-200 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {comparison && (
+            <button
+              onClick={exportComparisonJson}
+              className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-xs transition-all"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-500" />
+              <span>Export Benchmark</span>
+            </button>
+          )}
         </div>
       </div>
 
