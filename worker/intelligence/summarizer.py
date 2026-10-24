@@ -93,6 +93,11 @@ def generate_summary(
             f"Our automated agents identified substantial deviations between brochure claims and official municipal sanctions, "
             f"accompanied by pending regulatory notices."
         )
+    elif breakdown.label == TrustLabel.PENDING:
+        verdict = (
+            f"Due-diligence verification for {project_name} (RERA: {rera_id or 'Pending'}) is currently underway. "
+            f"Autonomous statutory agents are actively querying state RERA records and judicial ledgers."
+        )
     else:  # CRITICAL_ALERT
         verdict = (
             f"CRITICAL DUE-DILIGENCE WARNING: {project_name} scored {score}/100 ({label}). "

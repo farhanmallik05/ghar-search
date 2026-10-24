@@ -40,6 +40,14 @@ def calculate_trust_score(
     rera_check = check_map.get(CheckType.RERA_STATUS.value)
     if not rera_check or rera_check.status == CheckStatus.PENDING:
         dimension_scores[CheckType.RERA_STATUS.value] = 0
+    elif not rera_check.findings or rera_check.status == CheckStatus.TIMEOUT or any("timed out" in f.lower() or "connection error" in f.lower() for f in rera_check.findings):
+        dimension_scores[CheckType.RERA_STATUS.value] = 0
+        deductions.append(ScoreDeduction(
+            rule="RERA_QUERY_FAILED",
+            dimension=CheckType.RERA_STATUS.value,
+            points_deducted=rera_max,
+            reason="Official state RERA portal query failed or timed out. Registration status unverified."
+        ))
     else:
         score = rera_max
         findings_text = " ".join(rera_check.findings).lower()
@@ -52,7 +60,7 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="RERA validity expired and Section 7 revocation proceedings initiated by statutory authority."
             ))
-        elif "not found" in findings_text or "unregistered" in findings_text or rera_check.status == CheckStatus.FAILED:
+        elif "not found" in findings_text or "unregistered" in findings_text:
             deduction = rera_max
             score = 0
             deductions.append(ScoreDeduction(
@@ -79,6 +87,14 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="Project is operating under pending RERA extension review."
             ))
+        elif rera_check.status == CheckStatus.FAILED and score == rera_max:
+            score = 0
+            deductions.append(ScoreDeduction(
+                rule="RERA_UNSPECIFIED_FAILURE",
+                dimension=CheckType.RERA_STATUS.value,
+                points_deducted=rera_max,
+                reason="RERA verification check failed to confirm active statutory compliance."
+            ))
         else:
             strengths.append("Project holds active, valid RERA registration with clean regulatory disclosures.")
 
@@ -89,6 +105,14 @@ def calculate_trust_score(
     claim_check = check_map.get(CheckType.CLAIM_MATCH.value)
     if not claim_check or claim_check.status == CheckStatus.PENDING:
         dimension_scores[CheckType.CLAIM_MATCH.value] = 0
+    elif not claim_check.findings or claim_check.status == CheckStatus.TIMEOUT or any("timed out" in f.lower() or "connection error" in f.lower() for f in claim_check.findings):
+        dimension_scores[CheckType.CLAIM_MATCH.value] = 0
+        deductions.append(ScoreDeduction(
+            rule="CLAIM_VERIFICATION_FAILED",
+            dimension=CheckType.CLAIM_MATCH.value,
+            points_deducted=claim_max,
+            reason="Statutory verification of marketing claims failed or timed out."
+        ))
     else:
         score = claim_max
         findings_text = " ".join(claim_check.findings).lower()
@@ -110,7 +134,15 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="Marketing brochure claims more units or floors than officially sanctioned."
             ))
-        if score == claim_max:
+        if claim_check.status == CheckStatus.FAILED and score == claim_max:
+            score = 0
+            deductions.append(ScoreDeduction(
+                rule="CLAIM_UNSPECIFIED_FAILURE",
+                dimension=CheckType.CLAIM_MATCH.value,
+                points_deducted=claim_max,
+                reason="Marketing claim verification check failed."
+            ))
+        elif score == claim_max:
             strengths.append("Marketing brochure details match statutory RERA declarations accurately.")
 
         dimension_scores[CheckType.CLAIM_MATCH.value] = max(0, min(claim_max, score))
@@ -120,6 +152,14 @@ def calculate_trust_score(
     court_check = check_map.get(CheckType.COURT_SIGNALS.value)
     if not court_check or court_check.status == CheckStatus.PENDING:
         dimension_scores[CheckType.COURT_SIGNALS.value] = 0
+    elif not court_check.findings or court_check.status == CheckStatus.TIMEOUT or any("timed out" in f.lower() or "connection error" in f.lower() for f in court_check.findings):
+        dimension_scores[CheckType.COURT_SIGNALS.value] = 0
+        deductions.append(ScoreDeduction(
+            rule="COURT_QUERY_FAILED",
+            dimension=CheckType.COURT_SIGNALS.value,
+            points_deducted=court_max,
+            reason="Judicial and insolvency records query failed or timed out."
+        ))
     else:
         score = court_max
         findings_text = " ".join(court_check.findings).lower()
@@ -152,6 +192,14 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="Active consumer court compensation cases or civil dispute filings found."
             ))
+        elif court_check.status == CheckStatus.FAILED and score == court_max:
+            score = 0
+            deductions.append(ScoreDeduction(
+                rule="COURT_UNSPECIFIED_FAILURE",
+                dimension=CheckType.COURT_SIGNALS.value,
+                points_deducted=court_max,
+                reason="Court and judicial records search failed to confirm clearance."
+            ))
         else:
             strengths.append("No adverse litigation, NCLT insolvency claims, or judicial stay orders identified.")
 
@@ -162,6 +210,14 @@ def calculate_trust_score(
     prom_check = check_map.get(CheckType.PROMOTER_RECORD.value)
     if not prom_check or prom_check.status == CheckStatus.PENDING:
         dimension_scores[CheckType.PROMOTER_RECORD.value] = 0
+    elif not prom_check.findings or prom_check.status == CheckStatus.TIMEOUT or any("timed out" in f.lower() or "connection error" in f.lower() for f in prom_check.findings):
+        dimension_scores[CheckType.PROMOTER_RECORD.value] = 0
+        deductions.append(ScoreDeduction(
+            rule="PROMOTER_CHECK_FAILED",
+            dimension=CheckType.PROMOTER_RECORD.value,
+            points_deducted=prom_max,
+            reason="Promoter MCA21 registry check failed or timed out."
+        ))
     else:
         score = prom_max
         findings_text = " ".join(prom_check.findings).lower()
@@ -182,6 +238,14 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="Promoter has history of delayed delivery in previous registered developments."
             ))
+        elif prom_check.status == CheckStatus.FAILED and score == prom_max:
+            score = 0
+            deductions.append(ScoreDeduction(
+                rule="PROMOTER_UNSPECIFIED_FAILURE",
+                dimension=CheckType.PROMOTER_RECORD.value,
+                points_deducted=prom_max,
+                reason="Promoter background verification check failed."
+            ))
         else:
             strengths.append("Promoter possesses established track record of delivered residential projects.")
 
@@ -192,6 +256,14 @@ def calculate_trust_score(
     appr_check = check_map.get(CheckType.APPROVALS.value)
     if not appr_check or appr_check.status == CheckStatus.PENDING:
         dimension_scores[CheckType.APPROVALS.value] = 0
+    elif not appr_check.findings or appr_check.status == CheckStatus.TIMEOUT or any("timed out" in f.lower() or "connection error" in f.lower() for f in appr_check.findings):
+        dimension_scores[CheckType.APPROVALS.value] = 0
+        deductions.append(ScoreDeduction(
+            rule="APPROVALS_CHECK_FAILED",
+            dimension=CheckType.APPROVALS.value,
+            points_deducted=appr_max,
+            reason="Municipal approvals and clearance sanctions audit failed or timed out."
+        ))
     else:
         score = appr_max
         findings_text = " ".join(appr_check.findings).lower()
@@ -213,6 +285,14 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="Fire NOC renewal or final occupancy clearance audit is pending completion."
             ))
+        elif appr_check.status == CheckStatus.FAILED and score == appr_max:
+            score = 0
+            deductions.append(ScoreDeduction(
+                rule="APPROVALS_UNSPECIFIED_FAILURE",
+                dimension=CheckType.APPROVALS.value,
+                points_deducted=appr_max,
+                reason="Municipal sanctions verification check failed."
+            ))
         else:
             strengths.append("Essential statutory municipal layout sanctions and fire/environmental NOCs verified.")
 
@@ -223,6 +303,14 @@ def calculate_trust_score(
     rep_check = check_map.get(CheckType.REPUTATION.value)
     if not rep_check or rep_check.status == CheckStatus.PENDING:
         dimension_scores[CheckType.REPUTATION.value] = 0
+    elif not rep_check.findings or rep_check.status == CheckStatus.TIMEOUT or any("timed out" in f.lower() or "connection error" in f.lower() for f in rep_check.findings):
+        dimension_scores[CheckType.REPUTATION.value] = 0
+        deductions.append(ScoreDeduction(
+            rule="REPUTATION_CHECK_FAILED",
+            dimension=CheckType.REPUTATION.value,
+            points_deducted=rep_max,
+            reason="Consumer sentiment and grievance scan failed or timed out."
+        ))
     else:
         score = rep_max
         findings_text = " ".join(rep_check.findings).lower()
@@ -252,6 +340,14 @@ def calculate_trust_score(
                 dimension=CheckType.REPUTATION.value,
                 points_deducted=deduction,
                 reason="Minor buyer feedback recorded regarding local approach roads or traffic."
+            ))
+        elif rep_check.status == CheckStatus.FAILED and score == rep_max:
+            score = 0
+            deductions.append(ScoreDeduction(
+                rule="REPUTATION_UNSPECIFIED_FAILURE",
+                dimension=CheckType.REPUTATION.value,
+                points_deducted=rep_max,
+                reason="Public consumer sentiment check failed."
             ))
         else:
             strengths.append("Overall buyer sentiment is clean with zero public protests or severe grievances.")

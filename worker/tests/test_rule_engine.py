@@ -264,3 +264,20 @@ def test_scoring_math_synthetic_permutations():
         c.score_contribution = breakdown_pass.dimension_scores.get(c.check_type.value, c.score_contribution)
     assert breakdown_pass.total_score == sum(breakdown_pass.dimension_scores.values()) == sum(c.score_contribution for c in passing_checks) == 100
 
+def test_failed_and_timeout_checks_zero_score_invariant():
+    """Failed or timed out checks without findings must receive 0 points and never appear in strengths."""
+    timeout_checks = [
+        CheckResult(check_type=CheckType.RERA_STATUS, status=CheckStatus.TIMEOUT, findings=["Connection timed out to state portal"]),
+        CheckResult(check_type=CheckType.CLAIM_MATCH, status=CheckStatus.FAILED, findings=[]),
+        CheckResult(check_type=CheckType.COURT_SIGNALS, status=CheckStatus.TIMEOUT, findings=[]),
+        CheckResult(check_type=CheckType.PROMOTER_RECORD, status=CheckStatus.FAILED, findings=["Connection error"]),
+        CheckResult(check_type=CheckType.APPROVALS, status=CheckStatus.TIMEOUT, findings=[]),
+        CheckResult(check_type=CheckType.REPUTATION, status=CheckStatus.FAILED, findings=[])
+    ]
+    breakdown = calculate_trust_score(timeout_checks)
+    assert breakdown.total_score == 0
+    assert all(score == 0 for score in breakdown.dimension_scores.values())
+    assert len(breakdown.deductions) == 6
+    assert len(breakdown.strengths) == 0
+
+

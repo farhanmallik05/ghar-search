@@ -154,12 +154,19 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     # 5. Auditable Deductions
     deductions = (breakdown.get("deductions") if isinstance(breakdown, dict) else getattr(breakdown, "deductions", [])) or []
     if deductions:
+        if y + 50 > page_height - 50:
+            page = doc.new_page(width=page_width, height=page_height)
+            y = 40
+
         page.insert_text((margin_x, y), f"AUDITABLE SCORE DEDUCTIONS ({len(deductions)})", fontsize=10, fontname="helv", color=(0.85, 0.15, 0.15))
         y += 6
         page.draw_line(fitz.Point(margin_x, y), fitz.Point(page_width - margin_x, y), color=(0.85, 0.15, 0.15), width=1)
         y += 10
 
         for d in deductions[:3]:
+            if y + 25 > page_height - 50:
+                page = doc.new_page(width=page_width, height=page_height)
+                y = 40
             d_rect = fitz.Rect(margin_x, y, page_width - margin_x, y + 20)
             page.draw_rect(d_rect, color=(0.95, 0.8, 0.8), fill=(0.99, 0.95, 0.95))
             if isinstance(d, dict):
@@ -176,6 +183,10 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
         y += 6
 
     # 6. Primary Evidence Proofs (Top findings)
+    if y + 60 > page_height - 50:
+        page = doc.new_page(width=page_width, height=page_height)
+        y = 40
+
     page.insert_text((margin_x, y), "CAPTURED REGULATORY EVIDENCE CITATIONS", fontsize=10, fontname="helv", color=c_brand)
     y += 6
     page.draw_line(fitz.Point(margin_x, y), fitz.Point(page_width - margin_x, y), color=c_brand, width=1)
@@ -187,6 +198,9 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
             break
         ev_list = (c.get("evidence") if isinstance(c, dict) else getattr(c, "evidence", [])) or []
         if ev_list:
+            if y + 40 > page_height - 50:
+                page = doc.new_page(width=page_width, height=page_height)
+                y = 40
             ev = ev_list[0]
             if not isinstance(ev, dict):
                 ev = ev.__dict__ if hasattr(ev, "__dict__") else {}

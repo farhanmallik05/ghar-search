@@ -485,9 +485,15 @@ async def recheck_all_watchlist():
     now_iso = datetime.now(timezone.utc).isoformat()
 
     for wl_id, item in memory_store.watchlist.items():
-        delta = item.get("score_delta_7d", 0)
-        curr_score = item.get("current_trust_score", 70)
-        threshold = item.get("alert_threshold", 10)
+        delta = item.get("score_delta_7d")
+        if delta is None:
+            delta = 0
+        curr_score = item.get("current_trust_score")
+        if curr_score is None:
+            curr_score = 70
+        threshold = item.get("alert_threshold")
+        if threshold is None:
+            threshold = 10
         triggered = abs(delta) >= threshold or delta < -3
 
         item["last_checked_at"] = now_iso

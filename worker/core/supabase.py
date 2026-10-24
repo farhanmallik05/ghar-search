@@ -12,7 +12,7 @@ def get_supabase():
     if _supabase_client is not None:
         return _supabase_client
 
-    if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
+    if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY and "your-" not in settings.SUPABASE_URL and "localhost" not in settings.SUPABASE_URL:
         try:
             from supabase import create_client, Client
             _supabase_client = create_client(

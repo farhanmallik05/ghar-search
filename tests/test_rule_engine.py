@@ -12,6 +12,7 @@ from worker.tests.test_rule_engine import (
     test_strict_scoring_equality_invariant_all_fixtures,
     test_strict_scoring_equality_invariant_dynamic_inputs,
     test_scoring_math_synthetic_permutations,
+    test_failed_and_timeout_checks_zero_score_invariant,
 )
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "test_strict_scoring_equality_invariant_all_fixtures",
     "test_strict_scoring_equality_invariant_dynamic_inputs",
     "test_scoring_math_synthetic_permutations",
+    "test_failed_and_timeout_checks_zero_score_invariant",
 ]
