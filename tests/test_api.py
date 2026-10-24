@@ -12,6 +12,13 @@ from worker.tests.test_api import (
     test_pdf_generator_none_value_resilience,
     test_verify_empty_payload_validation,
     test_nonexistent_report_404,
+    test_compare_reports_post,
+    test_compare_reports_get,
+    test_compare_insufficient_reports_400,
+    test_compare_missing_report_404,
+    test_watchlist_recheck_item,
+    test_watchlist_recheck_all_batch,
+    test_bulk_verify_and_status,
 )
 
 __all__ = [
@@ -26,4 +33,11 @@ __all__ = [
     "test_pdf_generator_none_value_resilience",
     "test_verify_empty_payload_validation",
     "test_nonexistent_report_404",
+    "test_compare_reports_post",
+    "test_compare_reports_get",
+    "test_compare_insufficient_reports_400",
+    "test_compare_missing_report_404",
+    "test_watchlist_recheck_item",
+    "test_watchlist_recheck_all_batch",
+    "test_bulk_verify_and_status",
 ]

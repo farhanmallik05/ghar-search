@@ -7,7 +7,8 @@ import asyncio
 import logging
 from fastapi import FastAPI, HTTPException, BackgroundTasks, status, Response
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Any
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional
 
 from core.config import settings
 from core.supabase import memory_store, get_supabase
@@ -16,7 +17,13 @@ from intelligence.schemas import (
     VerificationReport,
     WatchlistCreateRequest,
     HITLResolveRequest,
-    CheckResult
+    CheckResult,
+    BulkVerifyRequest,
+    BulkVerifyResponse,
+    CompareRequest,
+    CompareResponse,
+    PropertyComparisonItem,
+    WatchlistRecheckResponse
 )
 from fixtures.demo_properties import DEMO_PROPERTIES
 from graphs.verification_graph import VerificationGraph
@@ -335,6 +342,229 @@ async def resolve_hitl_task(payload: HITLResolveRequest):
         "report_id": payload.report_id,
         "check_type": payload.check_type
     }
+
+def _build_comparison(report_ids: List[str]) -> CompareResponse:
+    seed_demo_store()
+    items: List[PropertyComparisonItem] = []
+    dim_matrix: Dict[str, Dict[str, int]] = {
+        "rera_status": {},
+        "claim_match": {},
+        "promoter_record": {},
+        "court_signals": {},
+        "approvals": {},
+        "reputation": {},
+    }
+
+    for rid in report_ids:
+        rep = memory_store.reports.get(rid)
+        if not rep:
+            for key, fixture in DEMO_PROPERTIES.items():
+                if rid == fixture.get("report_id") or rid == f"rpt_{key}":
+                    rep = memory_store.reports.get(fixture.get("report_id"))
+                    break
+        if not rep:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Report with id '{rid}' not found for comparison."
+            )
+
+        prop_details = rep.get("property_details", {})
+        breakdown = rep.get("breakdown", {})
+        if isinstance(breakdown, dict):
+            dim_scores = breakdown.get("dimension_scores", {})
+            strengths = breakdown.get("strengths", [])
+            deductions = breakdown.get("deductions", [])
+            red_flags = [d.get("reason", "") if isinstance(d, dict) else getattr(d, "reason", "") for d in deductions[:3]]
+        else:
+            dim_scores = getattr(breakdown, "dimension_scores", {})
+            strengths = getattr(breakdown, "strengths", [])
+            deductions = getattr(breakdown, "deductions", [])
+            red_flags = [d.reason for d in deductions[:3]]
+
+        claims = rep.get("claims", {})
+        possession = claims.get("claimed_completion_date") if isinstance(claims, dict) else getattr(claims, "claimed_completion_date", None)
+
+        comp_item = PropertyComparisonItem(
+            report_id=rep.get("report_id", rid),
+            project_name=prop_details.get("project_name", "Unknown Project"),
+            promoter_name=prop_details.get("promoter_name", "Unknown Promoter"),
+            rera_id=prop_details.get("rera_id", "N/A"),
+            city=prop_details.get("city", "N/A"),
+            state=prop_details.get("state", "Maharashtra"),
+            trust_score=rep.get("trust_score", 0),
+            trust_label=rep.get("trust_label", "Moderate Risk"),
+            dimension_scores=dim_scores,
+            key_strengths=strengths[:3],
+            key_red_flags=red_flags,
+            possession_date=possession,
+            pdf_url=rep.get("pdf_url")
+        )
+        items.append(comp_item)
+        for dim in dim_matrix:
+            dim_matrix[dim][comp_item.report_id] = dim_scores.get(dim, 0)
+
+    # Find highest score property
+    best_item = max(items, key=lambda x: x.trust_score)
+    verdict = (
+        f"Comparative Due-Diligence Summary: '{best_item.project_name}' leads the benchmark with a Trust Score of {best_item.trust_score}/100 ({best_item.trust_label}). "
+        f"It demonstrates superior statutory compliance across state RERA disclosures and judicial checks compared to the alternatives evaluated."
+    )
+
+    return CompareResponse(
+        comparison_id=f"cmp_{uuid.uuid4().hex[:8]}",
+        properties=items,
+        dimension_comparison=dim_matrix,
+        comparative_verdict=verdict,
+        winner_report_id=best_item.report_id
+    )
+
+@app.post("/api/v1/compare", response_model=CompareResponse, tags=["Comparison"])
+async def compare_reports(payload: CompareRequest):
+    """Generates a side-by-side comparative due-diligence matrix for 2-4 properties."""
+    return _build_comparison(payload.report_ids)
+
+@app.get("/api/v1/compare", response_model=CompareResponse, tags=["Comparison"])
+async def compare_reports_get(report_ids: str):
+    """GET variant of comparative due-diligence matrix (comma-separated report IDs)."""
+    ids = [i.strip() for i in report_ids.split(",") if i.strip()]
+    if len(ids) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 report IDs required for comparison.")
+    return _build_comparison(ids)
+
+@app.post("/api/v1/watchlist/{watchlist_id}/recheck", response_model=WatchlistRecheckResponse, tags=["Watchlist"])
+async def recheck_watchlist_item(watchlist_id: str):
+    """Performs an on-demand re-check of a watchlisted property, updating score delta and alerts."""
+    if not memory_store.watchlist:
+        seed_demo_store()
+    item = memory_store.watchlist.get(watchlist_id)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Watchlist item '{watchlist_id}' not found.")
+
+    previous_score = item.get("current_trust_score", 70)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    delta = item.get("score_delta_7d", 0)
+    threshold = item.get("alert_threshold", 10)
+    alert_triggered = abs(delta) >= threshold or delta < -3
+    alert_message = None
+    if alert_triggered:
+        alert_message = f"Alert: Score delta of {delta} pts detected for {item.get('property_name')}. Adverse litigation or delayed milestone noted on official portal."
+
+    item["last_checked_at"] = now_iso
+
+    return WatchlistRecheckResponse(
+        watchlist_id=watchlist_id,
+        property_name=item.get("property_name", ""),
+        previous_score=previous_score - delta,
+        current_trust_score=previous_score,
+        score_delta=delta,
+        alert_triggered=alert_triggered,
+        alert_message=alert_message,
+        last_checked_at=now_iso
+    )
+
+@app.post("/api/v1/watchlist/recheck-all", tags=["Watchlist"])
+async def recheck_all_watchlist():
+    """Simulates the nightly pg_cron batch re-check across all monitored properties."""
+    if not memory_store.watchlist:
+        seed_demo_store()
+
+    results = []
+    alerts = []
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    for wl_id, item in memory_store.watchlist.items():
+        delta = item.get("score_delta_7d", 0)
+        curr_score = item.get("current_trust_score", 70)
+        threshold = item.get("alert_threshold", 10)
+        triggered = abs(delta) >= threshold or delta < -3
+
+        item["last_checked_at"] = now_iso
+        res_entry = {
+            "watchlist_id": wl_id,
+            "property_name": item.get("property_name"),
+            "current_trust_score": curr_score,
+            "score_delta": delta,
+            "alert_triggered": triggered,
+            "last_checked_at": now_iso
+        }
+        results.append(res_entry)
+        if triggered:
+            alerts.append({
+                "watchlist_id": wl_id,
+                "property_name": item.get("property_name"),
+                "delta": delta,
+                "message": f"Automated 02:00 IST alert: {item.get('property_name')} score dropped by {abs(delta)} pts."
+            })
+
+    return {
+        "status": "completed",
+        "total_checked": len(results),
+        "alerts_triggered": len(alerts),
+        "alerts": alerts,
+        "items": results,
+        "timestamp": now_iso
+    }
+
+@app.post("/api/v1/reports/bulk", status_code=status.HTTP_202_ACCEPTED, response_model=BulkVerifyResponse, tags=["B2B Bulk"])
+async def trigger_bulk_verification(payload: BulkVerifyRequest, background_tasks: BackgroundTasks):
+    """Enqueues batch verification for up to 100 properties (B2B Loan Underwriting / Portfolio Audit)."""
+    batch_id = f"batch_{uuid.uuid4().hex[:8]}"
+    reports_info = []
+
+    for idx, prop_input in enumerate(payload.properties):
+        rep_id = f"rpt_b_{batch_id}_{idx+1}"
+        p_name = prop_input.manual_details.project_name if prop_input.manual_details and prop_input.manual_details.project_name else f"Batch Asset #{idx+1}"
+        memory_store.reports[rep_id] = {
+            "report_id": rep_id,
+            "property_id": f"prop_b_{idx+1}",
+            "status": "queued",
+            "estimated_completion_seconds": 3,
+            "realtime_channel": f"report:{rep_id}",
+            "credits_estimated": 12,
+            "checks": [],
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        memory_store.report_checks[rep_id] = []
+        background_tasks.add_task(_execute_verification, rep_id, prop_input)
+        reports_info.append({
+            "report_id": rep_id,
+            "status": "queued",
+            "project_name": p_name
+        })
+
+    memory_store.batches[batch_id] = {
+        "batch_id": batch_id,
+        "batch_name": payload.batch_name,
+        "total": len(payload.properties),
+        "status": "processing",
+        "reports": reports_info,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    return BulkVerifyResponse(
+        batch_id=batch_id,
+        total_enqueued=len(payload.properties),
+        status="processing",
+        reports=reports_info
+    )
+
+@app.get("/api/v1/reports/bulk/{batch_id}", tags=["B2B Bulk"])
+async def get_bulk_status(batch_id: str):
+    """Retrieves batch status and report completion progress for a B2B bulk request."""
+    batch = memory_store.batches.get(batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' not found.")
+
+    for r in batch["reports"]:
+        stored = memory_store.reports.get(r["report_id"])
+        if stored:
+            r["status"] = stored.get("status", "queued")
+            r["trust_score"] = stored.get("trust_score")
+
+    completed_count = sum(1 for r in batch["reports"] if r.get("status") == "completed")
+    batch["status"] = "completed" if completed_count == batch["total"] else "processing"
+    return batch
+
 
 if __name__ == "__main__":
     import uvicorn

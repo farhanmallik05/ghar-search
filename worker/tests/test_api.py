@@ -174,3 +174,87 @@ def test_nonexistent_report_404():
     res = client.get("/api/v1/report/rpt_does_not_exist_999")
     assert res.status_code == 404
 
+def test_compare_reports_post():
+    seed_demo_store()
+    res = client.post("/api/v1/compare", json={
+        "report_ids": ["rpt_sunshine_clean", "rpt_green_valley_delayed"]
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert "comparison_id" in data
+    assert len(data["properties"]) == 2
+    assert "dimension_comparison" in data
+    assert "rera_status" in data["dimension_comparison"]
+    assert data["winner_report_id"] == "rpt_sunshine_clean"
+    assert "Comparative Due-Diligence Summary" in data["comparative_verdict"]
+
+def test_compare_reports_get():
+    seed_demo_store()
+    res = client.get("/api/v1/compare?report_ids=rpt_sunshine_clean,rpt_royal_empire_flagged")
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data["properties"]) == 2
+    assert data["winner_report_id"] == "rpt_sunshine_clean"
+
+def test_compare_insufficient_reports_400():
+    res = client.get("/api/v1/compare?report_ids=rpt_sunshine_clean")
+    assert res.status_code == 400
+
+def test_compare_missing_report_404():
+    res = client.post("/api/v1/compare", json={
+        "report_ids": ["rpt_sunshine_clean", "rpt_nonexistent_xyz_999"]
+    })
+    assert res.status_code == 404
+
+def test_watchlist_recheck_item():
+    seed_demo_store()
+    res = client.post("/api/v1/watchlist/wl_green_valley/recheck")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["watchlist_id"] == "wl_green_valley"
+    assert "last_checked_at" in data
+    assert "score_delta" in data
+
+def test_watchlist_recheck_all_batch():
+    seed_demo_store()
+    res = client.post("/api/v1/watchlist/recheck-all")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "completed"
+    assert data["total_checked"] >= 2
+    assert "items" in data
+    assert "alerts" in data
+
+def test_bulk_verify_and_status():
+    payload = {
+        "batch_name": "Q4 Mortgage Audit",
+        "properties": [
+            {
+                "manual_details": {
+                    "project_name": "Asset One Pune",
+                    "rera_number": "P52100012345"
+                }
+            },
+            {
+                "manual_details": {
+                    "project_name": "Asset Two Thane",
+                    "rera_number": "P51700099881"
+                }
+            }
+        ]
+    }
+    res = client.post("/api/v1/reports/bulk", json=payload)
+    assert res.status_code == 202
+    data = res.json()
+    assert "batch_id" in data
+    assert data["total_enqueued"] == 2
+    batch_id = data["batch_id"]
+
+    # Poll status
+    status_res = client.get(f"/api/v1/reports/bulk/{batch_id}")
+    assert status_res.status_code == 200
+    status_data = status_res.json()
+    assert status_data["batch_id"] == batch_id
+    assert status_data["total"] == 2
+
+

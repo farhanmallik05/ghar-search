@@ -34,5 +34,6 @@ class InMemoryStore:
         self.report_checks: Dict[str, list] = {}
         self.watchlist: Dict[str, Dict[str, Any]] = {}
         self.hitl_tasks: Dict[str, Dict[str, Any]] = {}
+        self.batches: Dict[str, Dict[str, Any]] = {}
 
 memory_store = InMemoryStore()

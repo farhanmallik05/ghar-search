@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
@@ -58,7 +58,7 @@ class EvidenceItem(BaseModel):
     title: str
     snippet: str
     screenshot_url: Optional[str] = None
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     verified: bool = True
 
 class CheckResult(BaseModel):
@@ -101,7 +101,7 @@ class VerificationReport(BaseModel):
     checks: List[CheckResult] = Field(default_factory=list)
     pdf_url: Optional[str] = None
     credits_consumed: int = 0
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     completed_at: Optional[str] = None
 
 class WatchlistCreateRequest(BaseModel):
@@ -114,3 +114,52 @@ class HITLResolveRequest(BaseModel):
     report_id: str
     check_type: str
     resolution_data: Dict[str, Any]
+
+class BulkVerifyRequest(BaseModel):
+    properties: List[PropertyInput]
+    batch_name: Optional[str] = "Loan Underwriting Batch"
+    user_id: Optional[str] = "lender_org_01"
+
+class BulkVerifyResponse(BaseModel):
+    batch_id: str
+    total_enqueued: int
+    status: str
+    reports: List[Dict[str, Any]]
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class CompareRequest(BaseModel):
+    report_ids: List[str] = Field(min_length=2, max_length=4)
+
+class PropertyComparisonItem(BaseModel):
+    report_id: str
+    project_name: str
+    promoter_name: str
+    rera_id: str
+    city: str
+    state: str
+    trust_score: int
+    trust_label: str
+    dimension_scores: Dict[str, int]
+    key_strengths: List[str] = Field(default_factory=list)
+    key_red_flags: List[str] = Field(default_factory=list)
+    possession_date: Optional[str] = None
+    pdf_url: Optional[str] = None
+
+class CompareResponse(BaseModel):
+    comparison_id: str
+    properties: List[PropertyComparisonItem]
+    dimension_comparison: Dict[str, Dict[str, int]]
+    comparative_verdict: str
+    winner_report_id: Optional[str] = None
+    generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class WatchlistRecheckResponse(BaseModel):
+    watchlist_id: str
+    property_name: str
+    previous_score: int
+    current_trust_score: int
+    score_delta: int
+    alert_triggered: bool
+    alert_message: Optional[str] = None
+    last_checked_at: str
+
