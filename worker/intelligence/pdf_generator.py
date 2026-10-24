@@ -49,15 +49,15 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
         tier_text = "HIGH RISK · INVESTIGATE"
     else:
         c_score = (0.88, 0.15, 0.20)  # Rose/Red
-        tier_text = "CRITICAL ALERT · FATAL RISKS"
+        tier_text = "CRITICAL ALERT · CRITICAL RISK"
 
     y = 40
 
     # 1. Header Banner
     page.draw_rect(fitz.Rect(margin_x, y, page_width - margin_x, y + 42), color=c_brand, fill=c_brand)
-    page.insert_text((margin_x + 14, y + 26), "GHAR SEARCH", fontsize=16, fontname="helv", color=(1, 1, 1))
-    page.insert_text((margin_x + 150, y + 26), "— Agentic Property Due-Diligence Dossier", fontsize=10, fontname="helv", color=(0.9, 0.92, 1))
-    page.insert_text((page_width - margin_x - 130, y + 26), "CONFIDENTIAL AUDIT", fontsize=8, fontname="helv", color=(1, 1, 1))
+    page.insert_text((margin_x + 14, y + 26), "GHAR SEARCH", fontsize=15, fontname="helv", color=(1, 1, 1))
+    page.insert_text((margin_x + 130, y + 26), "— Ghar Search Agentic Property Due-Diligence Dossier", fontsize=8.5, fontname="helv", color=(0.9, 0.92, 1))
+    page.insert_text((page_width - margin_x - 225, y + 26), "CONFIDENTIAL AUDIT | DUE DILIGENCE AUDIT REPORT", fontsize=7, fontname="helv", color=(1, 1, 1))
     y += 54
 
     # 2. Metadata Box
@@ -70,7 +70,7 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     score_rect = fitz.Rect(page_width - margin_x - 120, y + 10, page_width - margin_x - 12, y + 58)
     page.draw_rect(score_rect, color=c_score, fill=(1, 1, 1), width=1.5)
     page.insert_text((page_width - margin_x - 105, y + 32), f"{score} / 100", fontsize=15, fontname="helv", color=c_score)
-    page.insert_text((page_width - margin_x - 114, y + 48), tier_text[:14], fontsize=7, fontname="helv", color=c_score)
+    page.insert_text((page_width - margin_x - 118, y + 48), tier_text[:30], fontsize=5.8, fontname="helv", color=c_score)
     y += 80
 
     # 3. Executive Summary / Plain-Language Verdict

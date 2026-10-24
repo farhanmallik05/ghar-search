@@ -10,7 +10,7 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2-purple)](https://www.langchain.com/langgraph)
 [![Supabase](https://img.shields.io/badge/Supabase-Postgres_15-emerald)](https://supabase.com/)
 [![Pytest](https://img.shields.io/badge/Tests-85_Unit_&_Integration-brightgreen)](https://docs.pytest.org/)
-[![E2E Runner](https://img.shields.io/badge/E2E-80_Tests_Passed-success)](e2e_tests/)
+[![E2E Runner](https://img.shields.io/badge/E2E-85_Tests_Passed_(5_Tiers)-success)](e2e_tests/)
 
 ---
 

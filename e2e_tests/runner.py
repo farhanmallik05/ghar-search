@@ -25,6 +25,7 @@ TIER_FILES = {
     2: ("Tier 2: Boundary & Corner Cases (>=5 per feature)", "e2e_tests/test_tier2_boundaries.py"),
     3: ("Tier 3: Cross-Feature Interactions", "e2e_tests/test_tier3_interactions.py"),
     4: ("Tier 4: Real-World Scenarios", "e2e_tests/test_tier4_scenarios.py"),
+    5: ("Tier 5: Stage 2 Features (Bulk, Compare, Watchlist Re-check, PDF)", "e2e_tests/test_tier5_stage2.py"),
 }
 
 
@@ -75,17 +76,17 @@ def run_tier(tier_num: int, tier_title: str, file_path: str):
 
 def main():
     parser = argparse.ArgumentParser(description="Ghar Search E2E Test Suite Runner")
-    parser.add_argument("--tier", type=int, choices=[1, 2, 3, 4], help="Run a specific tier only")
+    parser.add_argument("--tier", type=int, choices=[1, 2, 3, 4, 5], help="Run a specific tier only")
     parser.add_argument("--json", type=str, help="Output JSON report to specified path")
     args = parser.parse_args()
 
     print("\n" + "=" * 76)
-    print("  GHAR SEARCH — E2E TEST RUNNER (STAGE 1)")
+    print("  GHAR SEARCH — E2E TEST RUNNER (STAGE 1 & 2)")
     print("  Indian Homebuyer Agentic Property Due-Diligence Engine")
     print(f"  Started at: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
     print("=" * 76 + "\n")
 
-    tiers_to_run = [args.tier] if args.tier else [1, 2, 3, 4]
+    tiers_to_run = [args.tier] if args.tier else [1, 2, 3, 4, 5]
     tier_reports = []
     total_passed = 0
     total_failed = 0

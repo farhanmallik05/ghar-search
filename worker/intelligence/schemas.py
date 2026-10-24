@@ -157,9 +157,12 @@ class PropertyComparisonItem(BaseModel):
 
 class CompareResponse(BaseModel):
     comparison_id: str
+    report_count: int = 2
     properties: List[PropertyComparisonItem]
+    dimensions: List[Dict[str, Any]] = Field(default_factory=list)
     dimension_comparison: Dict[str, Dict[str, int]]
     comparative_verdict: str
+    executive_summary: str = ""
     winner_report_id: Optional[str] = None
     generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
@@ -169,7 +172,12 @@ class WatchlistRecheckResponse(BaseModel):
     previous_score: int
     current_trust_score: int
     score_delta: int
+    delta_score: Optional[int] = None
     alert_triggered: bool
     alert_message: Optional[str] = None
     last_checked_at: str
+    rechecked_at: Optional[str] = None
+    status: str = "success"
+    report: Optional[Dict[str, Any]] = None
+
 
