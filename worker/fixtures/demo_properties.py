@@ -15,6 +15,7 @@ from intelligence.schemas import (
 DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
     "clean": {
         "id": "prop_demo_clean_01",
+        "report_id": "rpt_sunshine_clean",
         "title": "Sunshine Residency Phase 1",
         "badge": "High Trust (Score: 92/100)",
         "rera_id": "P52100012345",
@@ -124,7 +125,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
             CheckResult(
                 check_type=CheckType.APPROVALS,
                 status=CheckStatus.PASSED,
-                score_contribution=8,
+                score_contribution=6,
                 max_score=10,
                 findings=[
                     "Pune Municipal Corporation (PMC) sanctioned layout and Commencement Certificate (CC) up to 22 floors.",
@@ -145,7 +146,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
             CheckResult(
                 check_type=CheckType.REPUTATION,
                 status=CheckStatus.PASSED,
-                score_contribution=4,
+                score_contribution=6,
                 max_score=10,
                 findings=[
                     "News archive analysis: Clean sentiment with positive construction progress reporting.",
@@ -168,6 +169,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
 
     "delayed": {
         "id": "prop_demo_delayed_02",
+        "report_id": "rpt_green_valley_delayed",
         "title": "Green Valley Towers Phase 2",
         "badge": "Moderate Risk (Score: 68/100)",
         "rera_id": "P52100088765",
@@ -214,7 +216,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
             CheckResult(
                 check_type=CheckType.CLAIM_MATCH,
                 status=CheckStatus.FLAGGED,
-                score_contribution=14,
+                score_contribution=10,
                 max_score=20,
                 findings=[
                     "Possession delay detected: Marketing brochure advertises June 2025 possession, but RERA extension declaration states December 2026 (18 months delta!).",
@@ -298,7 +300,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
             CheckResult(
                 check_type=CheckType.REPUTATION,
                 status=CheckStatus.FLAGGED,
-                score_contribution=1,
+                score_contribution=5,
                 max_score=10,
                 findings=[
                     "Buyer association online forum active with discussions concerning delayed clubhouse delivery.",
@@ -321,8 +323,9 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
 
     "flagged": {
         "id": "prop_demo_flagged_03",
+        "report_id": "rpt_royal_empire_flagged",
         "title": "Royal Empire Luxury Towers",
-        "badge": "Critical Alert (Score: 28/100)",
+        "badge": "Critical Alert (Score: 18/100)",
         "rera_id": "P51700099881",
         "state": "Maharashtra",
         "city": "Thane",
@@ -367,7 +370,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
             CheckResult(
                 check_type=CheckType.CLAIM_MATCH,
                 status=CheckStatus.FAILED,
-                score_contribution=4,
+                score_contribution=2,
                 max_score=20,
                 findings=[
                     "Severe discrepancy: Brochure claims 32 floors approved, but TMC sanction only permits 24 floors. Upper 8 floors are completely unauthorized!",
@@ -430,7 +433,7 @@ DEMO_PROPERTIES: Dict[str, Dict[str, Any]] = {
             CheckResult(
                 check_type=CheckType.APPROVALS,
                 status=CheckStatus.FAILED,
-                score_contribution=2,
+                score_contribution=4,
                 max_score=10,
                 findings=[
                     "Missing Commencement Certificate (CC) for towers C and D.",

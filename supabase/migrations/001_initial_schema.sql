@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.properties (
 -- 3. Reports Table
 -- Master dossier container for every verification run
 CREATE TABLE IF NOT EXISTS public.reports (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id TEXT PRIMARY KEY DEFAULT ('rpt_' || substr(md5(random()::text), 1, 8)),
     property_id UUID REFERENCES public.properties(id) ON DELETE CASCADE NOT NULL,
     user_id UUID,
     status TEXT DEFAULT 'queued' CHECK (status IN ('queued', 'running', 'completed', 'failed', 'hitl_required')),
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS public.reports (
 -- Granular evidence records for each of the 6 parallel LangGraph checks
 CREATE TABLE IF NOT EXISTS public.report_checks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    report_id UUID REFERENCES public.reports(id) ON DELETE CASCADE NOT NULL,
+    report_id TEXT REFERENCES public.reports(id) ON DELETE CASCADE NOT NULL,
     check_type TEXT NOT NULL CHECK (check_type IN (
         'rera_status',
         'claim_match',
@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     property_id UUID REFERENCES public.properties(id) ON DELETE CASCADE NOT NULL,
+    latest_report_id TEXT REFERENCES public.reports(id) ON DELETE SET NULL,
     alert_threshold INTEGER DEFAULT 10,
     notify_email BOOLEAN DEFAULT TRUE,
     notify_webhook TEXT,
@@ -92,7 +93,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist (
 -- Captcha challenges or ambiguous checks paused awaiting human resolution
 CREATE TABLE IF NOT EXISTS public.hitl_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    report_id UUID REFERENCES public.reports(id) ON DELETE CASCADE NOT NULL,
+    report_id TEXT REFERENCES public.reports(id) ON DELETE CASCADE NOT NULL,
     check_type TEXT NOT NULL,
     challenge_type TEXT NOT NULL CHECK (challenge_type IN ('captcha', 'otp', 'manual_review', 'document_upload')),
     challenge_url TEXT,
@@ -107,7 +108,7 @@ CREATE TABLE IF NOT EXISTS public.hitl_tasks (
 -- Structured JSON execution tracing per agent node
 CREATE TABLE IF NOT EXISTS public.agent_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    report_id UUID REFERENCES public.reports(id) ON DELETE CASCADE,
+    report_id TEXT REFERENCES public.reports(id) ON DELETE CASCADE,
     node TEXT NOT NULL,
     tool_used TEXT,
     credits_spent INTEGER DEFAULT 0,

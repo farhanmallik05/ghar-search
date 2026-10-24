@@ -5,7 +5,7 @@ HackIIITD 2026 | Ghar Search API Server
 import uuid
 import asyncio
 import logging
-from fastapi import FastAPI, HTTPException, BackgroundTasks, status
+from fastapi import FastAPI, HTTPException, BackgroundTasks, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Any
 
@@ -20,9 +20,85 @@ from intelligence.schemas import (
 )
 from fixtures.demo_properties import DEMO_PROPERTIES
 from graphs.verification_graph import VerificationGraph
+from intelligence.rule_engine import calculate_trust_score
+from intelligence.summarizer import generate_summary
+from intelligence.pdf_generator import generate_pdf_dossier
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("ghar-search.api")
+
+def seed_demo_store():
+    """Pre-seeds memory_store with the 3 canonical demo dossiers and watchlist entries."""
+    if "rpt_sunshine_clean" in memory_store.reports:
+        return
+
+    now_iso = "2026-10-24T07:00:00Z"
+    for key, data in DEMO_PROPERTIES.items():
+        rep_id = data.get("report_id", f"rpt_{key}")
+        claims = data["claims"]
+        checks = [c.model_copy() for c in data["checks"]]
+        breakdown = calculate_trust_score(checks, claims)
+        for c in checks:
+            c.score_contribution = breakdown.dimension_scores.get(c.check_type.value, c.score_contribution)
+
+        summary_payload = generate_summary(data["project_name"], data["rera_id"], breakdown, checks)
+        rep = VerificationReport(
+            report_id=rep_id,
+            property_id=data["id"],
+            status="completed",
+            property_details={
+                "project_name": data["project_name"],
+                "promoter_name": data["promoter_name"],
+                "rera_id": data["rera_id"],
+                "state": data["state"],
+                "city": data["city"],
+                "address": data["address"],
+                "listing_url": data["listing_url"]
+            },
+            claims=claims,
+            trust_score=breakdown.total_score,
+            trust_label=breakdown.label,
+            breakdown=breakdown,
+            summary=summary_payload,
+            checks=checks,
+            pdf_url=f"/api/v1/report/{rep_id}/pdf",
+            credits_consumed=sum(c.credits_used for c in checks),
+            created_at=now_iso,
+            completed_at=now_iso
+        )
+        memory_store.reports[rep_id] = rep.model_dump()
+        memory_store.report_checks[rep_id] = [c.model_dump() for c in checks]
+
+    # Pre-seed watchlist items with valid report_ids
+    memory_store.watchlist["wl_sunshine_baner"] = {
+        "watchlist_id": "wl_sunshine_baner",
+        "report_id": "rpt_sunshine_clean",
+        "property_name": "Sunshine Residency Phase 1",
+        "promoter_name": "Godrej Properties Limited",
+        "rera_id": "P52100012345",
+        "city": "Pune",
+        "current_trust_score": 92,
+        "score_delta_7d": 0,
+        "status": "active",
+        "last_checked_at": "2026-10-24T06:00:00Z",
+        "alert_threshold": 10
+    }
+    memory_store.watchlist["wl_green_valley"] = {
+        "watchlist_id": "wl_green_valley",
+        "report_id": "rpt_green_valley_delayed",
+        "property_name": "Green Valley Towers Phase 2",
+        "promoter_name": "Apex Skyline Developers Pvt Ltd",
+        "rera_id": "P52100088765",
+        "city": "Pune",
+        "current_trust_score": 68,
+        "score_delta_7d": -4,
+        "status": "active",
+        "last_checked_at": "2026-10-24T06:00:00Z",
+        "alert_threshold": 10
+    }
+
+# Execute seed on import
+seed_demo_store()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -104,10 +180,15 @@ async def get_fixtures():
 @app.post("/api/v1/verify", status_code=status.HTTP_202_ACCEPTED, tags=["Verification"])
 async def trigger_verification(payload: PropertyInput, background_tasks: BackgroundTasks):
     """Initiates an asynchronous 6-check verification run for a property listing or RERA number."""
-    if not payload.property_url and not payload.manual_details:
+    has_url = bool(payload.property_url and payload.property_url.strip())
+    has_manual = bool(payload.manual_details and (
+        (payload.manual_details.project_name and payload.manual_details.project_name.strip()) or
+        (payload.manual_details.rera_number and payload.manual_details.rera_number.strip())
+    ))
+    if not has_url and not has_manual:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Either property_url or manual_details must be provided."
+            detail="Either a valid property_url or manual_details (with project_name or rera_number) must be provided."
         )
 
     report_id = f"rpt_{uuid.uuid4().hex[:8]}"
@@ -141,11 +222,49 @@ async def get_report(report_id: str):
     """Retrieves the full structured verification report and evidence audit trail."""
     report = memory_store.reports.get(report_id)
     if not report:
+        for key, fixture in DEMO_PROPERTIES.items():
+            if report_id == fixture.get("report_id") or report_id == f"rpt_{key}":
+                seed_demo_store()
+                report = memory_store.reports.get(fixture.get("report_id"))
+                break
+    if not report:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Report with id '{report_id}' was not found."
         )
     return report
+
+@app.get("/api/v1/report/{report_id}/pdf", tags=["Verification"])
+async def export_report_pdf(report_id: str):
+    """Generates and downloads an official regulatory due-diligence PDF dossier."""
+    report = memory_store.reports.get(report_id)
+    if not report:
+        for key, fixture in DEMO_PROPERTIES.items():
+            if report_id == fixture.get("report_id") or report_id == f"rpt_{key}":
+                seed_demo_store()
+                report = memory_store.reports.get(fixture.get("report_id"))
+                break
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Report with id '{report_id}' was not found."
+        )
+
+    try:
+        pdf_bytes = generate_pdf_dossier(report)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="GharSearch_{report_id}.pdf"'
+            }
+        )
+    except Exception as e:
+        logger.exception("Failed generating PDF dossier for %s: %s", report_id, e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"PDF rendering failed: {str(e)}"
+        )
 
 @app.post("/api/v1/watchlist", status_code=status.HTTP_201_CREATED, tags=["Watchlist"])
 async def add_to_watchlist(payload: WatchlistCreateRequest):
@@ -185,35 +304,9 @@ async def add_to_watchlist(payload: WatchlistCreateRequest):
 @app.get("/api/v1/watchlist", tags=["Watchlist"])
 async def get_watchlist():
     """Returns all monitored properties in the watchlist."""
+    if not memory_store.watchlist:
+        seed_demo_store()
     items = list(memory_store.watchlist.values())
-    # Pre-populate with sample watchlist items if empty
-    if not items:
-        items = [
-            {
-                "watchlist_id": "wl_sunshine_baner",
-                "property_name": "Sunshine Residency Phase 1",
-                "promoter_name": "Godrej Properties Limited",
-                "rera_id": "P52100012345",
-                "city": "Pune",
-                "current_trust_score": 92,
-                "score_delta_7d": 0,
-                "status": "active",
-                "last_checked_at": "2026-10-24T06:00:00Z",
-                "alert_threshold": 10
-            },
-            {
-                "watchlist_id": "wl_green_valley",
-                "property_name": "Green Valley Towers Phase 2",
-                "promoter_name": "Apex Skyline Developers Pvt Ltd",
-                "rera_id": "P52100088765",
-                "city": "Pune",
-                "current_trust_score": 68,
-                "score_delta_7d": -4,
-                "status": "active",
-                "last_checked_at": "2026-10-24T06:00:00Z",
-                "alert_threshold": 10
-            }
-        ]
     return {
         "items": items,
         "total": len(items)

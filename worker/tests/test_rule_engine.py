@@ -27,37 +27,44 @@ def test_max_dimension_scores_sum_to_100():
     assert MAX_DIMENSION_SCORES[CheckType.REPUTATION.value] == 10
 
 def test_clean_property_fixture_scoring():
-    """Clean property should score in High Trust tier (>= 80)."""
+    """Clean property should score precisely 92/100 in High Trust tier."""
     clean_fixture = DEMO_PROPERTIES["clean"]
     breakdown = calculate_trust_score(clean_fixture["checks"], clean_fixture["claims"])
 
-    assert breakdown.total_score >= 80
+    assert breakdown.total_score == 92
     assert breakdown.label == TrustLabel.HIGH_TRUST
-    assert len(breakdown.strengths) > 0
-    assert len(breakdown.deductions) == 0 or sum(d.points_deducted for d in breakdown.deductions) <= 15
+    assert sum(c.score_contribution for c in clean_fixture["checks"]) == 92
+    assert sum(breakdown.dimension_scores.values()) == 92
     assert breakdown.dimension_scores[CheckType.RERA_STATUS.value] == 30
     assert breakdown.dimension_scores[CheckType.CLAIM_MATCH.value] == 20
     assert breakdown.dimension_scores[CheckType.COURT_SIGNALS.value] == 20
+    assert breakdown.dimension_scores[CheckType.PROMOTER_RECORD.value] == 10
+    assert breakdown.dimension_scores[CheckType.APPROVALS.value] == 6
+    assert breakdown.dimension_scores[CheckType.REPUTATION.value] == 6
 
 def test_delayed_property_fixture_scoring():
-    """Delayed property should score in Moderate Risk tier (60-79)."""
+    """Delayed property should score precisely 68/100 in Moderate Risk tier."""
     delayed_fixture = DEMO_PROPERTIES["delayed"]
     breakdown = calculate_trust_score(delayed_fixture["checks"], delayed_fixture["claims"])
 
-    assert 60 <= breakdown.total_score < 80
+    assert breakdown.total_score == 68
     assert breakdown.label == TrustLabel.MODERATE_RISK
+    assert sum(c.score_contribution for c in delayed_fixture["checks"]) == 68
+    assert sum(breakdown.dimension_scores.values()) == 68
     # Must flag possession delay
     delay_deductions = [d for d in breakdown.deductions if d.rule == "CLAIM_POSSESSION_DELAY"]
     assert len(delay_deductions) > 0
-    assert delay_deductions[0].points_deducted > 0
+    assert delay_deductions[0].points_deducted == 10
 
 def test_flagged_property_fixture_scoring():
-    """Flagged property with NCLT / unauthorized floors must score in Critical Alert tier (< 40)."""
+    """Flagged property with NCLT / unauthorized floors must score precisely 18/100 in Critical Alert tier."""
     flagged_fixture = DEMO_PROPERTIES["flagged"]
     breakdown = calculate_trust_score(flagged_fixture["checks"], flagged_fixture["claims"])
 
-    assert breakdown.total_score < 40
+    assert breakdown.total_score == 18
     assert breakdown.label == TrustLabel.CRITICAL_ALERT
+    assert sum(c.score_contribution for c in flagged_fixture["checks"]) == 18
+    assert sum(breakdown.dimension_scores.values()) == 18
     # Must have fatal litigation deduction
     fatal_deductions = [d for d in breakdown.deductions if d.rule == "FATAL_LITIGATION"]
     assert len(fatal_deductions) > 0
@@ -138,9 +145,25 @@ async def test_verification_graph_end_to_end():
 
     assert report.report_id == "rpt_test_001"
     assert report.status == "completed"
-    assert report.trust_score is not None
-    assert report.trust_score >= 80
+    assert report.trust_score == 92
+    assert sum(c.score_contribution for c in report.checks) == 92
+    assert all(report.breakdown.dimension_scores[c.check_type.value] == c.score_contribution for c in report.checks)
     assert len(report.checks) == 6
     assert len(progress_updates) >= 6
     assert report.summary.get("verdict") is not None
     assert len(report.summary.get("action_items", [])) > 0
+
+@pytest.mark.asyncio
+async def test_verification_graph_live_url_extraction():
+    """Verifies that non-fixture listing URLs are parsed cleanly into structured verification."""
+    graph = VerificationGraph()
+    input_payload = PropertyInput(
+        property_url="https://housing.com/in/buy/projects/page/102938-godrej-woods-noida"
+    )
+
+    report = await graph.run("rpt_test_live_url", input_payload)
+    assert report.status == "completed"
+    assert report.property_details["project_name"] == "Godrej Woods"
+    assert report.property_details["city"] == "Noida"
+    assert report.trust_score == sum(c.score_contribution for c in report.checks)
+    assert len(report.checks) == 6

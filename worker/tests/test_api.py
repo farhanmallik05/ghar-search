@@ -77,3 +77,24 @@ def test_hitl_resolve_endpoint():
     })
     assert post_res.status_code == 200
     assert post_res.json()["status"] == "resumed"
+
+def test_pdf_report_export():
+    # Verify PDF download for pre-seeded fixture report
+    res = client.get("/api/v1/report/rpt_sunshine_clean/pdf")
+    assert res.status_code == 200
+    assert res.headers["content-type"] == "application/pdf"
+    assert "attachment; filename=" in res.headers["content-disposition"]
+    # PDF files start with %PDF header
+    assert res.content.startswith(b"%PDF")
+    assert len(res.content) > 1000
+
+def test_verify_empty_payload_validation():
+    # Neither listing_url nor manual_details provided
+    res = client.post("/api/v1/verify", json={})
+    assert res.status_code == 400
+    assert "Either a valid property_url or manual_details" in res.json()["detail"]
+
+def test_nonexistent_report_404():
+    res = client.get("/api/v1/report/rpt_does_not_exist_999")
+    assert res.status_code == 404
+

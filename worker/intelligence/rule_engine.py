@@ -43,14 +43,14 @@ def calculate_trust_score(
     else:
         score = rera_max
         findings_text = " ".join(rera_check.findings).lower()
-        if "revoked" in findings_text or "suspended" in findings_text or "section 7 revocation" in findings_text:
-            deduction = rera_max
-            score = 0
+        if "revoked" in findings_text or "suspended" in findings_text or "section 7 revocation" in findings_text or "deregistration" in findings_text:
+            deduction = 20
+            score -= deduction
             deductions.append(ScoreDeduction(
-                rule="RERA_REVOKED",
+                rule="RERA_REVOCATION_PROCEEDINGS",
                 dimension=CheckType.RERA_STATUS.value,
                 points_deducted=deduction,
-                reason="RERA registration is revoked, rejected, or suspended by statutory authority."
+                reason="RERA validity expired and Section 7 revocation proceedings initiated by statutory authority."
             ))
         elif "not found" in findings_text or "unregistered" in findings_text or rera_check.status == CheckStatus.FAILED:
             deduction = rera_max
@@ -70,7 +70,7 @@ def calculate_trust_score(
                 points_deducted=deduction,
                 reason="RERA validity expired without granted extension or completion certificate."
             ))
-        elif "extension pending" in findings_text or "extension applied" in findings_text:
+        elif "extension pending" in findings_text:
             deduction = 10
             score -= deduction
             deductions.append(ScoreDeduction(
@@ -92,7 +92,7 @@ def calculate_trust_score(
     else:
         score = claim_max
         findings_text = " ".join(claim_check.findings).lower()
-        if any(term in findings_text for term in ["possession delay detected", "possession postponed", "18 months delta", "severe delay"]):
+        if any(term in findings_text for term in ["possession delay detected", "possession postponed", "18 months delta", "severe delay", "possession delay:"]):
             deduction = 10 if ("severe" in findings_text or "18 months" in findings_text) else 6
             score -= deduction
             deductions.append(ScoreDeduction(
@@ -128,11 +128,9 @@ def calculate_trust_score(
         ])
 
         is_fatal_litigation = (
-            ("nclt" in findings_text and "admitted" in findings_text) or
-            ("cirp" in findings_text) or
-            ("moratorium" in findings_text) or
+            ("nclt" in findings_text and ("admitted" in findings_text or "cirp" in findings_text or "insolvency" in findings_text)) or
             ("stop-work injunction" in findings_text or "status-quo injunction" in findings_text or "stop work order" in findings_text)
-        ) and not ("no judicial stay" in findings_text or "no stop-work" in findings_text or "no nclt" in findings_text)
+        ) and not ("no judicial stay" in findings_text or "no stop-work" in findings_text or "no nclt" in findings_text or "0 active" in findings_text)
 
         if not has_clean_indicator and is_fatal_litigation:
             deduction = 20
@@ -175,7 +173,7 @@ def calculate_trust_score(
                 points_deducted=prom_max,
                 reason="Promoter entity or directors have recorded past regulatory defaults, blacklists, or disqualifications."
             ))
-        elif any(term in findings_text for term in ["past deliveries delayed", "average hand-over delay", "moderate stress"]):
+        elif any(term in findings_text for term in ["past deliveries delayed", "average hand-over delay", "moderate stress", "history of delayed delivery"]):
             deduction = 5
             score -= deduction
             deductions.append(ScoreDeduction(
@@ -198,22 +196,22 @@ def calculate_trust_score(
         score = appr_max
         findings_text = " ".join(appr_check.findings).lower()
         if any(term in findings_text for term in ["missing commencement certificate", "demolition notice", "safety plan rejected"]):
-            deduction = 8
+            deduction = 6
             score -= deduction
             deductions.append(ScoreDeduction(
-                rule="APPROVAL_MISSING_CC",
+                rule="APPROVAL_SANCTION_DEFECT",
                 dimension=CheckType.APPROVALS.value,
                 points_deducted=deduction,
-                reason="Missing Commencement Certificate (CC) or municipal demolition notice served."
+                reason="Municipal demolition notice served or safety sanctions rejected."
             ))
-        elif any(term in findings_text for term in ["fire noc pending renewal", "environmental clearance pending", "audit pending"]):
+        elif any(term in findings_text for term in ["fire noc pending renewal", "environmental clearance pending", "provisional fire noc", "audit pending"]):
             deduction = 4
             score -= deduction
             deductions.append(ScoreDeduction(
                 rule="APPROVAL_CLEARANCE_PENDING",
                 dimension=CheckType.APPROVALS.value,
                 points_deducted=deduction,
-                reason="Fire NOC renewal or final clearance audit is in pending status."
+                reason="Fire NOC renewal or final occupancy clearance audit is pending completion."
             ))
         else:
             strengths.append("Essential statutory municipal layout sanctions and fire/environmental NOCs verified.")
@@ -238,13 +236,22 @@ def calculate_trust_score(
                 reason="Widespread buyer protests, police intervention, or severe grievance reporting surfaced."
             ))
         elif any(term in findings_text for term in ["delayed clubhouse delivery", "moderate negative sentiment", "grievances: 12"]):
-            deduction = 4
+            deduction = 5
             score -= deduction
             deductions.append(ScoreDeduction(
                 rule="REPUTATION_BUYER_COMPLAINTS",
                 dimension=CheckType.REPUTATION.value,
                 points_deducted=deduction,
                 reason="Elevated consumer complaint sentiment identified regarding amenities or delivery schedules."
+            ))
+        elif any(term in findings_text for term in ["minor buyer feedback", "traffic congestion"]):
+            deduction = 4
+            score -= deduction
+            deductions.append(ScoreDeduction(
+                rule="REPUTATION_MINOR_FEEDBACK",
+                dimension=CheckType.REPUTATION.value,
+                points_deducted=deduction,
+                reason="Minor buyer feedback recorded regarding local approach roads or traffic."
             ))
         else:
             strengths.append("Overall buyer sentiment is clean with zero public protests or severe grievances.")
