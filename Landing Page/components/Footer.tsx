@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Search, ShieldCheck } from "lucide-react";
 import { getAppUrl } from "@/lib/url";
+import CrossAppLink from "@/components/CrossAppLink";
 
 export default function Footer() {
   const [appUrl, setAppUrl] = useState(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
@@ -47,28 +48,28 @@ export default function Footer() {
             05 // TinyFish
           </a>
           <span className="text-white/20 hidden sm:inline">|</span>
-          <a
-            href={`${appUrl}/#verify-section`}
+          <CrossAppLink
+            href={`${appUrl}#verify-section`}
             className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors flex items-center gap-1"
           >
             <ShieldCheck className="w-3 h-3" />
             <span>Verify Listing</span>
             <ArrowUpRight className="w-3 h-3" />
-          </a>
-          <a
+          </CrossAppLink>
+          <CrossAppLink
             href={`${appUrl}/dashboard`}
             className="hover:text-white transition-colors flex items-center gap-1"
           >
             <span>Watchlist</span>
             <ArrowUpRight className="w-3 h-3" />
-          </a>
-          <a
+          </CrossAppLink>
+          <CrossAppLink
             href={`${appUrl}/compare`}
             className="hover:text-white transition-colors flex items-center gap-1"
           >
             <span>Compare</span>
             <ArrowUpRight className="w-3 h-3" />
-          </a>
+          </CrossAppLink>
           <a
             href="https://rera.mohua.gov.in"
             target="_blank"

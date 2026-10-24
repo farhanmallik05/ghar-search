@@ -23,10 +23,10 @@ export function getAppUrl(): string {
     if (port === "3001") {
       return `${protocol}//${hostname}:3000`;
     }
-    // Any other port: default to 3000 in dev
-    return `${protocol}//${hostname}:3000`;
+    // Any other port: default to 3001 in dev
+    return `${protocol}//${hostname}:3001`;
   }
 
   // SSR fallback
-  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
 }

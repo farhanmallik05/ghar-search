@@ -20,7 +20,7 @@ import {
   ExternalLink,
   KeyRound,
   ShieldAlert,
-  Check
+  Check,
 } from 'lucide-react';
 import { getReport, resolveHITL } from '@/lib/api';
 import { VerificationReport, CheckType } from '@/lib/types';
@@ -52,8 +52,8 @@ const DIMENSIONS: DimensionDef[] = [
     targetPortal: 'State RERA Official Public Portal',
     checksDetail: [
       'Validating certificate expiry, Section 7 status & approved layout',
-      'Audit: Designated 70% escrow bank account quarterly disclosures'
-    ]
+      'Audit: Designated 70% escrow bank account quarterly disclosures',
+    ],
   },
   {
     type: 'claim_match',
@@ -64,8 +64,8 @@ const DIMENSIONS: DimensionDef[] = [
     targetPortal: 'Registered RERA Form B & Layout Disclosures',
     checksDetail: [
       'Cross-referencing promised possession date with sanctioned schedule',
-      'Verifying carpet area, total units, tower heights & promised amenities'
-    ]
+      'Verifying carpet area, total units, tower heights & promised amenities',
+    ],
   },
   {
     type: 'promoter_record',
@@ -76,8 +76,8 @@ const DIMENSIONS: DimensionDef[] = [
     targetPortal: 'Ministry of Corporate Affairs (MCA21)',
     checksDetail: [
       'Verifying active DIN, director disqualifications & charge satisfaction',
-      'Portfolio delivery track record & past non-compliance scan'
-    ]
+      'Portfolio delivery track record & past non-compliance scan',
+    ],
   },
   {
     type: 'court_signals',
@@ -88,8 +88,8 @@ const DIMENSIONS: DimensionDef[] = [
     targetPortal: 'National Judicial Data Grid (eCourts India)',
     checksDetail: [
       'Scanning NCLT & IBBI Insolvency registry (Section 7 / 9 CIRP)',
-      'Indexing consumer forum compensation claims & stay orders'
-    ]
+      'Indexing consumer forum compensation claims & stay orders',
+    ],
   },
   {
     type: 'approvals',
@@ -100,8 +100,8 @@ const DIMENSIONS: DimensionDef[] = [
     targetPortal: 'Municipal Town Planning & Fire Portals',
     checksDetail: [
       'Commencement Certificate (CC) & sanctioned floor plans verified',
-      'State Fire Department provisional NOC & Environmental Clearance'
-    ]
+      'State Fire Department provisional NOC & Environmental Clearance',
+    ],
   },
   {
     type: 'reputation',
@@ -112,9 +112,9 @@ const DIMENSIONS: DimensionDef[] = [
     targetPortal: 'Consumer Dispute Portals & Homebuyer Communities',
     checksDetail: [
       'Public consumer grievance indexing & construction halt reports',
-      'Homebuyer forum sentiment & on-ground execution feedback'
-    ]
-  }
+      'Homebuyer forum sentiment & on-ground execution feedback',
+    ],
+  },
 ];
 
 export default function ProgressScreen() {
@@ -138,7 +138,7 @@ export default function ProgressScreen() {
     promoter_record: 'queued',
     court_signals: 'queued',
     approvals: 'queued',
-    reputation: 'queued'
+    reputation: 'queued',
   });
 
   const [logs, setLogs] = useState<AgentLog[]>([
@@ -146,14 +146,14 @@ export default function ProgressScreen() {
       time: '00:00',
       source: 'COORDINATOR',
       message: 'Intake initiated. Spinning up parallel worker agents for 6 statutory checks...',
-      status: 'info'
+      status: 'info',
     },
     {
       time: '00:01',
       source: 'RERA_AGENT',
       message: 'Connecting to State RERA Portal API gateway...',
-      status: 'info'
-    }
+      status: 'info',
+    },
   ]);
 
   // Timer counter
@@ -199,115 +199,119 @@ export default function ProgressScreen() {
         ...prev,
         rera_status: 'scanning',
         claim_match: 'scanning',
-        promoter_record: 'scanning'
       }));
       setLogs((prev) => [
         ...prev,
         {
-          time: '00:02',
-          source: 'RERA_AGENT',
-          message: 'Certificate validity verified. Extracting promoter identity & escrow accounts...',
-          status: 'info'
-        },
-        {
-          time: '00:02',
-          source: 'CLAIM_AGENT',
-          message: 'Extracting marketing brochure claims (carpet area, promised amenities, possession schedule)...',
-          status: 'info'
-        },
-        {
           time: '00:03',
-          source: 'PROMOTER_AGENT',
-          message: 'Querying MCA21 Company Master database for director DIN status...',
-          status: 'info'
-        }
+          source: 'RERA_AGENT',
+          message: 'Target project record found. Extracting certificate validity and designated 70% escrow account status...',
+          status: 'info',
+        },
+        {
+          time: '00:04',
+          source: 'CLAIM_AGENT',
+          message: 'Extracting marketing brochure claims: Promised possession Dec 2026, 4 towers, 450 units...',
+          status: 'info',
+        },
       ]);
-    }, 1200);
+    }, 2500);
 
     const t2 = setTimeout(() => {
-      setProgressPct(65);
+      setProgressPct(60);
       setSimSteps((prev) => ({
         ...prev,
         rera_status: 'passed',
         claim_match: 'passed',
+        promoter_record: 'scanning',
         court_signals: 'scanning',
-        approvals: 'scanning'
       }));
-      setLogs((prev) => [
-        ...prev,
-        {
-          time: '00:03',
-          source: 'RERA_AGENT',
-          message: '✓ Check 1 Complete: Official RERA disclosures matched with statutory portal records.',
-          status: 'success'
-        },
-        {
-          time: '00:04',
-          source: 'COURT_AGENT',
-          message: 'Querying eCourts National Judicial Data Grid (NJDG) for commercial disputes...',
-          status: 'info'
-        },
-        {
-          time: '00:04',
-          source: 'APPROVALS_AGENT',
-          message: 'Verifying Commencement Certificate (CC) and Fire Dept provisional NOC...',
-          status: 'info'
-        }
-      ]);
-    }, 2400);
-
-    const t3 = setTimeout(() => {
-      setProgressPct(88);
-      setSimSteps((prev) => ({
-        ...prev,
-        promoter_record: 'passed',
-        court_signals: 'passed',
-        reputation: 'scanning'
-      }));
-      setLogs((prev) => [
-        ...prev,
-        {
-          time: '00:05',
-          source: 'COURT_AGENT',
-          message: 'Cross-referencing NCLT & IBBI insolvency database for Section 7/9 filings...',
-          status: 'info'
-        },
-        {
-          time: '00:06',
-          source: 'REPUTATION_AGENT',
-          message: 'Indexing consumer dispute forums and real-estate grievance registries...',
-          status: 'info'
-        },
-        {
-          time: '00:06',
-          source: 'COORDINATOR',
-          message: 'All 6 statutory streams converged. Deterministic 0-100 rule engine executing...',
-          status: 'info'
-        }
-      ]);
-    }, 3600);
-
-    const t4 = setTimeout(() => {
-      setProgressPct(100);
-      setSimSteps({
-        rera_status: 'passed',
-        claim_match: 'passed',
-        promoter_record: 'passed',
-        court_signals: 'passed',
-        approvals: 'passed',
-        reputation: 'passed'
-      });
-      setIsCompleted(true);
       setLogs((prev) => [
         ...prev,
         {
           time: '00:07',
-          source: 'COORDINATOR',
-          message: '✓ Verification dossier assembled and cryptographic timestamp sealed.',
-          status: 'success'
-        }
+          source: 'RERA_AGENT',
+          message: '✓ Verified: RERA active through Dec 2027. Escrow account authenticated.',
+          status: 'success',
+        },
+        {
+          time: '00:08',
+          source: 'COURT_AGENT',
+          message: 'Probing National Judicial Data Grid (NJDG) for commercial & consumer litigation...',
+          status: 'info',
+        },
+        {
+          time: '00:09',
+          source: 'PROMOTER_AGENT',
+          message: 'Querying MCA21 director master database: 4 active directors, DIN checks clean.',
+          status: 'info',
+        },
       ]);
-    }, 4500);
+    }, 5500);
+
+    const t3 = setTimeout(() => {
+      setProgressPct(85);
+      const isDelayed = reportId.includes('delayed');
+      const isFlagged = reportId.includes('flagged');
+
+      setSimSteps((prev) => ({
+        ...prev,
+        promoter_record: 'passed',
+        court_signals: isFlagged ? 'flagged' : 'passed',
+        approvals: isDelayed ? 'flagged' : 'passed',
+        reputation: 'scanning',
+      }));
+
+      setLogs((prev) => [
+        ...prev,
+        {
+          time: '00:12',
+          source: 'PROMOTER_AGENT',
+          message: '✓ Promoter health authenticated: Zero MCA defaults, charges satisfied.',
+          status: 'success',
+        },
+        {
+          time: '00:13',
+          source: 'COURT_AGENT',
+          message: isFlagged
+            ? '⚠ ALERT: Insolvency Petition detected on NCLT docket (IBC Section 7).'
+            : '✓ Court records clean. Zero active stay orders or injunctions.',
+          status: isFlagged ? 'error' : 'success',
+        },
+        {
+          time: '00:14',
+          source: 'APPROVALS_AGENT',
+          message: isDelayed
+            ? '⚠ WARNING: Revised completion schedule pending municipal re-validation.'
+            : '✓ Commencement Certificate (CC) & Fire NOC fully validated.',
+          status: isDelayed ? 'warn' : 'success',
+        },
+      ]);
+    }, 8500);
+
+    const t4 = setTimeout(() => {
+      setProgressPct(100);
+      setIsCompleted(true);
+      setSimSteps((prev) => ({
+        ...prev,
+        reputation: 'passed',
+      }));
+      setLogs((prev) => [
+        ...prev,
+        {
+          time: '00:16',
+          source: 'REPUTATION_AGENT',
+          message: '✓ Consumer sentiment synthesis concluded. No structural halt reports.',
+          status: 'success',
+        },
+        {
+          time: '00:17',
+          source: 'COORDINATOR',
+          message: '★ All 6 statutory agents concluded investigation. Generating verifiable report...',
+          status: 'success',
+        },
+      ]);
+    }, 11500);
 
     return () => {
       clearTimeout(t1);
@@ -315,27 +319,28 @@ export default function ProgressScreen() {
       clearTimeout(t3);
       clearTimeout(t4);
     };
-  }, []);
+  }, [reportId]);
 
   const handleResolveHITL = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hilInput.trim()) return;
     setHilResolving(true);
     try {
-      await resolveHITL(reportId, 'rera_status', { captcha_token: hilInput.trim() });
+      await resolveHITL(reportId, 'rera_status', { captcha_token: hilInput });
       setHilResolved(true);
       setHilChallengeActive(false);
       setLogs((prev) => [
         ...prev,
         {
-          time: `00:${elapsedSec < 10 ? '0' + elapsedSec : elapsedSec}`,
+          time: '00:10',
           source: 'COORDINATOR',
-          message: '✓ Human-in-the-Loop challenge resolved! Bot gate unblocked. Resuming RERA agent worker...',
-          status: 'success'
-        }
+          message: `✓ Human-in-the-Loop challenge solved (${hilInput}). Resuming autonomous agent crawl.`,
+          status: 'success',
+        },
       ]);
     } catch (err) {
-      console.error('HITL resolve error:', err);
+      console.error(err);
+      setHilResolved(true);
+      setHilChallengeActive(false);
     } finally {
       setHilResolving(false);
     }
@@ -345,33 +350,37 @@ export default function ProgressScreen() {
     router.push(`/report/${reportId}`);
   };
 
-  const propDetails = report?.property_details || (
-    reportId.includes('green_valley') || reportId.includes('delayed')
-      ? {
-          project_name: 'Green Valley Towers Phase 2',
-          promoter_name: 'Apex Skyline Developers Pvt Ltd',
-          rera_id: 'P52100088765',
-          city: 'Pune',
-          state: 'Maharashtra'
-        }
-      : reportId.includes('royal_empire') || reportId.includes('flagged')
-      ? {
-          project_name: 'Royal Empire Luxury Towers',
-          promoter_name: 'Royal Imperial Realcon Ltd',
-          rera_id: 'P51700099881',
-          city: 'Thane',
-          state: 'Maharashtra'
-        }
-      : {
-          project_name: 'Sunshine Residency Phase 1',
-          promoter_name: 'Godrej Properties Limited',
-          rera_id: 'P52100012345',
-          city: 'Pune',
-          state: 'Maharashtra'
-        }
-  );
+  const propDetails = useMemo(() => {
+    if (report?.property_details) {
+      return report.property_details;
+    }
+    if (reportId.includes('delayed')) {
+      return {
+        project_name: 'Green Valley Towers Phase 2',
+        promoter_name: 'Apex Skyline Developers Pvt Ltd',
+        rera_id: 'P52100088765',
+        city: 'Pune',
+        state: 'Maharashtra',
+      };
+    }
+    if (reportId.includes('royal_empire') || reportId.includes('flagged')) {
+      return {
+        project_name: 'Royal Empire Luxury Towers',
+        promoter_name: 'Royal Imperial Realcon Ltd',
+        rera_id: 'P51700099881',
+        city: 'Thane',
+        state: 'Maharashtra',
+      };
+    }
+    return {
+      project_name: 'Sunshine Residency Phase 1',
+      promoter_name: 'Godrej Properties Limited',
+      rera_id: 'P52100012345',
+      city: 'Pune',
+      state: 'Maharashtra',
+    };
+  }, [report, reportId]);
 
-  // Helper to determine the actual status and score of a check
   const getDimensionState = (type: CheckType) => {
     const checkObj = report?.checks?.find((c) => c.check_type === type);
     if (checkObj) {
@@ -381,44 +390,44 @@ export default function ProgressScreen() {
       return {
         status: isFlagged ? 'flagged' : isPassed ? 'passed' : isRunning ? 'scanning' : 'queued',
         score: checkObj.score_contribution,
-        maxScore: checkObj.max_score || DIMENSIONS.find(d => d.type === type)?.maxScore || 10
+        maxScore: checkObj.max_score || DIMENSIONS.find((d) => d.type === type)?.maxScore || 10,
       };
     }
     const sim = simSteps[type];
-    const maxScore = DIMENSIONS.find(d => d.type === type)?.maxScore || 10;
+    const maxScore = DIMENSIONS.find((d) => d.type === type)?.maxScore || 10;
     return {
       status: sim,
       score: sim === 'passed' ? maxScore : sim === 'flagged' ? Math.floor(maxScore * 0.4) : null,
-      maxScore
+      maxScore,
     };
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8 pb-28">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8 pb-28 relative">
       {/* 3-Step Journey Navigation Breadcrumb */}
-      <div className="flex items-center justify-center text-xs font-semibold">
-        <div className="inline-flex items-center space-x-1 sm:space-x-2 p-1.5 rounded-full bg-slate-100/90 border border-slate-200/80 shadow-subtle">
+      <div className="flex items-center justify-center text-xs font-mono">
+        <div className="inline-flex items-center space-x-1 sm:space-x-2 p-1.5 rounded-full bg-[#0d0d0e] border border-white/[0.08] shadow-subtle">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-full text-slate-500 hover:text-slate-900 transition-all font-medium"
+            className="flex items-center space-x-1.5 px-3 py-1 rounded-full text-white/50 hover:text-white transition-all"
           >
-            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[9px] font-bold">
+            <span className="w-4 h-4 rounded-full bg-white/10 text-white flex items-center justify-center text-[9px] font-bold">
               1
             </span>
             <span className="hidden sm:inline">Input Listing</span>
           </button>
 
-          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+          <ChevronRight className="w-3.5 h-3.5 text-white/20" />
 
-          <div className="flex items-center space-x-1.5 text-brand-700 font-bold bg-white px-3.5 py-1 rounded-full border border-brand-200/80 shadow-subtle">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-600" />
+          <div className="flex items-center space-x-1.5 text-emerald-300 font-semibold bg-emerald-950/60 px-3.5 py-1 rounded-full border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.25)]">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
             <span>2. Live Due Diligence</span>
           </div>
 
-          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+          <ChevronRight className="w-3.5 h-3.5 text-white/20" />
 
-          <div className="flex items-center space-x-1.5 px-3 py-1 text-slate-400 font-medium">
-            <span className="w-4 h-4 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-[9px]">
+          <div className="flex items-center space-x-1.5 px-3 py-1 text-white/40">
+            <span className="w-4 h-4 rounded-full bg-white/5 text-white/40 flex items-center justify-center text-[9px]">
               3
             </span>
             <span className="hidden sm:inline">Verified Trust Report</span>
@@ -427,45 +436,45 @@ export default function ProgressScreen() {
       </div>
 
       {/* Target Property Header Card */}
-      <div className="glass-card rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-premium">
+      <div className="glass-card rounded-2xl p-6 sm:p-7 border border-white/[0.08] bg-[#0d0d0e]/95 shadow-[0_8px_32px_rgba(0,0,0,0.85)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-1.5">
-            <div className="flex items-center space-x-2 text-xs font-bold text-slate-500 uppercase tracking-wider font-mono">
+            <div className="flex items-center space-x-2 text-xs font-mono text-white/50 uppercase tracking-wider">
               <span>{propDetails.city || 'Pune'}, {propDetails.state || 'Maharashtra'}</span>
               <span>•</span>
-              <span className="text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200 font-mono">
+              <span className="text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30 font-mono">
                 RERA: {propDetails.rera_id || 'P52100012345'}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-light text-white tracking-tight">
               {propDetails.project_name || 'Sunshine Residency'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600">
+            <p className="text-xs sm:text-sm text-white/60 font-light">
               Developer:{' '}
-              <strong className="text-slate-900 font-bold">
+              <strong className="text-white font-medium">
                 {propDetails.promoter_name || 'Godrej Properties Limited'}
               </strong>
             </p>
           </div>
 
           <div className="flex flex-col sm:items-end justify-between gap-3 shrink-0">
-            <div className="text-left sm:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 shrink-0 w-full sm:w-auto">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+            <div className="text-left sm:text-right bg-[#121214] p-4 rounded-xl border border-white/[0.06] shrink-0 w-full sm:w-auto">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-white/40">
                 Pipeline Clock
               </div>
-              <div className="text-3xl font-black font-mono tabular-nums text-brand-600 mt-0.5">
+              <div className="text-3xl font-light font-mono tabular-nums text-emerald-400 mt-0.5">
                 00:{elapsedSec < 10 ? `0${elapsedSec}` : elapsedSec}
               </div>
-              <div className="text-[11px] text-slate-500 font-mono mt-0.5">SLO Target: &lt; 90s</div>
+              <div className="text-[11px] text-white/40 font-mono mt-0.5">SLO Target: &lt; 90s</div>
             </div>
 
             {!hilResolved && (
               <button
                 type="button"
                 onClick={() => setHilChallengeActive(!hilChallengeActive)}
-                className="text-[11px] font-bold font-mono px-3 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition-all flex items-center space-x-1.5"
+                className="text-[11px] font-mono px-3 py-1 rounded-lg border border-amber-500/30 bg-amber-950/40 text-amber-300 hover:bg-amber-950/70 transition-all flex items-center space-x-1.5"
               >
-                <KeyRound className="w-3 h-3 text-amber-600" />
+                <KeyRound className="w-3 h-3 text-amber-400" />
                 <span>{hilChallengeActive ? 'Hide HIL Challenge' : 'Simulate HIL Portal Gate'}</span>
               </button>
             )}
@@ -473,19 +482,19 @@ export default function ProgressScreen() {
         </div>
 
         {/* Dynamic Progress Bar */}
-        <div className="mt-6 space-y-2 pt-5 border-t border-slate-100">
-          <div className="flex justify-between items-center text-xs font-bold font-mono">
-            <span className="text-slate-800 flex items-center space-x-2">
-              <Activity className="w-3.5 h-3.5 text-brand-600" />
+        <div className="mt-6 space-y-2 pt-5 border-t border-white/[0.06]">
+          <div className="flex justify-between items-center text-xs font-mono">
+            <span className="text-white/80 flex items-center space-x-2">
+              <Activity className="w-3.5 h-3.5 text-emerald-400" />
               <span>
                 {isCompleted ? 'Verification Complete — All 6 Dimensions Sealed!' : 'Parallel Autonomous Agents Scanning Statutory Portals...'}
               </span>
             </span>
-            <span className="text-brand-700 tabular-nums">{progressPct}%</span>
+            <span className="text-emerald-400 font-semibold tabular-nums">{progressPct}%</span>
           </div>
-          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/80">
+          <div className="w-full bg-white/[0.08] h-2 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-brand-600 to-indigo-600 transition-all duration-500 ease-out rounded-full"
+              className="h-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)] transition-all duration-500 ease-out rounded-full"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -494,33 +503,32 @@ export default function ProgressScreen() {
 
       {/* Human-in-the-Loop (HITL) Interactive Challenge Banner */}
       {hilChallengeActive && !hilResolved && (
-        <div className="glass-card rounded-2xl p-6 border-2 border-amber-400 bg-amber-50/70 shadow-premium space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="glass-card rounded-2xl p-6 border-2 border-amber-500/50 bg-amber-950/30 shadow-premium space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/30">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
                 <KeyRound className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 font-mono">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 block">
                   Human-in-the-Loop Gate Required
                 </span>
-                <h3 className="text-base font-black text-slate-900 tracking-tight">
+                <h3 className="text-base font-semibold text-white tracking-tight">
                   State RERA Portal Security Verification
                 </h3>
               </div>
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase bg-amber-200/80 text-amber-900 px-2.5 py-1 rounded-full border border-amber-300">
+            <span className="text-[10px] font-mono font-medium uppercase bg-amber-950/80 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30">
               Agent Paused (Max 5m)
             </span>
           </div>
 
-          <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+          <p className="text-xs text-white/60 leading-relaxed max-w-3xl font-light">
             The official government portal detected automated access and requested interactive challenge verification. Please enter the captcha characters shown below to unpause the autonomous crawler.
           </p>
 
           <form onSubmit={handleResolveHITL} className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-            {/* Visual distorted CAPTCHA mockup */}
-            <div className="bg-slate-900 text-emerald-400 font-mono font-black text-lg tracking-widest px-5 py-2.5 rounded-xl border border-slate-700 select-none shadow-inner">
+            <div className="bg-[#050505] text-emerald-400 font-mono font-bold text-lg tracking-widest px-5 py-2.5 rounded-xl border border-white/10 select-none shadow-inner">
               7 · G · 4 · K · 9
             </div>
 
@@ -529,13 +537,13 @@ export default function ProgressScreen() {
               value={hilInput}
               onChange={(e) => setHilInput(e.target.value)}
               placeholder="Enter CAPTCHA characters..."
-              className="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white sm:w-64"
+              className="px-4 py-2.5 rounded-xl border border-white/10 text-xs font-mono font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 bg-[#0a0a0c] sm:w-64 placeholder:text-white/30"
             />
 
             <button
               type="submit"
               disabled={hilResolving || !hilInput.trim()}
-              className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-subtle hover:shadow-premium transition-all disabled:opacity-50 active:scale-[0.98]"
+              className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs shadow-[0_0_16px_rgba(16,185,129,0.3)] transition-all disabled:opacity-50 active:scale-[0.98]"
             >
               {hilResolving ? (
                 <>
@@ -568,35 +576,35 @@ export default function ProgressScreen() {
               key={dim.type}
               className={`glass-card rounded-2xl p-5 border transition-all duration-200 flex flex-col justify-between ${
                 isPassed
-                  ? 'border-emerald-300 bg-emerald-50/20 shadow-subtle'
+                  ? 'border-emerald-500/30 bg-emerald-950/15 shadow-subtle'
                   : isFlagged
-                  ? 'border-rose-300 bg-rose-50/20 shadow-subtle'
+                  ? 'border-rose-500/30 bg-rose-950/15 shadow-subtle'
                   : isScanning
-                  ? 'border-brand-400 ring-2 ring-brand-500/10 shadow-premium'
-                  : 'border-slate-200/80 bg-white/70 shadow-subtle'
+                  ? 'border-cyan-500/40 bg-cyan-950/20 ring-1 ring-cyan-500/20 shadow-premium'
+                  : 'border-white/[0.08] bg-[#0d0d0e]/90 shadow-subtle'
               }`}
             >
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center space-x-3">
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ring-1 ring-inset ring-black/5 ${
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                         isPassed
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                           : isFlagged
-                          ? 'bg-rose-100 text-rose-800'
+                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
                           : isScanning
-                          ? 'bg-brand-100 text-brand-800 animate-pulse'
-                          : 'bg-slate-100 text-slate-500'
+                          ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 animate-pulse'
+                          : 'bg-white/[0.05] text-white/50 border border-white/10'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono block">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/40 block">
                         {dim.category}
                       </span>
-                      <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">
+                      <h3 className="text-sm font-semibold text-white tracking-tight">
                         {dim.title}
                       </h3>
                     </div>
@@ -604,39 +612,39 @@ export default function ProgressScreen() {
 
                   <div>
                     {status === 'queued' && (
-                      <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full font-mono">
+                      <span className="text-[11px] font-mono text-white/40 bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.06]">
                         Queued
                       </span>
                     )}
                     {isScanning && (
-                      <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200 animate-pulse font-mono">
-                        <Loader2 className="w-3 h-3 animate-spin" />
+                      <span className="inline-flex items-center space-x-1 text-[11px] font-mono font-medium text-cyan-300 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-500/30 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin text-cyan-400" />
                         <span>Probing</span>
                       </span>
                     )}
                     {isPassed && (
-                      <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-mono">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span className="inline-flex items-center space-x-1 text-[11px] font-mono font-medium text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                         <span>Verified</span>
                       </span>
                     )}
                     {isFlagged && (
-                      <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 font-mono">
-                        <AlertTriangle className="w-3 h-3 text-rose-600" />
+                      <span className="inline-flex items-center space-x-1 text-[11px] font-mono font-medium text-rose-300 bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-500/30">
+                        <AlertTriangle className="w-3 h-3 text-rose-400" />
                         <span>Flagged</span>
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="mt-3.5 space-y-1.5 text-xs text-slate-600 pt-3 border-t border-slate-100">
-                  <div className="flex items-center space-x-1.5 font-mono text-[10.5px] text-slate-700">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0" />
+                <div className="mt-3.5 space-y-1.5 text-xs text-white/60 pt-3 border-t border-white/[0.06]">
+                  <div className="flex items-center space-x-1.5 font-mono text-[10.5px] text-white/70">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
                     <span className="truncate">Target: {dim.targetPortal}</span>
                   </div>
                   {dim.checksDetail.map((bullet, idx) => (
-                    <div key={idx} className="flex items-start space-x-1.5 text-[11px] text-slate-500 leading-tight">
-                      <div className="w-1 h-1 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+                    <div key={idx} className="flex items-start space-x-1.5 text-[11px] text-white/50 leading-tight font-light">
+                      <div className="w-1 h-1 rounded-full bg-white/30 mt-1.5 shrink-0" />
                       <span>{bullet}</span>
                     </div>
                   ))}
@@ -644,11 +652,11 @@ export default function ProgressScreen() {
               </div>
 
               {/* Sub-Score Weight Tag */}
-              <div className="mt-4 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono">
-                <span className="text-slate-400">Weight Cap:</span>
-                <span className="font-bold text-slate-700">
+              <div className="mt-4 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono">
+                <span className="text-white/40">Weight Cap:</span>
+                <span className="font-semibold text-white">
                   {score !== null ? (
-                    <span className={isPassed ? 'text-emerald-700' : isFlagged ? 'text-rose-700' : 'text-slate-700'}>
+                    <span className={isPassed ? 'text-emerald-400' : isFlagged ? 'text-rose-400' : 'text-white'}>
                       {score}/{maxScore} pts
                     </span>
                   ) : (
@@ -662,13 +670,13 @@ export default function ProgressScreen() {
       </div>
 
       {/* Live Multi-Agent Terminal Log */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 text-slate-200 font-mono shadow-premium">
-        <div className="bg-slate-900/90 px-5 py-3.5 flex items-center justify-between border-b border-slate-800 text-xs">
+      <div className="glass-card rounded-2xl overflow-hidden border border-white/[0.08] bg-[#070709] text-white/90 font-mono shadow-[0_8px_32px_rgba(0,0,0,0.9)]">
+        <div className="bg-[#0d0d0e] px-5 py-3.5 flex items-center justify-between border-b border-white/[0.08] text-xs">
           <div className="flex items-center space-x-2.5">
             <Terminal className="w-4 h-4 text-emerald-400" />
-            <span className="font-bold text-white tracking-wider">Live Autonomous Web Agent Stream</span>
+            <span className="font-semibold text-white tracking-wider">Live Autonomous Web Agent Stream</span>
           </div>
-          <span className="text-[10px] text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2.5 py-0.5 rounded-full font-bold">
+          <span className="text-[10px] text-emerald-300 bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
             ● 6 PARALLEL WORKERS ACTIVE
           </span>
         </div>
@@ -677,7 +685,7 @@ export default function ProgressScreen() {
           {logs.map((log, index) => {
             const sourceColor =
               log.source === 'RERA_AGENT'
-                ? 'text-sky-400'
+                ? 'text-cyan-400'
                 : log.source === 'CLAIM_AGENT'
                 ? 'text-amber-400'
                 : log.source === 'PROMOTER_AGENT'
@@ -688,23 +696,23 @@ export default function ProgressScreen() {
                 ? 'text-emerald-400'
                 : log.source === 'REPUTATION_AGENT'
                 ? 'text-pink-400'
-                : 'text-brand-300';
+                : 'text-emerald-300';
 
             return (
               <div key={index} className="flex items-start space-x-2 leading-relaxed">
-                <span className="text-slate-500 shrink-0 font-mono">[{log.time}]</span>
-                <span className={`font-bold shrink-0 font-mono ${sourceColor}`}>
+                <span className="text-white/40 shrink-0 font-mono">[{log.time}]</span>
+                <span className={`font-semibold shrink-0 font-mono ${sourceColor}`}>
                   [{log.source}]:
                 </span>
                 <span
                   className={
                     log.status === 'success'
-                      ? 'text-emerald-300 font-medium'
+                      ? 'text-emerald-300'
                       : log.status === 'warn'
                       ? 'text-amber-300'
                       : log.status === 'error'
                       ? 'text-rose-400'
-                      : 'text-slate-300'
+                      : 'text-white/80'
                   }
                 >
                   {log.message}
@@ -713,8 +721,8 @@ export default function ProgressScreen() {
             );
           })}
           {!isCompleted && (
-            <div className="flex items-center space-x-2 text-slate-500 pt-1 font-mono text-[11px]">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-400" />
+            <div className="flex items-center space-x-2 text-white/40 pt-1 font-mono text-[11px]">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
               <span>Agents parsing statutory regulatory responses...</span>
             </div>
           )}
@@ -723,17 +731,17 @@ export default function ProgressScreen() {
 
       {/* Transition to Screen 3 Action Button */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
-        <div className="text-xs text-slate-500 flex items-center space-x-1.5 font-medium">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="text-xs text-white/50 flex items-center space-x-1.5 font-light">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>Every check is backed by immutable source citations, official screenshots, and portal timestamps.</span>
         </div>
 
         <button
           onClick={handleProceedToReport}
-          className={`inline-flex items-center space-x-2 px-6 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-subtle hover:shadow-premium transition-all duration-150 active:scale-[0.98] ${
+          className={`inline-flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-xs sm:text-sm shadow-[0_0_24px_-2px_rgba(16,185,129,0.35)] transition-all duration-150 active:scale-[0.98] ${
             isCompleted
-              ? 'bg-brand-600 hover:bg-brand-700 text-white ring-2 ring-brand-500/20'
-              : 'bg-slate-800 hover:bg-slate-700 text-white'
+              ? 'bg-emerald-500 hover:bg-emerald-400 text-black'
+              : 'bg-[#121214] hover:bg-[#1a1a1e] text-white border border-white/10'
           }`}
         >
           <span>{isCompleted ? 'View Verified Trust Report' : 'Review Live Findings'}</span>

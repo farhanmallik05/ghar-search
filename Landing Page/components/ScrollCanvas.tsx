@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { getAppUrl } from "@/lib/url";
+import CrossAppLink from "@/components/CrossAppLink";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ChevronDown, ShieldAlert, ShieldCheck, ArrowRight, Eye, CheckCircle2, Search, ExternalLink, Activity } from "lucide-react";
 

@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageEntryTransition from '@/components/PageEntryTransition';
+import ReturnToLandingPill from '@/components/ReturnToLandingPill';
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -30,11 +32,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`h-full ${sansFont.variable} ${monoFont.variable}`}>
-      <body className="flex flex-col min-h-screen text-slate-900 bg-slate-50 antialiased font-sans selection:bg-brand-600 selection:text-white">
+    <html lang="en" className={`h-full dark ${sansFont.variable} ${monoFont.variable}`}>
+      <body className="flex flex-col min-h-screen text-white/90 bg-[#050505] antialiased font-sans selection:bg-emerald-500/30 selection:text-white subtle-grid">
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 relative z-10">
+          <PageEntryTransition>{children}</PageEntryTransition>
+        </main>
         <Footer />
+        <ReturnToLandingPill />
       </body>
     </html>
   );

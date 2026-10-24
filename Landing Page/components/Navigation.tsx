@@ -4,9 +4,10 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowUpRight, Volume2, VolumeX, ShieldCheck, Search } from "lucide-react";
 import { getAppUrl } from "@/lib/url";
+import CrossAppLink from "@/components/CrossAppLink";
 
 export default function Navigation() {
-  const [appUrl, setAppUrl] = useState(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+  const [appUrl, setAppUrl] = useState(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001?from=landing");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -112,24 +113,22 @@ export default function Navigation() {
           </button>
 
           {/* Launch Full Due Diligence App */}
-          <a
+          <CrossAppLink
             href={appUrl}
             className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold tracking-tight hover:bg-emerald-500 hover:text-black transition-all"
-            target="_blank"
-            rel="noopener noreferrer"
           >
             <span>Launch App</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
-          </a>
+          </CrossAppLink>
 
           {/* Test Live Prototype CTA */}
-          <a
-            href={`${appUrl}/#verify-section`}
+          <CrossAppLink
+            href={`${appUrl}#verify-section`}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-black text-xs font-semibold tracking-tight hover:bg-emerald-400 hover:text-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Verify Listing</span>
-          </a>
+          </CrossAppLink>
 
           {/* Mobile Menu Toggle */}
           <button
@@ -194,14 +193,14 @@ export default function Navigation() {
               06 // Team Details
             </a>
             <div className="pt-3 border-t border-white/10">
-              <a
-                href={`${appUrl}/#verify-section`}
-                onClick={() => setIsMobileMenuOpen(false)}
+              <CrossAppLink
+                href={`${appUrl}#verify-section`}
                 className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-white text-black text-xs font-semibold uppercase tracking-wider hover:bg-emerald-400 hover:text-black transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 <span>Verify Listing Now</span>
                 <ArrowUpRight className="w-4 h-4" />
-              </a>
+              </CrossAppLink>
             </div>
           </motion.div>
         )}

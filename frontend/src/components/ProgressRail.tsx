@@ -85,25 +85,25 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
   const totalChecks = activeTypes.length;
 
   return (
-    <div className="glass-card rounded-2xl p-6 border border-slate-200/80 shadow-premium transition-all">
+    <div className="glass-card rounded-2xl p-6 border border-white/[0.08] bg-[#0d0d0e]/90 shadow-[0_8px_32px_rgba(0,0,0,0.7)] transition-all">
       {/* Top Header & Summary */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-white/[0.06] gap-3">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 font-mono">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400">
               Live Agentic Audit
             </span>
             {overallStatus === 'running' && (
               <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
             )}
           </div>
-          <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
+          <h3 className="font-semibold text-base sm:text-lg text-white tracking-tight">
             Agentic Verification Pipeline
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-white/50 mt-0.5 font-light">
             {isTwoCheckMode
               ? '2 core statutory web agent checkers querying official portals & judicial ledgers'
               : '6 core statutory web agent checkers querying official portals & judicial ledgers'}
@@ -111,8 +111,8 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
         </div>
 
         <div className="flex items-center space-x-2 self-start sm:self-auto">
-          <span className="inline-flex items-center space-x-1.5 text-xs font-bold font-mono text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200/80 shadow-subtle">
-            <Activity className="w-3.5 h-3.5 text-brand-600" />
+          <span className="inline-flex items-center space-x-1.5 text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/30">
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
             <span>
               {completedCount} of {totalChecks} Checks Completed
             </span>
@@ -128,51 +128,51 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
           const status: CheckStatus = result ? result.status : 'pending';
 
           let statusBadge = (
-            <span className="inline-flex items-center space-x-1 text-slate-400 text-xs font-medium bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200/60 font-mono">
+            <span className="inline-flex items-center space-x-1 text-white/40 text-xs font-mono bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/[0.06]">
               <Clock className="w-3.5 h-3.5" />
               <span>Queued</span>
             </span>
           );
 
-          let rowStyle = 'border-slate-200/80 bg-white hover:border-slate-300';
-          let iconBg = 'bg-slate-100 text-slate-600';
+          let rowStyle = 'border-white/[0.06] bg-[#121214] hover:border-white/15';
+          let iconBg = 'bg-white/[0.05] text-white/60 border border-white/10';
 
           if (status === 'running') {
             statusBadge = (
-              <span className="inline-flex items-center space-x-1.5 text-brand-700 bg-brand-50 px-3 py-1 rounded-full text-xs font-bold border border-brand-200 shadow-subtle animate-pulse">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-600" />
+              <span className="inline-flex items-center space-x-1.5 text-cyan-300 bg-cyan-950/60 px-3 py-1 rounded-full text-xs font-mono border border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.2)] animate-pulse">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
                 <span>Scanning Portal...</span>
               </span>
             );
-            rowStyle = 'border-brand-300 bg-brand-50/30 ring-2 ring-brand-500/10 shadow-sm';
-            iconBg = 'bg-brand-100 text-brand-700';
+            rowStyle = 'border-cyan-500/30 bg-cyan-950/20 ring-1 ring-cyan-500/20';
+            iconBg = 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30';
           } else if (status === 'passed') {
             statusBadge = (
-              <span className="inline-flex items-center space-x-1.5 text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200/80 shadow-subtle">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="inline-flex items-center space-x-1.5 text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full text-xs font-mono border border-emerald-500/30">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Verified Clean</span>
               </span>
             );
-            rowStyle = 'border-slate-200/90 bg-emerald-50/10 hover:border-emerald-200';
-            iconBg = 'bg-emerald-100 text-emerald-700';
+            rowStyle = 'border-white/[0.06] bg-[#121214] hover:border-emerald-500/30';
+            iconBg = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
           } else if (status === 'flagged' || status === 'needs_review') {
             statusBadge = (
-              <span className="inline-flex items-center space-x-1.5 text-amber-800 bg-amber-50 px-3 py-1 rounded-full text-xs font-bold border border-amber-200 shadow-subtle">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+              <span className="inline-flex items-center space-x-1.5 text-amber-300 bg-amber-950/60 px-3 py-1 rounded-full text-xs font-mono border border-amber-500/30">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
                 <span>Discrepancy</span>
               </span>
             );
-            rowStyle = 'border-amber-200/90 bg-amber-50/20';
-            iconBg = 'bg-amber-100 text-amber-700';
+            rowStyle = 'border-amber-500/30 bg-amber-950/20';
+            iconBg = 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
           } else if (status === 'failed') {
             statusBadge = (
-              <span className="inline-flex items-center space-x-1.5 text-rose-800 bg-rose-50 px-3 py-1 rounded-full text-xs font-bold border border-rose-200 shadow-subtle">
-                <XCircle className="w-3.5 h-3.5 text-rose-600" />
+              <span className="inline-flex items-center space-x-1.5 text-rose-300 bg-rose-950/60 px-3 py-1 rounded-full text-xs font-mono border border-rose-500/30">
+                <XCircle className="w-3.5 h-3.5 text-rose-400" />
                 <span>Flagged Issue</span>
               </span>
             );
-            rowStyle = 'border-rose-200 bg-rose-50/20';
-            iconBg = 'bg-rose-100 text-rose-700';
+            rowStyle = 'border-rose-500/30 bg-rose-950/20';
+            iconBg = 'bg-rose-500/10 text-rose-400 border border-rose-500/30';
           }
 
           return (
@@ -181,19 +181,19 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
               className={`flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 rounded-xl border transition-all duration-200 gap-3 ${rowStyle}`}
             >
               <div className="flex items-center space-x-3.5">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-subtle ring-1 ring-inset ring-black/5 ${iconBg}`}>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
                   {config.icon}
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+                    <span className="text-xs sm:text-sm font-semibold text-white tracking-tight">
                       {config.label}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400 hidden md:inline">
+                    <span className="text-[10px] font-mono text-white/40 hidden md:inline">
                       [{config.authority}]
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                  <div className="text-[11px] text-white/50 line-clamp-1 mt-0.5 font-light">
                     {config.desc}
                   </div>
                 </div>

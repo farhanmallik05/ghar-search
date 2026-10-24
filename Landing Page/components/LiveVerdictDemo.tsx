@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAppUrl } from "@/lib/url";
+import CrossAppLink from "@/components/CrossAppLink";
 import { 
   Search, 
   ShieldCheck, 
@@ -176,14 +177,14 @@ export default function LiveVerdictDemo() {
                   </>
                 )}
               </button>
-              <a
+              <CrossAppLink
                 href={liveVerifyUrl}
                 className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm tracking-tight transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>Verify on Core Portal</span>
                 <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              </CrossAppLink>
             </form>
           </div>
 
@@ -395,14 +396,14 @@ export default function LiveVerdictDemo() {
 
                 {/* Direct Cross-App Handoff CTA */}
                 <div className="mt-3">
-                  <a
+                  <CrossAppLink
                     href={liveVerifyUrl}
                     className="w-full py-3 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 hover:text-white font-semibold text-xs tracking-tight transition-all flex items-center justify-center gap-2"
                   >
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
                     <span>Run Full Due Diligence on Main App</span>
                     <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  </CrossAppLink>
                 </div>
               </div>
 
