@@ -154,6 +154,7 @@ async def _execute_verification(report_id: str, prop_input: PropertyInput):
             memory_store.reports[report_id]["error"] = str(e)
 
 @app.get("/health", tags=["System"])
+@app.get("/api/v1/health", tags=["System"])
 async def health_check():
     return {
         "status": "healthy",
@@ -349,7 +350,7 @@ def _build_comparison(report_ids: List[str]) -> CompareResponse:
     if len(report_ids) > 4:
         raise HTTPException(status_code=400, detail="A maximum of 4 report IDs can be compared at once.")
     if len(report_ids) != len(set(report_ids)):
-        raise HTTPException(status_code=400, detail="Report IDs for comparison must be distinct.")
+        raise HTTPException(status_code=400, detail="Report IDs for comparison must be distinct (no duplicate IDs permitted).")
 
     seed_demo_store()
     items: List[PropertyComparisonItem] = []
@@ -410,6 +411,26 @@ def _build_comparison(report_ids: List[str]) -> CompareResponse:
         for dim in dim_matrix:
             dim_matrix[dim][comp_item.report_id] = dim_scores.get(dim, 0)
 
+    # Build dimensions structure
+    dimension_specs = [
+        {"dimension_key": "rera_status", "name": "RERA Registration & Validity", "max_score": 30},
+        {"dimension_key": "claim_match", "name": "Marketing Claim Discrepancies", "max_score": 20},
+        {"dimension_key": "court_signals", "name": "Judicial Litigation & CIRP", "max_score": 20},
+        {"dimension_key": "promoter_record", "name": "Promoter Track Record & MCA", "max_score": 10},
+        {"dimension_key": "approvals", "name": "Municipal Sanctions & NOCs", "max_score": 10},
+        {"dimension_key": "reputation", "name": "Public Sentiment & Grievances", "max_score": 10},
+    ]
+    dimensions_list = []
+    for spec in dimension_specs:
+        k = spec["dimension_key"]
+        dim_item = {
+            "dimension_key": k,
+            "name": spec["name"],
+            "max_score": spec["max_score"],
+            "scores": dim_matrix[k]
+        }
+        dimensions_list.append(dim_item)
+
     # Find highest score property
     best_item = max(items, key=lambda x: x.trust_score)
     verdict = (
@@ -419,9 +440,12 @@ def _build_comparison(report_ids: List[str]) -> CompareResponse:
 
     return CompareResponse(
         comparison_id=f"cmp_{uuid.uuid4().hex[:8]}",
+        report_count=len(items),
         properties=items,
+        dimensions=dimensions_list,
         dimension_comparison=dim_matrix,
         comparative_verdict=verdict,
+        executive_summary=verdict,
         winner_report_id=best_item.report_id
     )
 
@@ -431,12 +455,13 @@ async def compare_reports(payload: CompareRequest):
     return _build_comparison(payload.report_ids)
 
 @app.get("/api/v1/compare", response_model=CompareResponse, tags=["Comparison"])
-async def compare_reports_get(report_ids: str):
+async def compare_reports_get(report_ids: Optional[str] = None, ids: Optional[str] = None):
     """GET variant of comparative due-diligence matrix (comma-separated report IDs)."""
-    ids = [i.strip() for i in report_ids.split(",") if i.strip()]
-    if len(ids) < 2:
+    raw_ids = ids or report_ids
+    if not raw_ids:
         raise HTTPException(status_code=400, detail="At least 2 report IDs required for comparison.")
-    return _build_comparison(ids)
+    parsed = [i.strip() for i in raw_ids.split(",") if i.strip()]
+    return _build_comparison(parsed)
 
 @app.post("/api/v1/watchlist/{watchlist_id}/recheck", response_model=WatchlistRecheckResponse, tags=["Watchlist"])
 async def recheck_watchlist_item(watchlist_id: str):
@@ -444,6 +469,12 @@ async def recheck_watchlist_item(watchlist_id: str):
     if not memory_store.watchlist:
         seed_demo_store()
     item = memory_store.watchlist.get(watchlist_id)
+    if not item:
+        for wl_k, wl_entry in memory_store.watchlist.items():
+            if wl_entry.get("report_id") == watchlist_id:
+                item = wl_entry
+                watchlist_id = wl_k
+                break
     if not item:
         raise HTTPException(status_code=404, detail=f"Watchlist item '{watchlist_id}' not found.")
 
@@ -463,15 +494,27 @@ async def recheck_watchlist_item(watchlist_id: str):
 
     item["last_checked_at"] = now_iso
 
+    rep_id = item.get("report_id")
+    rep_obj = memory_store.reports.get(rep_id) if rep_id else None
+    if not rep_obj and rep_id:
+        for k, fixture in DEMO_PROPERTIES.items():
+            if rep_id == fixture.get("report_id") or rep_id == f"rpt_{k}":
+                rep_obj = memory_store.reports.get(fixture.get("report_id"))
+                break
+
     return WatchlistRecheckResponse(
         watchlist_id=watchlist_id,
         property_name=item.get("property_name", ""),
         previous_score=previous_score,
         current_trust_score=curr_score,
         score_delta=delta,
+        delta_score=delta,
         alert_triggered=alert_triggered,
         alert_message=alert_message,
-        last_checked_at=now_iso
+        last_checked_at=now_iso,
+        rechecked_at=now_iso,
+        status="success",
+        report=rep_obj or {"report_id": rep_id, "trust_score": curr_score}
     )
 
 @app.post("/api/v1/watchlist/recheck-all", tags=["Watchlist"])
@@ -517,9 +560,11 @@ async def recheck_all_watchlist():
     return {
         "status": "completed",
         "total_checked": len(results),
+        "rechecked_count": len(results),
         "alerts_triggered": len(alerts),
         "alerts": alerts,
         "items": results,
+        "results": results,
         "timestamp": now_iso
     }
 

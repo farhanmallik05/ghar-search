@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-10-24T09:35:53.046202+00:00",
-  "total_tests": 80,
-  "total_passed": 80,
+  "timestamp": "2026-10-24T14:34:45.740110+00:00",
+  "total_tests": 85,
+  "total_passed": 85,
   "total_failed": 0,
-  "total_duration_seconds": 15.774,
+  "total_duration_seconds": 20.536,
   "verdict": "PASS",
   "tiers": [
     {
@@ -13,251 +13,251 @@
       "total": 35,
       "passed": 35,
       "failed": 0,
-      "duration": 5.677,
+      "duration": 12.997,
       "tests": [
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_property_url",
           "name": "test_tier1_f1_verify_with_property_url",
           "outcome": "passed",
-          "duration": 0.31773079999948095,
+          "duration": 0.30901900000026217,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_manual_details_project_name",
           "name": "test_tier1_f1_verify_with_manual_details_project_name",
           "outcome": "passed",
-          "duration": 0.4206805000012537,
+          "duration": 0.014888400000927504,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_manual_details_rera_number",
           "name": "test_tier1_f1_verify_with_manual_details_rera_number",
           "outcome": "passed",
-          "duration": 0.4126767000016116,
+          "duration": 0.005309299998771166,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_both_url_and_manual_details",
           "name": "test_tier1_f1_verify_with_both_url_and_manual_details",
           "outcome": "passed",
-          "duration": 0.41105119999883755,
+          "duration": 0.0064534999983152375,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_custom_user_id_and_priority",
           "name": "test_tier1_f1_verify_with_custom_user_id_and_priority",
           "outcome": "passed",
-          "duration": 0.40863720000015746,
+          "duration": 0.006441699999413686,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_canonical_clean",
           "name": "test_tier1_f2_report_retrieve_canonical_clean",
           "outcome": "passed",
-          "duration": 0.002018099999986589,
+          "duration": 0.003383799998118775,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_canonical_delayed",
           "name": "test_tier1_f2_report_retrieve_canonical_delayed",
           "outcome": "passed",
-          "duration": 0.004460599999219994,
+          "duration": 0.002445300000545103,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_canonical_flagged",
           "name": "test_tier1_f2_report_retrieve_canonical_flagged",
           "outcome": "passed",
-          "duration": 0.004422399999384652,
+          "duration": 0.0026799000006576534,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_dynamic_verification_report",
           "name": "test_tier1_f2_report_retrieve_dynamic_verification_report",
           "outcome": "passed",
-          "duration": 0.4159827999992558,
+          "duration": 0.0060981999995419756,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_schema_completeness",
           "name": "test_tier1_f2_report_schema_completeness",
           "outcome": "passed",
-          "duration": 0.003596000000470667,
+          "duration": 0.002214199997979449,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_canonical_clean",
           "name": "test_tier1_f3_pdf_export_canonical_clean",
           "outcome": "passed",
-          "duration": 0.1263543999993999,
+          "duration": 0.08502410000073723,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_canonical_delayed",
           "name": "test_tier1_f3_pdf_export_canonical_delayed",
           "outcome": "passed",
-          "duration": 0.09206660000018019,
+          "duration": 0.09180570000171429,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_canonical_flagged",
           "name": "test_tier1_f3_pdf_export_canonical_flagged",
           "outcome": "passed",
-          "duration": 0.1194919999998092,
+          "duration": 0.08728749999863794,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_content_disposition_header",
           "name": "test_tier1_f3_pdf_export_content_disposition_header",
           "outcome": "passed",
-          "duration": 0.08225019999918004,
+          "duration": 0.11478050000005169,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_dynamic_completed_report",
           "name": "test_tier1_f3_pdf_export_dynamic_completed_report",
           "outcome": "passed",
-          "duration": 0.5496509000004153,
+          "duration": 0.07525869999881252,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_status_and_count",
           "name": "test_tier1_f4_fixtures_status_and_count",
           "outcome": "passed",
-          "duration": 0.004298699999708333,
+          "duration": 0.0035690000004251488,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_keys_membership",
           "name": "test_tier1_f4_fixtures_keys_membership",
           "outcome": "passed",
-          "duration": 0.0021904000004724367,
+          "duration": 0.0050249999985680915,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_schema_fields",
           "name": "test_tier1_f4_fixtures_schema_fields",
           "outcome": "passed",
-          "duration": 0.0037348000005295034,
+          "duration": 0.003322600001411047,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_badge_content",
           "name": "test_tier1_f4_fixtures_badge_content",
           "outcome": "passed",
-          "duration": 0.003557100000762148,
+          "duration": 0.0023551000012957957,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_idempotent",
           "name": "test_tier1_f4_fixtures_idempotent",
           "outcome": "passed",
-          "duration": 0.0036391000012372388,
+          "duration": 0.003409999997529667,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_get_default_seeded_list",
           "name": "test_tier1_f5_watchlist_get_default_seeded_list",
           "outcome": "passed",
-          "duration": 0.0031357999996544095,
+          "duration": 0.0027596999971137848,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_item_schema_verification",
           "name": "test_tier1_f5_watchlist_item_schema_verification",
           "outcome": "passed",
-          "duration": 0.0021161999993637437,
+          "duration": 0.0022535999996762257,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_post_create_new_entry",
           "name": "test_tier1_f5_watchlist_post_create_new_entry",
           "outcome": "passed",
-          "duration": 0.0024275000014313264,
+          "duration": 0.0025790999970922712,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_post_increments_total_count",
           "name": "test_tier1_f5_watchlist_post_increments_total_count",
           "outcome": "passed",
-          "duration": 0.006021399998644483,
+          "duration": 0.007070899999234825,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_score_delta_present",
           "name": "test_tier1_f5_watchlist_score_delta_present",
           "outcome": "passed",
-          "duration": 0.003435999999055639,
+          "duration": 0.0020566999992297497,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_rera_status_captcha",
           "name": "test_tier1_f6_hitl_resolve_rera_status_captcha",
           "outcome": "passed",
-          "duration": 0.0032375999999203486,
+          "duration": 0.0024273999988508876,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_court_signals_manual_review",
           "name": "test_tier1_f6_hitl_resolve_court_signals_manual_review",
           "outcome": "passed",
-          "duration": 0.0027917999996134313,
+          "duration": 0.0019113999987894204,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_response_payload_echo",
           "name": "test_tier1_f6_hitl_resolve_response_payload_echo",
           "outcome": "passed",
-          "duration": 0.0025120000009337673,
+          "duration": 0.0020135000013397075,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_state_persisted",
           "name": "test_tier1_f6_hitl_resolve_state_persisted",
           "outcome": "passed",
-          "duration": 0.0020782000010513,
+          "duration": 0.001986799998121569,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_multiple_distinct_checks",
           "name": "test_tier1_f6_hitl_resolve_multiple_distinct_checks",
           "outcome": "passed",
-          "duration": 0.0069239999993442325,
+          "duration": 0.0048671000004105736,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_dimension_max_weights",
           "name": "test_tier1_f7_scoring_dimension_max_weights",
           "outcome": "passed",
-          "duration": 0.00032749999991210643,
+          "duration": 0.000234499999351101,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_total_equals_dimension_sum",
           "name": "test_tier1_f7_scoring_total_equals_dimension_sum",
           "outcome": "passed",
-          "duration": 0.007436899999447633,
+          "duration": 0.005898800001887139,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_total_equals_check_contributions",
           "name": "test_tier1_f7_scoring_total_equals_check_contributions",
           "outcome": "passed",
-          "duration": 0.006047300001227995,
+          "duration": 0.0064322999969590455,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_clean_property_exact_values",
           "name": "test_tier1_f7_scoring_clean_property_exact_values",
           "outcome": "passed",
-          "duration": 0.00031909999961499125,
+          "duration": 0.000369099998351885,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_flagged_property_exact_values",
           "name": "test_tier1_f7_scoring_flagged_property_exact_values",
           "outcome": "passed",
-          "duration": 0.0003166999995301012,
+          "duration": 0.0004119000004720874,
           "error": null
         }
       ]
@@ -269,251 +269,251 @@
       "total": 35,
       "passed": 35,
       "failed": 0,
-      "duration": 3.027,
+      "duration": 1.906,
       "tests": [
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_empty_body_400",
           "name": "test_tier2_f1_verify_empty_body_400",
           "outcome": "passed",
-          "duration": 0.20778380000047036,
+          "duration": 0.029185600000346312,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_whitespace_only_payload_400",
           "name": "test_tier2_f1_verify_whitespace_only_payload_400",
           "outcome": "passed",
-          "duration": 0.007061899999825982,
+          "duration": 0.008398500001931097,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_null_fields_400",
           "name": "test_tier2_f1_verify_null_fields_400",
           "outcome": "passed",
-          "duration": 0.008517700000084005,
+          "duration": 0.009400300001288997,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_extreme_string_lengths_accepted",
           "name": "test_tier2_f1_verify_extreme_string_lengths_accepted",
           "outcome": "passed",
-          "duration": 0.8695998999992298,
+          "duration": 0.13241280000147526,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_special_characters_escaping",
           "name": "test_tier2_f1_verify_special_characters_escaping",
           "outcome": "passed",
-          "duration": 0.4980674000016734,
+          "duration": 0.08673140000246349,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_nonexistent_id_404",
           "name": "test_tier2_f2_report_nonexistent_id_404",
           "outcome": "passed",
-          "duration": 0.012565999999424093,
+          "duration": 0.0056856000010157,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_path_traversal_special_id_404",
           "name": "test_tier2_f2_report_path_traversal_special_id_404",
           "outcome": "passed",
-          "duration": 0.00951359999999113,
+          "duration": 0.013188099997933023,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_case_sensitivity_exact_match_404",
           "name": "test_tier2_f2_report_case_sensitivity_exact_match_404",
           "outcome": "passed",
-          "duration": 0.013369499998589163,
+          "duration": 0.01408389999778592,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_queued_status_schema",
           "name": "test_tier2_f2_report_queued_status_schema",
           "outcome": "passed",
-          "duration": 0.012946999999257969,
+          "duration": 0.014225899998564273,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_uuid_variation_lookup",
           "name": "test_tier2_f2_report_uuid_variation_lookup",
           "outcome": "passed",
-          "duration": 0.009962699999960023,
+          "duration": 0.006659099999524187,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_nonexistent_report_404",
           "name": "test_tier2_f3_pdf_nonexistent_report_404",
           "outcome": "passed",
-          "duration": 0.010221700000329292,
+          "duration": 0.006666199999017408,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_queued_report_returns_409_conflict",
           "name": "test_tier2_f3_pdf_queued_report_returns_409_conflict",
           "outcome": "passed",
-          "duration": 0.007344499999817344,
+          "duration": 0.00786320000042906,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_running_report_returns_409_conflict",
           "name": "test_tier2_f3_pdf_running_report_returns_409_conflict",
           "outcome": "passed",
-          "duration": 0.006723899999997229,
+          "duration": 0.006456499999330845,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_null_safety_in_report_data",
           "name": "test_tier2_f3_pdf_null_safety_in_report_data",
           "outcome": "passed",
-          "duration": 0.06141800000114017,
+          "duration": 0.06659709999803454,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_magic_bytes_and_length",
           "name": "test_tier2_f3_pdf_magic_bytes_and_length",
           "outcome": "passed",
-          "duration": 0.1124177999990934,
+          "duration": 0.0900376999998116,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_disallows_post_put_delete",
           "name": "test_tier2_f4_fixtures_disallows_post_put_delete",
           "outcome": "passed",
-          "duration": 0.022221200000785757,
+          "duration": 0.022112999999080785,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_query_parameters_resilience",
           "name": "test_tier2_f4_fixtures_query_parameters_resilience",
           "outcome": "passed",
-          "duration": 0.008999200001198915,
+          "duration": 0.00616460000310326,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_rera_id_statutory_format",
           "name": "test_tier2_f4_fixtures_rera_id_statutory_format",
           "outcome": "passed",
-          "duration": 0.008570300000428688,
+          "duration": 0.005964100000710459,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_no_empty_strings_in_core_fields",
           "name": "test_tier2_f4_fixtures_no_empty_strings_in_core_fields",
           "outcome": "passed",
-          "duration": 0.0075576999988697935,
+          "duration": 0.005905000001803273,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_unique_keys_and_reports",
           "name": "test_tier2_f4_fixtures_unique_keys_and_reports",
           "outcome": "passed",
-          "duration": 0.007218200000352226,
+          "duration": 0.006682100000034552,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_add_nonexistent_report_404",
           "name": "test_tier2_f5_watchlist_add_nonexistent_report_404",
           "outcome": "passed",
-          "duration": 0.006584599999769125,
+          "duration": 0.006064299999707146,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_missing_required_report_id_422",
           "name": "test_tier2_f5_watchlist_missing_required_report_id_422",
           "outcome": "passed",
-          "duration": 0.006852500000604778,
+          "duration": 0.013237799998023547,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_alert_threshold_boundary_values",
           "name": "test_tier2_f5_watchlist_alert_threshold_boundary_values",
           "outcome": "passed",
-          "duration": 0.021816999998918618,
+          "duration": 0.022676199998386437,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_duplicate_adds_generate_unique_ids",
           "name": "test_tier2_f5_watchlist_duplicate_adds_generate_unique_ids",
           "outcome": "passed",
-          "duration": 0.013837699998475728,
+          "duration": 0.013793999998597428,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_email_notification_flag_stored",
           "name": "test_tier2_f5_watchlist_email_notification_flag_stored",
           "outcome": "passed",
-          "duration": 0.011875899999722606,
+          "duration": 0.014583299998776056,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_missing_report_id_or_check_type_422",
           "name": "test_tier2_f6_hitl_missing_report_id_or_check_type_422",
           "outcome": "passed",
-          "duration": 0.01474690000031842,
+          "duration": 0.02193000000261236,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_empty_resolution_data_handled",
           "name": "test_tier2_f6_hitl_empty_resolution_data_handled",
           "outcome": "passed",
-          "duration": 0.006872400001157075,
+          "duration": 0.013625999999931082,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_arbitrary_nested_resolution_structure",
           "name": "test_tier2_f6_hitl_arbitrary_nested_resolution_structure",
           "outcome": "passed",
-          "duration": 0.0061581999998452375,
+          "duration": 0.009374099998240126,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_unrecognized_check_type_handled",
           "name": "test_tier2_f6_hitl_unrecognized_check_type_handled",
           "outcome": "passed",
-          "duration": 0.006506499999886728,
+          "duration": 0.00995399999737856,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_repeated_resolutions_idempotent",
           "name": "test_tier2_f6_hitl_repeated_resolutions_idempotent",
           "outcome": "passed",
-          "duration": 0.012054299999363138,
+          "duration": 0.01426050000009127,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_all_dimensions_perfect_100",
           "name": "test_tier2_f7_scoring_all_dimensions_perfect_100",
           "outcome": "passed",
-          "duration": 0.000369400000636233,
+          "duration": 0.00039649999962421134,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_all_dimensions_failed_0",
           "name": "test_tier2_f7_scoring_all_dimensions_failed_0",
           "outcome": "passed",
-          "duration": 0.0003804000007221475,
+          "duration": 0.0004546000018308405,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_total_clamped_at_upper_bound_100",
           "name": "test_tier2_f7_scoring_total_clamped_at_upper_bound_100",
           "outcome": "passed",
-          "duration": 0.00035620000016933773,
+          "duration": 0.0004195000001345761,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_total_clamped_at_lower_bound_0",
           "name": "test_tier2_f7_scoring_total_clamped_at_lower_bound_0",
           "outcome": "passed",
-          "duration": 0.00031570000101055484,
+          "duration": 0.00029739999808953144,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_exact_tier_boundary_thresholds",
           "name": "test_tier2_f7_scoring_exact_tier_boundary_thresholds",
           "outcome": "passed",
-          "duration": 0.0002846000006684335,
+          "duration": 0.00021779999951831996,
           "error": null
         }
       ]
@@ -525,41 +525,41 @@
       "total": 5,
       "passed": 5,
       "failed": 0,
-      "duration": 4.747,
+      "duration": 2.279,
       "tests": [
         {
           "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_complete_due_diligence_lifecycle",
           "name": "test_tier3_flow_complete_due_diligence_lifecycle",
           "outcome": "passed",
-          "duration": 0.6418161000001419,
+          "duration": 0.24563769999804208,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_fixtures_to_report_to_pdf_consistency",
           "name": "test_tier3_flow_fixtures_to_report_to_pdf_consistency",
           "outcome": "passed",
-          "duration": 0.4158549999992829,
+          "duration": 0.4882093999985955,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_verify_hitl_resolution_to_report_audit",
           "name": "test_tier3_flow_verify_hitl_resolution_to_report_audit",
           "outcome": "passed",
-          "duration": 0.47247760000027483,
+          "duration": 0.10923909999837633,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_watchlist_multi_property_deltas_and_thresholds",
           "name": "test_tier3_flow_watchlist_multi_property_deltas_and_thresholds",
           "outcome": "passed",
-          "duration": 0.025076200001421967,
+          "duration": 0.04771469999832334,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_concurrent_verifications_isolation",
           "name": "test_tier3_flow_concurrent_verifications_isolation",
           "outcome": "passed",
-          "duration": 2.377239699999336,
+          "duration": 0.5259504999994533,
           "error": null
         }
       ]
@@ -571,41 +571,87 @@
       "total": 5,
       "passed": 5,
       "failed": 0,
-      "duration": 2.323,
+      "duration": 1.28,
       "tests": [
         {
           "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_clean_homebuyer_due_diligence",
           "name": "test_tier4_scenario_clean_homebuyer_due_diligence",
           "outcome": "passed",
-          "duration": 0.13448860000062268,
+          "duration": 0.09465219999765395,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_delayed_project_with_possession_gap",
           "name": "test_tier4_scenario_delayed_project_with_possession_gap",
           "outcome": "passed",
-          "duration": 0.13529369999923802,
+          "duration": 0.12729659999968135,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_flagged_insolvent_builder_alert",
           "name": "test_tier4_scenario_flagged_insolvent_builder_alert",
           "outcome": "passed",
-          "duration": 0.158226099998501,
+          "duration": 0.10753529999783495,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_live_portal_url_extraction",
           "name": "test_tier4_scenario_live_portal_url_extraction",
           "outcome": "passed",
-          "duration": 0.530055999999604,
+          "duration": 0.07041559999925084,
           "error": null
         },
         {
           "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_manual_details_offline_ruling",
           "name": "test_tier4_scenario_manual_details_offline_ruling",
           "outcome": "passed",
-          "duration": 0.47568909999972675,
+          "duration": 0.10776009999972302,
+          "error": null
+        }
+      ]
+    },
+    {
+      "tier": 5,
+      "title": "Tier 5: Stage 2 Features (Bulk, Compare, Watchlist Re-check, PDF)",
+      "file": "e2e_tests/test_tier5_stage2.py",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "duration": 2.074,
+      "tests": [
+        {
+          "nodeid": "e2e_tests/test_tier5_stage2.py::test_tier5_property_comparison_matrix_generation",
+          "name": "test_tier5_property_comparison_matrix_generation",
+          "outcome": "passed",
+          "duration": 0.016496799999003997,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier5_stage2.py::test_tier5_comparison_validation_and_error_guards",
+          "name": "test_tier5_comparison_validation_and_error_guards",
+          "outcome": "passed",
+          "duration": 0.03120649999982561,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier5_stage2.py::test_tier5_b2b_bulk_underwriting_lifecycle",
+          "name": "test_tier5_b2b_bulk_underwriting_lifecycle",
+          "outcome": "passed",
+          "duration": 1.02491160000136,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier5_stage2.py::test_tier5_watchlist_automated_nightly_recheck_delta",
+          "name": "test_tier5_watchlist_automated_nightly_recheck_delta",
+          "outcome": "passed",
+          "duration": 0.013604499999928521,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier5_stage2.py::test_tier5_pdf_vector_multi_page_pagination_and_streaming",
+          "name": "test_tier5_pdf_vector_multi_page_pagination_and_streaming",
+          "outcome": "passed",
+          "duration": 0.11973590000343393,
           "error": null
         }
       ]
