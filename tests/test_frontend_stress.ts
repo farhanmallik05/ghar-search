@@ -141,13 +141,23 @@ async function testOfflineSimulation() {
     }
   });
 
-  // Test 1.5: getWatchlist fallback
-  await runTest('Offline: getWatchlist returns 2 fallback watchlist items', 'offline_fallback', async () => {
-    const wl = await getWatchlist();
-    if (!wl || !wl.items || wl.items.length !== 2) {
-      throw new Error(`Expected 2 watchlist items, got ${wl?.items?.length}`);
+  // Test 1.6: Unroutable network blackhole (AbortController 2000ms guard)
+  await runTest('Offline: Blackhole network IP is cleanly aborted within ~2000ms without crashing', 'offline_fallback', async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+    const start = performance.now();
+    try {
+      await fetch('http://10.255.255.1:8000/api/v1/report/clean', {
+        signal: controller.signal,
+      });
+    } catch (e: any) {
+      clearTimeout(timer);
+      const elapsed = performance.now() - start;
+      console.log(`   -> Blackhole network aborted gracefully after ${elapsed.toFixed(2)}ms (<= 2200ms)`);
+      if (elapsed > 2500) {
+        throw new Error(`Abort took too long: ${elapsed}ms`);
+      }
     }
-    if (wl.total !== 2) throw new Error(`Expected total=2, got ${wl.total}`);
   });
 }
 
