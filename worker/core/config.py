@@ -4,7 +4,7 @@ from pydantic import ConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
-    model_config = ConfigDict(env_file=".env", extra="allow")
+    model_config = ConfigDict(env_file=[".env", "../.env"], extra="allow")
 
     PROJECT_NAME: str = "Ghar Search Due-Diligence Worker"
     VERSION: str = "1.0.0"
@@ -19,10 +19,11 @@ class Settings(BaseSettings):
 
     # TinyFish Web Agent API
     TINYFISH_API_KEY: Optional[str] = None
-    TINYFISH_BASE_URL: str = "https://api.tinyfish.io/v1"
+    TINYFISH_BASE_URL: str = "https://agent.tinyfish.ai/v1"
 
     # LLM Providers
     GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-3.1-flash-lite"
     OPENAI_API_KEY: Optional[str] = None
 
     # Shared Secrets

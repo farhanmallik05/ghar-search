@@ -1,9 +1,55 @@
 """Executive summary generator for due-diligence dossiers.
 Provides natural-language synthesis without hallucination, strictly grounded in evidence.
+Supports Google Gemini LLM synthesis with seamless deterministic fallback.
 """
 
-from typing import Dict, Any, List
+import os
+import logging
+import httpx
+from typing import Dict, Any, List, Optional
 from intelligence.schemas import TrustScoreBreakdown, TrustLabel, CheckResult
+from core.config import settings
+
+logger = logging.getLogger("ghar-search.summarizer")
+
+def synthesize_with_gemini(
+    project_name: str,
+    rera_id: str,
+    score: int,
+    label: str,
+    strengths: List[str],
+    deductions: List[str]
+) -> Optional[str]:
+    """Generates an LLM-synthesized summary via Google Gemini with strict timeout."""
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return None
+    if not settings.GEMINI_API_KEY or "your-" in settings.GEMINI_API_KEY:
+        return None
+
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent?key={settings.GEMINI_API_KEY}"
+        prompt = (
+            f"You are a senior Indian real estate due-diligence legal analyst for Ghar Search. Write a concise, 2-sentence executive summary "
+            f"for homebuyer due diligence based strictly on these facts:\n"
+            f"Project: {project_name}\nRERA ID: {rera_id or 'Verified'}\nTrust Score: {score}/100 ({label})\n"
+            f"Verified Strengths: {', '.join(strengths[:2]) if strengths else 'Compliant statutory filings'}\n"
+            f"Deductions/Risks: {', '.join(deductions[:2]) if deductions else 'Zero adverse litigation or court injunctions'}\n"
+            f"Tone: Authoritative, objective, plain English. Do not include markdown headers or bullet points."
+        )
+        with httpx.Client(timeout=4.0) as client:
+            resp = client.post(url, json={"contents": [{"parts": [{"text": prompt}]}]})
+            if resp.status_code == 200:
+                candidates = resp.json().get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        text = parts[0].get("text", "").strip()
+                        if text:
+                            return text
+    except Exception as e:
+        logger.debug("Gemini summary fallback to deterministic template: %s", e)
+
+    return None
 
 def generate_summary(
     project_name: str,
@@ -15,8 +61,21 @@ def generate_summary(
     score = breakdown.total_score
     label = breakdown.label.value
 
-    # Primary verdict sentence
-    if breakdown.label == TrustLabel.HIGH_TRUST:
+    deduction_reasons = [d.reason for d in breakdown.deductions]
+
+    # Check for live Gemini synthesis
+    ai_verdict = synthesize_with_gemini(
+        project_name=project_name,
+        rera_id=rera_id,
+        score=score,
+        label=label,
+        strengths=breakdown.strengths,
+        deductions=deduction_reasons
+    )
+
+    if ai_verdict:
+        verdict = ai_verdict
+    elif breakdown.label == TrustLabel.HIGH_TRUST:
         verdict = (
             f"{project_name} (RERA: {rera_id or 'Verified'}) demonstrates exemplary statutory compliance "
             f"with an overall Trust Score of {score}/100. All primary regulatory registrations, approvals, and "

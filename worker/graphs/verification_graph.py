@@ -173,11 +173,15 @@ class VerificationGraph:
                         await self._emit_progress(report_id, completed_c)
                         return completed_c
 
-            # Live Fallback Check Logic using TinyFish
-            await asyncio.sleep(0.4)
+            # Live Check Logic using TinyFish
+            agent_run = await tinyfish_client.run_agent(
+                goal=f"Verify {check_type.value} for project '{project_name}', RERA ID '{rera_id}' in {city}, {state}.",
+                target_url="https://maharera.mahaonline.gov.in"
+            )
             search_query = f"{project_name} {rera_id} {check_type.value}"
             search_results = await tinyfish_client.search(search_query)
 
+            live_screenshot = agent_run.get("screenshot_url") or "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
             evidence_items = []
             for item in search_results[:2]:
                 evidence_items.append(
@@ -185,7 +189,7 @@ class VerificationGraph:
                         url=item.get("url", "https://maharera.mahaonline.gov.in/"),
                         title=item.get("title", f"Regulatory Verification: {check_type.value}"),
                         snippet=item.get("snippet", "Regulatory data retrieved from official source."),
-                        screenshot_url="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+                        screenshot_url=live_screenshot,
                         timestamp=datetime.now(timezone.utc).isoformat()
                     )
                 )
