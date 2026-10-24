@@ -12,6 +12,25 @@ from core.config import settings
 
 logger = logging.getLogger("ghar-search.tinyfish")
 
+STATE_RERA_PORTALS: Dict[str, str] = {
+    "maharashtra": "https://maharera.mahaonline.gov.in",
+    "karnataka": "https://rera.karnataka.gov.in",
+    "delhi": "https://rera.delhi.gov.in",
+    "tamil nadu": "https://www.rera.tn.gov.in",
+    "uttar pradesh": "https://up-rera.in",
+    "haryana": "https://haryanarera.gov.in",
+    "gujarat": "https://gujrera.gujarat.gov.in",
+    "telangana": "https://rera.telangana.gov.in",
+    "west bengal": "https://rera.wb.gov.in"
+}
+
+def resolve_state_rera_portal(state: Optional[str] = None) -> str:
+    """Returns official state RERA portal URL, defaulting to Maharashtra."""
+    if not state:
+        return STATE_RERA_PORTALS["maharashtra"]
+    normalized = state.strip().lower()
+    return STATE_RERA_PORTALS.get(normalized, STATE_RERA_PORTALS["maharashtra"])
+
 class TinyFishClient:
     def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
         self.api_key = api_key or settings.TINYFISH_API_KEY

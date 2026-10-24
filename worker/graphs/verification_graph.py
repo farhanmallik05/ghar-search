@@ -55,7 +55,7 @@ def parse_listing_url(url: str) -> Dict[str, str]:
     }
 from intelligence.summarizer import generate_summary
 from fixtures.demo_properties import DEMO_PROPERTIES, get_demo_fixture
-from tools.tinyfish import tinyfish_client
+from tools.tinyfish import tinyfish_client, resolve_state_rera_portal
 
 logger = logging.getLogger("ghar-search.graph")
 
@@ -174,9 +174,10 @@ class VerificationGraph:
                         return completed_c
 
             # Live Check Logic using TinyFish
+            portal_url = resolve_state_rera_portal(state)
             agent_run = await tinyfish_client.run_agent(
                 goal=f"Verify {check_type.value} for project '{project_name}', RERA ID '{rera_id}' in {city}, {state}.",
-                target_url="https://maharera.mahaonline.gov.in"
+                target_url=portal_url
             )
             search_query = f"{project_name} {rera_id} {check_type.value}"
             search_results = await tinyfish_client.search(search_query)
@@ -186,7 +187,7 @@ class VerificationGraph:
             for item in search_results[:2]:
                 evidence_items.append(
                     EvidenceItem(
-                        url=item.get("url", "https://maharera.mahaonline.gov.in/"),
+                        url=item.get("url", portal_url),
                         title=item.get("title", f"Regulatory Verification: {check_type.value}"),
                         snippet=item.get("snippet", "Regulatory data retrieved from official source."),
                         screenshot_url=live_screenshot,
