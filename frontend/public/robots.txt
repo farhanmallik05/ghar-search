@@ -1,0 +1,3 @@
+# Ghar Search robots.txt
+User-agent: *
+Allow: /
