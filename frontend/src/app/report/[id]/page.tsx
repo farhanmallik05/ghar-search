@@ -44,12 +44,14 @@ export default function ReportDetailPage() {
 
   useEffect(() => {
     let interval: any = null;
+    let failureCount = 0;
 
     async function fetchStatus() {
       try {
         const data = await getReport(reportId);
         setReport(data);
         setLoading(false);
+        setError(null);
 
         // If completed or failed, stop polling
         if (data.status === 'completed' || data.status === 'failed') {
@@ -57,6 +59,12 @@ export default function ReportDetailPage() {
         }
       } catch (err: any) {
         console.warn('Polling report failed:', err);
+        failureCount++;
+        if (failureCount >= 3) {
+          setError(err.message || `Could not retrieve report dossier for '${reportId}'.`);
+          setLoading(false);
+          if (interval) clearInterval(interval);
+        }
       }
     }
 

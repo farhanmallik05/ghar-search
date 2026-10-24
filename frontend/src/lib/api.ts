@@ -847,7 +847,7 @@ LOCAL_DEMO_REPORTS['flagged'] = LOCAL_DEMO_REPORTS['rpt_royal_empire_flagged'];
 export async function getReport(reportId: string): Promise<VerificationReport> {
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    const timer = setTimeout(() => controller.abort(), 6000);
     const res = await fetch(`${WORKER_URL}/api/v1/report/${reportId}`, {
       cache: 'no-store',
       signal: controller.signal,
@@ -1030,6 +1030,14 @@ export async function triggerBulkVerification(properties: any[], batchName?: str
   });
   if (!res.ok) {
     throw new Error('Failed to submit bulk verification');
+  }
+  return res.json();
+}
+
+export async function getBulkStatus(batchId: string): Promise<any> {
+  const res = await fetch(`${WORKER_URL}/api/v1/reports/bulk/${batchId}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch status for batch ${batchId}`);
   }
   return res.json();
 }

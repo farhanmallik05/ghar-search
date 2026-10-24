@@ -35,6 +35,19 @@ export default function HomePage() {
     setLoading(true);
     setError(null);
 
+    if (!customPayload) {
+      if (activeTab === 'url' && !listingUrl.trim()) {
+        setError('Please enter a valid property listing or marketing brochure URL.');
+        setLoading(false);
+        return;
+      }
+      if (activeTab === 'manual' && !projectName.trim() && !reraNumber.trim()) {
+        setError('Please enter at least a Project Name or RERA Registration Number.');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const payload = customPayload || (activeTab === 'url'
         ? { property_url: listingUrl }

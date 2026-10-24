@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Search, Github, ExternalLink, BookmarkCheck, GitCompare, Activity } from 'lucide-react';
+import { ShieldCheck, Search, Github, ExternalLink, BookmarkCheck, GitCompare, Layers, Activity } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -32,7 +32,7 @@ export default function Navbar() {
         </Link>
 
         {/* Navigation & Status Items */}
-        <nav className="flex items-center space-x-1.5 sm:space-x-2">
+        <nav className="flex items-center space-x-1 sm:space-x-1.5">
           {/* Agent Network Status Pill */}
           <div className="hidden xl:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-100/80 border border-slate-200/80 text-[11px] font-medium text-slate-600 mr-1">
             <span className="relative flex h-2 w-2">
@@ -50,7 +50,37 @@ export default function Navbar() {
             }`}
           >
             <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:inline">Verify</span>
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 active:scale-[0.98] ${
+              pathname === '/dashboard' ? 'bg-brand-50 text-brand-700 border border-brand-200/80' : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
+            }`}
+          >
+            <BookmarkCheck className="w-3.5 h-3.5 text-brand-600" />
+            <span className="hidden sm:inline">Watchlist</span>
+          </Link>
+
+          <Link
+            href="/compare"
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 active:scale-[0.98] ${
+              pathname === '/compare' ? 'bg-brand-50 text-brand-700 border border-brand-200/80' : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
+            }`}
+          >
+            <GitCompare className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="hidden sm:inline">Compare</span>
+          </Link>
+
+          <Link
+            href="/bulk"
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 active:scale-[0.98] ${
+              pathname === '/bulk' ? 'bg-brand-50 text-brand-700 border border-brand-200/80' : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-sky-600" />
+            <span className="hidden sm:inline">Bulk B2B</span>
           </Link>
 
           <a
@@ -60,7 +90,7 @@ export default function Navbar() {
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all duration-150 active:scale-[0.98]"
           >
             <Github className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">GitHub</span>
+            <span className="hidden lg:inline">GitHub</span>
           </a>
 
           <Link

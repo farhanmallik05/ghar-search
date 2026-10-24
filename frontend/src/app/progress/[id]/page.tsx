@@ -173,9 +173,10 @@ export default function ProgressScreen() {
         const data = await getReport(reportId);
         setReport(data);
 
-        if (data.status === 'completed') {
+        if (data.status === 'completed' || data.status === 'failed') {
           setProgressPct(100);
           setIsCompleted(true);
+          if (checkInterval) clearInterval(checkInterval);
         }
       } catch (err) {
         console.warn('Backend polling error:', err);
@@ -344,13 +345,31 @@ export default function ProgressScreen() {
     router.push(`/report/${reportId}`);
   };
 
-  const propDetails = report?.property_details || {
-    project_name: 'Sunshine Residency Phase 1',
-    promoter_name: 'Godrej Properties Limited',
-    rera_id: 'P52100012345',
-    city: 'Pune',
-    state: 'Maharashtra'
-  };
+  const propDetails = report?.property_details || (
+    reportId.includes('green_valley') || reportId.includes('delayed')
+      ? {
+          project_name: 'Green Valley Towers Phase 2',
+          promoter_name: 'Apex Skyline Developers Pvt Ltd',
+          rera_id: 'P52100088765',
+          city: 'Pune',
+          state: 'Maharashtra'
+        }
+      : reportId.includes('royal_empire') || reportId.includes('flagged')
+      ? {
+          project_name: 'Royal Empire Luxury Towers',
+          promoter_name: 'Royal Imperial Realcon Ltd',
+          rera_id: 'P51700099881',
+          city: 'Thane',
+          state: 'Maharashtra'
+        }
+      : {
+          project_name: 'Sunshine Residency Phase 1',
+          promoter_name: 'Godrej Properties Limited',
+          rera_id: 'P52100012345',
+          city: 'Pune',
+          state: 'Maharashtra'
+        }
+  );
 
   // Helper to determine the actual status and score of a check
   const getDimensionState = (type: CheckType) => {
