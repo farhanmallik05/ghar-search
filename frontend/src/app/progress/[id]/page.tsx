@@ -316,6 +316,30 @@ export default function ProgressScreen() {
     };
   }, []);
 
+  const handleResolveHITL = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hilInput.trim()) return;
+    setHilResolving(true);
+    try {
+      await resolveHITL(reportId, 'rera_status', { captcha_token: hilInput.trim() });
+      setHilResolved(true);
+      setHilChallengeActive(false);
+      setLogs((prev) => [
+        ...prev,
+        {
+          time: `00:${elapsedSec < 10 ? '0' + elapsedSec : elapsedSec}`,
+          source: 'COORDINATOR',
+          message: '✓ Human-in-the-Loop challenge resolved! Bot gate unblocked. Resuming RERA agent worker...',
+          status: 'success'
+        }
+      ]);
+    } catch (err) {
+      console.error('HITL resolve error:', err);
+    } finally {
+      setHilResolving(false);
+    }
+  };
+
   const handleProceedToReport = () => {
     router.push(`/report/${reportId}`);
   };
@@ -405,14 +429,27 @@ export default function ProgressScreen() {
             </p>
           </div>
 
-          <div className="text-left sm:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 shrink-0">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-              Pipeline Clock
+          <div className="flex flex-col sm:items-end justify-between gap-3 shrink-0">
+            <div className="text-left sm:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 shrink-0 w-full sm:w-auto">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                Pipeline Clock
+              </div>
+              <div className="text-3xl font-black font-mono tabular-nums text-brand-600 mt-0.5">
+                00:{elapsedSec < 10 ? `0${elapsedSec}` : elapsedSec}
+              </div>
+              <div className="text-[11px] text-slate-500 font-mono mt-0.5">SLO Target: &lt; 90s</div>
             </div>
-            <div className="text-3xl font-black font-mono tabular-nums text-brand-600 mt-0.5">
-              00:{elapsedSec < 10 ? `0${elapsedSec}` : elapsedSec}
-            </div>
-            <div className="text-[11px] text-slate-500 font-mono mt-0.5">SLO Target: &lt; 90s</div>
+
+            {!hilResolved && (
+              <button
+                type="button"
+                onClick={() => setHilChallengeActive(!hilChallengeActive)}
+                className="text-[11px] font-bold font-mono px-3 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition-all flex items-center space-x-1.5"
+              >
+                <KeyRound className="w-3 h-3 text-amber-600" />
+                <span>{hilChallengeActive ? 'Hide HIL Challenge' : 'Simulate HIL Portal Gate'}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -435,6 +472,67 @@ export default function ProgressScreen() {
           </div>
         </div>
       </div>
+
+      {/* Human-in-the-Loop (HITL) Interactive Challenge Banner */}
+      {hilChallengeActive && !hilResolved && (
+        <div className="glass-card rounded-2xl p-6 border-2 border-amber-400 bg-amber-50/70 shadow-premium space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/30">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 font-mono">
+                  Human-in-the-Loop Gate Required
+                </span>
+                <h3 className="text-base font-black text-slate-900 tracking-tight">
+                  State RERA Portal Security Verification
+                </h3>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase bg-amber-200/80 text-amber-900 px-2.5 py-1 rounded-full border border-amber-300">
+              Agent Paused (Max 5m)
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-600 leading-relaxed max-w-3xl">
+            The official government portal detected automated access and requested interactive challenge verification. Please enter the captcha characters shown below to unpause the autonomous crawler.
+          </p>
+
+          <form onSubmit={handleResolveHITL} className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            {/* Visual distorted CAPTCHA mockup */}
+            <div className="bg-slate-900 text-emerald-400 font-mono font-black text-lg tracking-widest px-5 py-2.5 rounded-xl border border-slate-700 select-none shadow-inner">
+              7 · G · 4 · K · 9
+            </div>
+
+            <input
+              type="text"
+              value={hilInput}
+              onChange={(e) => setHilInput(e.target.value)}
+              placeholder="Enter CAPTCHA characters..."
+              className="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white sm:w-64"
+            />
+
+            <button
+              type="submit"
+              disabled={hilResolving || !hilInput.trim()}
+              className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-subtle hover:shadow-premium transition-all disabled:opacity-50 active:scale-[0.98]"
+            >
+              {hilResolving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Submitting Token...</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Solve &amp; Resume Agent</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* The 6 Statutory Verification Checks (Full 6-Check Pipeline) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

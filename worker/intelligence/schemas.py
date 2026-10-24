@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 class CheckType(str, Enum):
     RERA_STATUS = "rera_status"
@@ -40,6 +40,16 @@ class PropertyInput(BaseModel):
     manual_details: Optional[ManualDetails] = None
     user_id: Optional[str] = "anonymous"
     priority: Optional[str] = "normal"
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            manual_fields = ["project_name", "promoter_name", "rera_number", "state", "city", "address"]
+            has_flat_manual = any(k in data and data[k] for k in manual_fields)
+            if has_flat_manual and not data.get("manual_details"):
+                data["manual_details"] = {k: data[k] for k in manual_fields if k in data}
+        return data
 
 class PropertyClaims(BaseModel):
     project_name: str
@@ -116,7 +126,7 @@ class HITLResolveRequest(BaseModel):
     resolution_data: Dict[str, Any]
 
 class BulkVerifyRequest(BaseModel):
-    properties: List[PropertyInput]
+    properties: List[PropertyInput] = Field(min_length=1, max_length=100)
     batch_name: Optional[str] = "Loan Underwriting Batch"
     user_id: Optional[str] = "lender_org_01"
 

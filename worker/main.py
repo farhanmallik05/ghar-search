@@ -209,7 +209,7 @@ async def trigger_verification(payload: PropertyInput, background_tasks: Backgro
         "realtime_channel": f"report:{report_id}",
         "credits_estimated": 12,
         "checks": [],
-        "created_at": None
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
     memory_store.report_checks[report_id] = []
 
@@ -301,11 +301,11 @@ async def add_to_watchlist(payload: WatchlistCreateRequest):
         "promoter_name": prop_details.get("promoter_name", "Developer"),
         "rera_id": prop_details.get("rera_id", "RERA Pending"),
         "city": prop_details.get("city", "Mumbai"),
-        "current_trust_score": report.get("trust_score", 85),
+        "current_trust_score": report.get("trust_score") if report.get("trust_score") is not None else 85,
         "alert_threshold": payload.alert_threshold,
         "notify_email": payload.notify_email,
         "status": "active",
-        "last_checked_at": "2026-10-24T07:00:00Z",
+        "last_checked_at": datetime.now(timezone.utc).isoformat(),
         "score_delta_7d": 0
     }
     memory_store.watchlist[watchlist_id] = watchlist_item
@@ -344,6 +344,13 @@ async def resolve_hitl_task(payload: HITLResolveRequest):
     }
 
 def _build_comparison(report_ids: List[str]) -> CompareResponse:
+    if not report_ids or len(report_ids) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 report IDs required for comparison.")
+    if len(report_ids) > 4:
+        raise HTTPException(status_code=400, detail="A maximum of 4 report IDs can be compared at once.")
+    if len(report_ids) != len(set(report_ids)):
+        raise HTTPException(status_code=400, detail="Report IDs for comparison must be distinct.")
+
     seed_demo_store()
     items: List[PropertyComparisonItem] = []
     dim_matrix: Dict[str, Dict[str, int]] = {
@@ -440,9 +447,14 @@ async def recheck_watchlist_item(watchlist_id: str):
     if not item:
         raise HTTPException(status_code=404, detail=f"Watchlist item '{watchlist_id}' not found.")
 
-    previous_score = item.get("current_trust_score", 70)
-    now_iso = datetime.now(timezone.utc).isoformat()
+    curr_score = item.get("current_trust_score")
+    if curr_score is None:
+        curr_score = 70
     delta = item.get("score_delta_7d", 0)
+    if delta is None:
+        delta = 0
+    previous_score = curr_score - delta
+    now_iso = datetime.now(timezone.utc).isoformat()
     threshold = item.get("alert_threshold", 10)
     alert_triggered = abs(delta) >= threshold or delta < -3
     alert_message = None
@@ -454,8 +466,8 @@ async def recheck_watchlist_item(watchlist_id: str):
     return WatchlistRecheckResponse(
         watchlist_id=watchlist_id,
         property_name=item.get("property_name", ""),
-        previous_score=previous_score - delta,
-        current_trust_score=previous_score,
+        previous_score=previous_score,
+        current_trust_score=curr_score,
         score_delta=delta,
         alert_triggered=alert_triggered,
         alert_message=alert_message,
@@ -561,8 +573,12 @@ async def get_bulk_status(batch_id: str):
             r["status"] = stored.get("status", "queued")
             r["trust_score"] = stored.get("trust_score")
 
-    completed_count = sum(1 for r in batch["reports"] if r.get("status") == "completed")
-    batch["status"] = "completed" if completed_count == batch["total"] else "processing"
+    finished_count = sum(1 for r in batch["reports"] if r.get("status") in ["completed", "failed"])
+    if finished_count == batch["total"]:
+        has_failures = any(r.get("status") == "failed" for r in batch["reports"])
+        batch["status"] = "completed_with_errors" if has_failures else "completed"
+    else:
+        batch["status"] = "processing"
     return batch
 
 
