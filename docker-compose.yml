@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: ghar-search-worker
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - WORKER_PORT=8000
+      - WORKER_HOST=0.0.0.0
+      - SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - TINYFISH_API_KEY=${TINYFISH_API_KEY}
+      - TINYFISH_BASE_URL=${TINYFISH_BASE_URL:-https://api.tinyfish.io/v1}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - INTERNAL_SECRET=${INTERNAL_SECRET}
+      - CRON_SECRET=${CRON_SECRET}
+      - ENVIRONMENT=development
+    volumes:
+      - ./worker:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ghar-search-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_WORKER_URL=http://worker:8000
+      - INTERNAL_SECRET=${INTERNAL_SECRET}
+    depends_on:
+      - worker
