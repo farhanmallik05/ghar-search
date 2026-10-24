@@ -2,7 +2,10 @@
 Authentic Indian real estate homebuyer due-diligence personas and end-to-end user stories.
 """
 
-import fitz  # PyMuPDF
+try:
+    import pymupdf as fitz  # PyMuPDF
+except ImportError:
+    import fitz
 import pytest
 from intelligence.schemas import TrustLabel
 

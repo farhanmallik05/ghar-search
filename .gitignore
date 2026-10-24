@@ -42,6 +42,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
 
 # OS Files
 .DS_Store

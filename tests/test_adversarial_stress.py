@@ -14,7 +14,10 @@ import random
 import concurrent.futures
 from typing import List, Dict, Any
 import pytest
-import fitz
+try:
+    import pymupdf as fitz
+except ImportError:
+    import fitz
 from fastapi.testclient import TestClient
 
 # Ensure worker package is on sys.path

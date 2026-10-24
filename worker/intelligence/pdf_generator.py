@@ -7,7 +7,10 @@ and legal disclaimers.
 import io
 from datetime import datetime, timezone
 from typing import Dict, Any
-import fitz
+try:
+    import pymupdf as fitz
+except ImportError:
+    import fitz
 
 def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     """Generates a complete, multi-section due-diligence PDF dossier."""

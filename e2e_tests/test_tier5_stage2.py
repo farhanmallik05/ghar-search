@@ -3,7 +3,10 @@ Verifies B2B Bulk Underwriting, Side-by-Side Property Comparison Matrix,
 Automated Watchlist Nightly Re-checks, and Vector PDF Pagination.
 """
 
-import fitz  # PyMuPDF
+try:
+    import pymupdf as fitz  # PyMuPDF
+except ImportError:
+    import fitz
 import pytest
 
 

@@ -14,6 +14,8 @@ from intelligence.schemas import (
     PropertyClaims
 )
 
+from intelligence.score_explainer import explain_score_breakdown
+
 MAX_DIMENSION_SCORES = {
     CheckType.RERA_STATUS.value: 30,
     CheckType.CLAIM_MATCH.value: 20,
@@ -375,7 +377,7 @@ def calculate_trust_score(
         recommendations.append("CRITICAL: Fatal non-compliance or active insolvency proceedings detected. Do not disburse funds.")
         recommendations.append("Consult legal counsel immediately regarding judicial status and builder registry credentials.")
 
-    return TrustScoreBreakdown(
+    breakdown = TrustScoreBreakdown(
         total_score=total,
         label=label,
         dimension_scores=dimension_scores,
@@ -384,3 +386,9 @@ def calculate_trust_score(
         strengths=strengths,
         recommendations=recommendations
     )
+    explanation = explain_score_breakdown(breakdown)
+    breakdown.risk_category = explanation["risk_classification"]["category_code"]
+    breakdown.statutory_compliance_rate = explanation["statutory_compliance_rate"]
+    breakdown.peer_percentile_benchmark = explanation["peer_percentile_benchmark"]
+    breakdown.penalty_summary = explanation["penalties"]
+    return breakdown

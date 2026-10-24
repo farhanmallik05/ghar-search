@@ -13,3 +13,5 @@ langchain-google-genai==2.0.7
 tenacity==9.0.0
 asyncio-throttle==1.0.2
 PyMuPDF>=1.24.0
+pytest>=8.3.0
+pytest-asyncio>=0.24.0

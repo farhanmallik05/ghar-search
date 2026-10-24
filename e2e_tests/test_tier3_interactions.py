@@ -2,7 +2,10 @@
 Validates end-to-end integration flows spanning multiple API endpoints, state transitions, and subsystems.
 """
 
-import fitz  # PyMuPDF
+try:
+    import pymupdf as fitz  # PyMuPDF
+except ImportError:
+    import fitz
 import pytest
 from fixtures.demo_properties import DEMO_PROPERTIES
 

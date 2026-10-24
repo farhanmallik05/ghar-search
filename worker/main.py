@@ -5,7 +5,7 @@ HackIIITD 2026 | Ghar Search API Server
 import uuid
 import asyncio
 import logging
-from fastapi import FastAPI, HTTPException, BackgroundTasks, status, Response
+from fastapi import FastAPI, HTTPException, BackgroundTasks, status, Response, Query
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
@@ -17,9 +17,11 @@ from intelligence.schemas import (
     VerificationReport,
     WatchlistCreateRequest,
     HITLResolveRequest,
+    HITLTimeoutRequest,
     CheckResult,
     BulkVerifyRequest,
     BulkVerifyResponse,
+    BulkAnalyticsResponse,
     CompareRequest,
     CompareResponse,
     PropertyComparisonItem,
@@ -30,6 +32,8 @@ from graphs.verification_graph import VerificationGraph
 from intelligence.rule_engine import calculate_trust_score
 from intelligence.summarizer import generate_summary
 from intelligence.pdf_generator import generate_pdf_dossier
+from core.rera_validator import validate_rera_number, ReraValidationResult
+from intelligence.bulk_analytics import compute_bulk_analytics, generate_bulk_csv
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("ghar-search.api")
@@ -185,9 +189,24 @@ async def get_fixtures():
         ]
     }
 
+@app.get("/api/v1/rera/validate", response_model=ReraValidationResult, tags=["Verification"])
+async def validate_rera_endpoint(
+    id: str = Query(..., description="The RERA registration number to validate"),
+    state: Optional[str] = Query(None, description="Optional state hint")
+):
+    """Validates an Indian RERA registration ID and auto-detects the state authority jurisdiction."""
+    return validate_rera_number(id, state)
+
 @app.post("/api/v1/verify", status_code=status.HTTP_202_ACCEPTED, tags=["Verification"])
 async def trigger_verification(payload: PropertyInput, background_tasks: BackgroundTasks):
     """Initiates an asynchronous 6-check verification run for a property listing or RERA number."""
+    if payload.manual_details and payload.manual_details.rera_number:
+        rera_info = validate_rera_number(payload.manual_details.rera_number, payload.manual_details.state)
+        if rera_info.is_valid:
+            payload.manual_details.rera_number = rera_info.normalized_id
+            if not payload.manual_details.state and rera_info.detected_state:
+                payload.manual_details.state = rera_info.detected_state
+
     has_url = bool(payload.property_url and payload.property_url.strip())
     has_manual = bool(payload.manual_details and (
         (payload.manual_details.project_name and payload.manual_details.project_name.strip()) or
@@ -328,20 +347,80 @@ async def get_watchlist():
         "total": len(items)
     }
 
+@app.get("/api/v1/hil/tasks", tags=["Human-in-the-Loop"])
+async def list_hitl_tasks():
+    """Lists all active and resolved Human-in-the-Loop challenges across in-flight reports."""
+    tasks = list(memory_store.hitl_tasks.values())
+    return {
+        "tasks": tasks,
+        "total": len(tasks)
+    }
+
+@app.get("/api/v1/hil/tasks/{report_id}", tags=["Human-in-the-Loop"])
+async def get_hitl_tasks_for_report(report_id: str):
+    """Retrieves Human-in-the-Loop challenges for a specific property report."""
+    matching = [t for t in memory_store.hitl_tasks.values() if t.get("report_id") == report_id]
+    return {
+        "report_id": report_id,
+        "tasks": matching,
+        "total": len(matching)
+    }
+
 @app.post("/api/v1/hil/resolve", tags=["Human-in-the-Loop"])
 async def resolve_hitl_task(payload: HITLResolveRequest):
-    """Resolves a human-in-the-loop challenge (CAPTCHA token or manual confirmation)."""
+    """Resolves a human-in-the-loop challenge with full audit telemetry and resumes worker pipeline."""
     task_id = f"hitl_{payload.report_id}_{payload.check_type}"
-    memory_store.hitl_tasks[task_id] = {
+    now_iso = datetime.now(timezone.utc).isoformat()
+    record = {
+        "task_id": task_id,
         "report_id": payload.report_id,
         "check_type": payload.check_type,
         "status": "resolved",
+        "resolved_at": now_iso,
+        "resolved_by": payload.resolution_data.get("resolved_by", "human_operator"),
+        "resolution_notes": payload.resolution_data.get("notes", "Challenge resolved successfully via modal"),
         "resolution_data": payload.resolution_data
     }
+    memory_store.hitl_tasks[task_id] = record
+
+    rep = memory_store.reports.get(payload.report_id)
+    if rep and rep.get("status") == "hitl_required":
+        rep["status"] = "running"
+
     return {
         "status": "resumed",
         "report_id": payload.report_id,
-        "check_type": payload.check_type
+        "check_type": payload.check_type,
+        "task_id": task_id,
+        "resolved_at": now_iso
+    }
+
+@app.post("/api/v1/hil/timeout", tags=["Human-in-the-Loop"])
+async def timeout_hitl_task(payload: HITLTimeoutRequest):
+    """Gracefully handles a human-in-the-loop challenge timeout without deadlocking the pipeline."""
+    task_id = f"hitl_{payload.report_id}_{payload.check_type}"
+    now_iso = datetime.now(timezone.utc).isoformat()
+    record = {
+        "task_id": task_id,
+        "report_id": payload.report_id,
+        "check_type": payload.check_type,
+        "status": "timed_out",
+        "resolved_at": now_iso,
+        "fallback_policy": payload.fallback_policy,
+        "resolution_notes": f"Automated fallback triggered under policy: {payload.fallback_policy}"
+    }
+    memory_store.hitl_tasks[task_id] = record
+
+    rep = memory_store.reports.get(payload.report_id)
+    if rep and rep.get("status") == "hitl_required":
+        rep["status"] = "running"
+
+    return {
+        "status": "fallback_applied",
+        "report_id": payload.report_id,
+        "check_type": payload.check_type,
+        "task_id": task_id,
+        "fallback_policy": payload.fallback_policy
     }
 
 def _build_comparison(report_ids: List[str]) -> CompareResponse:
@@ -631,6 +710,27 @@ async def get_bulk_status(batch_id: str):
     else:
         batch["status"] = "processing"
     return batch
+
+@app.get("/api/v1/reports/bulk/{batch_id}/analytics", response_model=BulkAnalyticsResponse, tags=["B2B Bulk"])
+async def get_bulk_analytics(batch_id: str):
+    """Computes comprehensive portfolio-level risk analytics and score distributions for an underwriting batch."""
+    batch = memory_store.batches.get(batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' not found.")
+    return compute_bulk_analytics(batch, memory_store)
+
+@app.get("/api/v1/reports/bulk/{batch_id}/export/csv", tags=["B2B Bulk"])
+async def export_bulk_csv(batch_id: str):
+    """Streams a regulatory-grade underwriting CSV report for institutional banking files."""
+    batch = memory_store.batches.get(batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' not found.")
+    csv_content = generate_bulk_csv(batch, memory_store)
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=ghar_search_batch_{batch_id}.csv"}
+    )
 
 
 if __name__ == "__main__":

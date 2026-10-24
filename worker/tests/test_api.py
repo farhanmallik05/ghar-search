@@ -1,4 +1,7 @@
-import fitz
+try:
+    import pymupdf as fitz
+except ImportError:
+    import fitz
 from fastapi.testclient import TestClient
 from main import app, seed_demo_store
 from core.supabase import memory_store

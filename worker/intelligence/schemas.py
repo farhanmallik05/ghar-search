@@ -97,6 +97,10 @@ class TrustScoreBreakdown(BaseModel):
     deductions: List[ScoreDeduction] = Field(default_factory=list)
     strengths: List[str] = Field(default_factory=list)
     recommendations: List[str] = Field(default_factory=list)
+    risk_category: Optional[str] = None
+    statutory_compliance_rate: Optional[float] = None
+    peer_percentile_benchmark: Optional[str] = None
+    penalty_summary: Optional[List[Dict[str, Any]]] = None
 
 class VerificationReport(BaseModel):
     report_id: str
@@ -124,6 +128,11 @@ class HITLResolveRequest(BaseModel):
     report_id: str
     check_type: str
     resolution_data: Dict[str, Any]
+
+class HITLTimeoutRequest(BaseModel):
+    report_id: str
+    check_type: str
+    fallback_policy: Optional[str] = "conservative_bounds"
 
 class BulkVerifyRequest(BaseModel):
     properties: List[PropertyInput] = Field(min_length=1, max_length=100)
@@ -179,5 +188,19 @@ class WatchlistRecheckResponse(BaseModel):
     rechecked_at: Optional[str] = None
     status: str = "success"
     report: Optional[Dict[str, Any]] = None
+
+class BulkAnalyticsResponse(BaseModel):
+    batch_id: str
+    batch_name: str
+    total_assets: int
+    completed_count: int
+    pending_count: int
+    failed_count: int
+    portfolio_mean_score: Optional[float] = None
+    portfolio_median_score: Optional[float] = None
+    risk_distribution: Dict[str, int]
+    average_dimension_scores: Dict[str, float]
+    common_deductions: List[Dict[str, Any]] = Field(default_factory=list)
+    underwriting_verdict: str
 
 
