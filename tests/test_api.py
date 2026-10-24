@@ -19,6 +19,10 @@ from worker.tests.test_api import (
     test_watchlist_recheck_item,
     test_watchlist_recheck_all_batch,
     test_bulk_verify_and_status,
+    test_flat_manual_details_normalization,
+    test_compare_duplicate_and_excessive_ids_400,
+    test_bulk_verify_empty_properties_422,
+    test_watchlist_recheck_null_score_resilience,
 )
 
 __all__ = [
@@ -40,4 +44,8 @@ __all__ = [
     "test_watchlist_recheck_item",
     "test_watchlist_recheck_all_batch",
     "test_bulk_verify_and_status",
+    "test_flat_manual_details_normalization",
+    "test_compare_duplicate_and_excessive_ids_400",
+    "test_bulk_verify_empty_properties_422",
+    "test_watchlist_recheck_null_score_resilience",
 ]

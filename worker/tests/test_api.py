@@ -257,4 +257,52 @@ def test_bulk_verify_and_status():
     assert status_data["batch_id"] == batch_id
     assert status_data["total"] == 2
 
+def test_flat_manual_details_normalization():
+    # Sending root-level project_name and rera_number without manual_details wrapper
+    res = client.post("/api/v1/verify", json={
+        "project_name": "Godrej Elements",
+        "rera_number": "P52100019999",
+        "state": "Maharashtra"
+    })
+    assert res.status_code == 202
+    data = res.json()
+    assert "report_id" in data
+    assert data["status"] == "queued"
+
+def test_compare_duplicate_and_excessive_ids_400():
+    # Duplicate IDs
+    dup_res = client.post("/api/v1/compare", json={
+        "report_ids": ["rpt_sunshine_clean", "rpt_sunshine_clean"]
+    })
+    assert dup_res.status_code == 400
+    assert "distinct" in dup_res.json()["detail"].lower()
+
+    # More than 4 IDs
+    excess_res = client.get("/api/v1/compare?report_ids=rpt_1,rpt_2,rpt_3,rpt_4,rpt_5")
+    assert excess_res.status_code == 400
+
+def test_bulk_verify_empty_properties_422():
+    res = client.post("/api/v1/reports/bulk", json={
+        "properties": []
+    })
+    assert res.status_code in [400, 422]
+
+def test_watchlist_recheck_null_score_resilience():
+    from core.supabase import memory_store
+    memory_store.watchlist["wl_test_null"] = {
+        "watchlist_id": "wl_test_null",
+        "report_id": "rpt_test_null",
+        "property_name": "Null Score Tower",
+        "current_trust_score": None,
+        "score_delta_7d": None,
+        "alert_threshold": 10,
+        "status": "active"
+    }
+    res = client.post("/api/v1/watchlist/wl_test_null/recheck")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["current_trust_score"] == 70
+    assert data["score_delta"] == 0
+
+
 
