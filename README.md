@@ -97,6 +97,7 @@ Ghar Search condenses hours of complex due diligence into a **sub-90-second auto
 | **`/dashboard`** | Homebuyer Watchlist with single-click and batch nightly re-check simulation (`pg_cron`) + delta alert banners | ✅ Complete |
 | **`/compare`** | Multi-property side-by-side benchmark matrix (2–4 properties) with comparative AI synthesis and dimensional charts | ✅ Complete |
 | **`/bulk`** | B2B Institutional Underwriting portal with CSV/manifest parser, batch progress monitoring, and portfolio risk distribution | ✅ Complete |
+| **`/pitch`** | Interactive HackIIITD 2026 pitch deck & judge Q&A presentation stage with live demo launchpad | ✅ Complete |
 | **`/_not-found`** | Branded resilient 404 recovery route | ✅ Complete |
 
 ---
