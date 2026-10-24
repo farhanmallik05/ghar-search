@@ -250,6 +250,14 @@ async def export_report_pdf(report_id: str):
             detail=f"Report with id '{report_id}' was not found."
         )
 
+    # Guard: PDF generation is only valid for completed reports
+    rep_status = report.get("status")
+    if rep_status in ["queued", "running"]:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Report '{report_id}' is currently in status '{rep_status}'. Dossier PDF generation is only available once verification has completed."
+        )
+
     try:
         pdf_bytes = generate_pdf_dossier(report)
         return Response(

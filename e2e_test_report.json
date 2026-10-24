@@ -1,0 +1,614 @@
+{
+  "timestamp": "2026-10-24T09:35:53.046202+00:00",
+  "total_tests": 80,
+  "total_passed": 80,
+  "total_failed": 0,
+  "total_duration_seconds": 15.774,
+  "verdict": "PASS",
+  "tiers": [
+    {
+      "tier": 1,
+      "title": "Tier 1: Feature Coverage (>=5 per feature)",
+      "file": "e2e_tests/test_tier1_features.py",
+      "total": 35,
+      "passed": 35,
+      "failed": 0,
+      "duration": 5.677,
+      "tests": [
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_property_url",
+          "name": "test_tier1_f1_verify_with_property_url",
+          "outcome": "passed",
+          "duration": 0.31773079999948095,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_manual_details_project_name",
+          "name": "test_tier1_f1_verify_with_manual_details_project_name",
+          "outcome": "passed",
+          "duration": 0.4206805000012537,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_manual_details_rera_number",
+          "name": "test_tier1_f1_verify_with_manual_details_rera_number",
+          "outcome": "passed",
+          "duration": 0.4126767000016116,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_both_url_and_manual_details",
+          "name": "test_tier1_f1_verify_with_both_url_and_manual_details",
+          "outcome": "passed",
+          "duration": 0.41105119999883755,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f1_verify_with_custom_user_id_and_priority",
+          "name": "test_tier1_f1_verify_with_custom_user_id_and_priority",
+          "outcome": "passed",
+          "duration": 0.40863720000015746,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_canonical_clean",
+          "name": "test_tier1_f2_report_retrieve_canonical_clean",
+          "outcome": "passed",
+          "duration": 0.002018099999986589,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_canonical_delayed",
+          "name": "test_tier1_f2_report_retrieve_canonical_delayed",
+          "outcome": "passed",
+          "duration": 0.004460599999219994,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_canonical_flagged",
+          "name": "test_tier1_f2_report_retrieve_canonical_flagged",
+          "outcome": "passed",
+          "duration": 0.004422399999384652,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_retrieve_dynamic_verification_report",
+          "name": "test_tier1_f2_report_retrieve_dynamic_verification_report",
+          "outcome": "passed",
+          "duration": 0.4159827999992558,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f2_report_schema_completeness",
+          "name": "test_tier1_f2_report_schema_completeness",
+          "outcome": "passed",
+          "duration": 0.003596000000470667,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_canonical_clean",
+          "name": "test_tier1_f3_pdf_export_canonical_clean",
+          "outcome": "passed",
+          "duration": 0.1263543999993999,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_canonical_delayed",
+          "name": "test_tier1_f3_pdf_export_canonical_delayed",
+          "outcome": "passed",
+          "duration": 0.09206660000018019,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_canonical_flagged",
+          "name": "test_tier1_f3_pdf_export_canonical_flagged",
+          "outcome": "passed",
+          "duration": 0.1194919999998092,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_content_disposition_header",
+          "name": "test_tier1_f3_pdf_export_content_disposition_header",
+          "outcome": "passed",
+          "duration": 0.08225019999918004,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f3_pdf_export_dynamic_completed_report",
+          "name": "test_tier1_f3_pdf_export_dynamic_completed_report",
+          "outcome": "passed",
+          "duration": 0.5496509000004153,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_status_and_count",
+          "name": "test_tier1_f4_fixtures_status_and_count",
+          "outcome": "passed",
+          "duration": 0.004298699999708333,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_keys_membership",
+          "name": "test_tier1_f4_fixtures_keys_membership",
+          "outcome": "passed",
+          "duration": 0.0021904000004724367,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_schema_fields",
+          "name": "test_tier1_f4_fixtures_schema_fields",
+          "outcome": "passed",
+          "duration": 0.0037348000005295034,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_badge_content",
+          "name": "test_tier1_f4_fixtures_badge_content",
+          "outcome": "passed",
+          "duration": 0.003557100000762148,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f4_fixtures_idempotent",
+          "name": "test_tier1_f4_fixtures_idempotent",
+          "outcome": "passed",
+          "duration": 0.0036391000012372388,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_get_default_seeded_list",
+          "name": "test_tier1_f5_watchlist_get_default_seeded_list",
+          "outcome": "passed",
+          "duration": 0.0031357999996544095,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_item_schema_verification",
+          "name": "test_tier1_f5_watchlist_item_schema_verification",
+          "outcome": "passed",
+          "duration": 0.0021161999993637437,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_post_create_new_entry",
+          "name": "test_tier1_f5_watchlist_post_create_new_entry",
+          "outcome": "passed",
+          "duration": 0.0024275000014313264,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_post_increments_total_count",
+          "name": "test_tier1_f5_watchlist_post_increments_total_count",
+          "outcome": "passed",
+          "duration": 0.006021399998644483,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f5_watchlist_score_delta_present",
+          "name": "test_tier1_f5_watchlist_score_delta_present",
+          "outcome": "passed",
+          "duration": 0.003435999999055639,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_rera_status_captcha",
+          "name": "test_tier1_f6_hitl_resolve_rera_status_captcha",
+          "outcome": "passed",
+          "duration": 0.0032375999999203486,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_court_signals_manual_review",
+          "name": "test_tier1_f6_hitl_resolve_court_signals_manual_review",
+          "outcome": "passed",
+          "duration": 0.0027917999996134313,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_response_payload_echo",
+          "name": "test_tier1_f6_hitl_resolve_response_payload_echo",
+          "outcome": "passed",
+          "duration": 0.0025120000009337673,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_state_persisted",
+          "name": "test_tier1_f6_hitl_resolve_state_persisted",
+          "outcome": "passed",
+          "duration": 0.0020782000010513,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f6_hitl_resolve_multiple_distinct_checks",
+          "name": "test_tier1_f6_hitl_resolve_multiple_distinct_checks",
+          "outcome": "passed",
+          "duration": 0.0069239999993442325,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_dimension_max_weights",
+          "name": "test_tier1_f7_scoring_dimension_max_weights",
+          "outcome": "passed",
+          "duration": 0.00032749999991210643,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_total_equals_dimension_sum",
+          "name": "test_tier1_f7_scoring_total_equals_dimension_sum",
+          "outcome": "passed",
+          "duration": 0.007436899999447633,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_total_equals_check_contributions",
+          "name": "test_tier1_f7_scoring_total_equals_check_contributions",
+          "outcome": "passed",
+          "duration": 0.006047300001227995,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_clean_property_exact_values",
+          "name": "test_tier1_f7_scoring_clean_property_exact_values",
+          "outcome": "passed",
+          "duration": 0.00031909999961499125,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier1_features.py::test_tier1_f7_scoring_flagged_property_exact_values",
+          "name": "test_tier1_f7_scoring_flagged_property_exact_values",
+          "outcome": "passed",
+          "duration": 0.0003166999995301012,
+          "error": null
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "title": "Tier 2: Boundary & Corner Cases (>=5 per feature)",
+      "file": "e2e_tests/test_tier2_boundaries.py",
+      "total": 35,
+      "passed": 35,
+      "failed": 0,
+      "duration": 3.027,
+      "tests": [
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_empty_body_400",
+          "name": "test_tier2_f1_verify_empty_body_400",
+          "outcome": "passed",
+          "duration": 0.20778380000047036,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_whitespace_only_payload_400",
+          "name": "test_tier2_f1_verify_whitespace_only_payload_400",
+          "outcome": "passed",
+          "duration": 0.007061899999825982,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_null_fields_400",
+          "name": "test_tier2_f1_verify_null_fields_400",
+          "outcome": "passed",
+          "duration": 0.008517700000084005,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_extreme_string_lengths_accepted",
+          "name": "test_tier2_f1_verify_extreme_string_lengths_accepted",
+          "outcome": "passed",
+          "duration": 0.8695998999992298,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f1_verify_special_characters_escaping",
+          "name": "test_tier2_f1_verify_special_characters_escaping",
+          "outcome": "passed",
+          "duration": 0.4980674000016734,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_nonexistent_id_404",
+          "name": "test_tier2_f2_report_nonexistent_id_404",
+          "outcome": "passed",
+          "duration": 0.012565999999424093,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_path_traversal_special_id_404",
+          "name": "test_tier2_f2_report_path_traversal_special_id_404",
+          "outcome": "passed",
+          "duration": 0.00951359999999113,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_case_sensitivity_exact_match_404",
+          "name": "test_tier2_f2_report_case_sensitivity_exact_match_404",
+          "outcome": "passed",
+          "duration": 0.013369499998589163,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_queued_status_schema",
+          "name": "test_tier2_f2_report_queued_status_schema",
+          "outcome": "passed",
+          "duration": 0.012946999999257969,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f2_report_uuid_variation_lookup",
+          "name": "test_tier2_f2_report_uuid_variation_lookup",
+          "outcome": "passed",
+          "duration": 0.009962699999960023,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_nonexistent_report_404",
+          "name": "test_tier2_f3_pdf_nonexistent_report_404",
+          "outcome": "passed",
+          "duration": 0.010221700000329292,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_queued_report_returns_409_conflict",
+          "name": "test_tier2_f3_pdf_queued_report_returns_409_conflict",
+          "outcome": "passed",
+          "duration": 0.007344499999817344,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_running_report_returns_409_conflict",
+          "name": "test_tier2_f3_pdf_running_report_returns_409_conflict",
+          "outcome": "passed",
+          "duration": 0.006723899999997229,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_null_safety_in_report_data",
+          "name": "test_tier2_f3_pdf_null_safety_in_report_data",
+          "outcome": "passed",
+          "duration": 0.06141800000114017,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f3_pdf_magic_bytes_and_length",
+          "name": "test_tier2_f3_pdf_magic_bytes_and_length",
+          "outcome": "passed",
+          "duration": 0.1124177999990934,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_disallows_post_put_delete",
+          "name": "test_tier2_f4_fixtures_disallows_post_put_delete",
+          "outcome": "passed",
+          "duration": 0.022221200000785757,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_query_parameters_resilience",
+          "name": "test_tier2_f4_fixtures_query_parameters_resilience",
+          "outcome": "passed",
+          "duration": 0.008999200001198915,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_rera_id_statutory_format",
+          "name": "test_tier2_f4_fixtures_rera_id_statutory_format",
+          "outcome": "passed",
+          "duration": 0.008570300000428688,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_no_empty_strings_in_core_fields",
+          "name": "test_tier2_f4_fixtures_no_empty_strings_in_core_fields",
+          "outcome": "passed",
+          "duration": 0.0075576999988697935,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f4_fixtures_unique_keys_and_reports",
+          "name": "test_tier2_f4_fixtures_unique_keys_and_reports",
+          "outcome": "passed",
+          "duration": 0.007218200000352226,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_add_nonexistent_report_404",
+          "name": "test_tier2_f5_watchlist_add_nonexistent_report_404",
+          "outcome": "passed",
+          "duration": 0.006584599999769125,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_missing_required_report_id_422",
+          "name": "test_tier2_f5_watchlist_missing_required_report_id_422",
+          "outcome": "passed",
+          "duration": 0.006852500000604778,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_alert_threshold_boundary_values",
+          "name": "test_tier2_f5_watchlist_alert_threshold_boundary_values",
+          "outcome": "passed",
+          "duration": 0.021816999998918618,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_duplicate_adds_generate_unique_ids",
+          "name": "test_tier2_f5_watchlist_duplicate_adds_generate_unique_ids",
+          "outcome": "passed",
+          "duration": 0.013837699998475728,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f5_watchlist_email_notification_flag_stored",
+          "name": "test_tier2_f5_watchlist_email_notification_flag_stored",
+          "outcome": "passed",
+          "duration": 0.011875899999722606,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_missing_report_id_or_check_type_422",
+          "name": "test_tier2_f6_hitl_missing_report_id_or_check_type_422",
+          "outcome": "passed",
+          "duration": 0.01474690000031842,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_empty_resolution_data_handled",
+          "name": "test_tier2_f6_hitl_empty_resolution_data_handled",
+          "outcome": "passed",
+          "duration": 0.006872400001157075,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_arbitrary_nested_resolution_structure",
+          "name": "test_tier2_f6_hitl_arbitrary_nested_resolution_structure",
+          "outcome": "passed",
+          "duration": 0.0061581999998452375,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_unrecognized_check_type_handled",
+          "name": "test_tier2_f6_hitl_unrecognized_check_type_handled",
+          "outcome": "passed",
+          "duration": 0.006506499999886728,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f6_hitl_repeated_resolutions_idempotent",
+          "name": "test_tier2_f6_hitl_repeated_resolutions_idempotent",
+          "outcome": "passed",
+          "duration": 0.012054299999363138,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_all_dimensions_perfect_100",
+          "name": "test_tier2_f7_scoring_all_dimensions_perfect_100",
+          "outcome": "passed",
+          "duration": 0.000369400000636233,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_all_dimensions_failed_0",
+          "name": "test_tier2_f7_scoring_all_dimensions_failed_0",
+          "outcome": "passed",
+          "duration": 0.0003804000007221475,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_total_clamped_at_upper_bound_100",
+          "name": "test_tier2_f7_scoring_total_clamped_at_upper_bound_100",
+          "outcome": "passed",
+          "duration": 0.00035620000016933773,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_total_clamped_at_lower_bound_0",
+          "name": "test_tier2_f7_scoring_total_clamped_at_lower_bound_0",
+          "outcome": "passed",
+          "duration": 0.00031570000101055484,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier2_boundaries.py::test_tier2_f7_scoring_exact_tier_boundary_thresholds",
+          "name": "test_tier2_f7_scoring_exact_tier_boundary_thresholds",
+          "outcome": "passed",
+          "duration": 0.0002846000006684335,
+          "error": null
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "title": "Tier 3: Cross-Feature Interactions",
+      "file": "e2e_tests/test_tier3_interactions.py",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "duration": 4.747,
+      "tests": [
+        {
+          "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_complete_due_diligence_lifecycle",
+          "name": "test_tier3_flow_complete_due_diligence_lifecycle",
+          "outcome": "passed",
+          "duration": 0.6418161000001419,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_fixtures_to_report_to_pdf_consistency",
+          "name": "test_tier3_flow_fixtures_to_report_to_pdf_consistency",
+          "outcome": "passed",
+          "duration": 0.4158549999992829,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_verify_hitl_resolution_to_report_audit",
+          "name": "test_tier3_flow_verify_hitl_resolution_to_report_audit",
+          "outcome": "passed",
+          "duration": 0.47247760000027483,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_watchlist_multi_property_deltas_and_thresholds",
+          "name": "test_tier3_flow_watchlist_multi_property_deltas_and_thresholds",
+          "outcome": "passed",
+          "duration": 0.025076200001421967,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier3_interactions.py::test_tier3_flow_concurrent_verifications_isolation",
+          "name": "test_tier3_flow_concurrent_verifications_isolation",
+          "outcome": "passed",
+          "duration": 2.377239699999336,
+          "error": null
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "title": "Tier 4: Real-World Scenarios",
+      "file": "e2e_tests/test_tier4_scenarios.py",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "duration": 2.323,
+      "tests": [
+        {
+          "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_clean_homebuyer_due_diligence",
+          "name": "test_tier4_scenario_clean_homebuyer_due_diligence",
+          "outcome": "passed",
+          "duration": 0.13448860000062268,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_delayed_project_with_possession_gap",
+          "name": "test_tier4_scenario_delayed_project_with_possession_gap",
+          "outcome": "passed",
+          "duration": 0.13529369999923802,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_flagged_insolvent_builder_alert",
+          "name": "test_tier4_scenario_flagged_insolvent_builder_alert",
+          "outcome": "passed",
+          "duration": 0.158226099998501,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_live_portal_url_extraction",
+          "name": "test_tier4_scenario_live_portal_url_extraction",
+          "outcome": "passed",
+          "duration": 0.530055999999604,
+          "error": null
+        },
+        {
+          "nodeid": "e2e_tests/test_tier4_scenarios.py::test_tier4_scenario_manual_details_offline_ruling",
+          "name": "test_tier4_scenario_manual_details_offline_ruling",
+          "outcome": "passed",
+          "duration": 0.47568909999972675,
+          "error": null
+        }
+      ]
+    }
+  ]
+}

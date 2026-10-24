@@ -25,16 +25,17 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     c_bg_light = (0.96, 0.97, 0.99)   # Slate 50
     c_border = (0.85, 0.88, 0.92)     # Slate 200
 
-    prop = report_data.get("property_details", {})
-    project_name = prop.get("project_name", "Property Due-Diligence Report")
-    promoter_name = prop.get("promoter_name", "Developer")
-    rera_id = prop.get("rera_id", "RERA Pending")
-    city = prop.get("city", "Mumbai")
-    state = prop.get("state", "Maharashtra")
-    report_id = report_data.get("report_id", "RPT-001")
-    score = report_data.get("trust_score", 0)
-    label = report_data.get("trust_label", "Pending")
-    created_at = report_data.get("created_at", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+    prop = report_data.get("property_details") or {}
+    project_name = prop.get("project_name") or "Property Due-Diligence Report"
+    promoter_name = prop.get("promoter_name") or "Developer"
+    rera_id = prop.get("rera_id") or "RERA Pending"
+    city = prop.get("city") or "Mumbai"
+    state = prop.get("state") or "Maharashtra"
+    report_id = report_data.get("report_id") or "RPT-001"
+    raw_score = report_data.get("trust_score")
+    score = int(raw_score) if raw_score is not None else 0
+    label = report_data.get("trust_label") or "Pending"
+    created_at = report_data.get("created_at") or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     # Trust Tier Color
     if score >= 80:
@@ -73,8 +74,8 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     y += 80
 
     # 3. Executive Summary / Plain-Language Verdict
-    summary_obj = report_data.get("summary", {})
-    verdict = summary_obj.get("verdict", "No summary available.")
+    summary_obj = report_data.get("summary") or {}
+    verdict = summary_obj.get("verdict") or "No summary available."
 
     page.insert_text((margin_x, y), "EXECUTIVE DUE-DILIGENCE VERDICT", fontsize=10, fontname="helv", color=c_brand)
     y += 6
@@ -108,7 +109,7 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     page.insert_text((page_width - margin_x - 90, y + 12), "Regulatory Source", fontsize=8, fontname="helv", color=(1, 1, 1))
     y += 18
 
-    checks = report_data.get("checks", [])
+    checks = report_data.get("checks") or []
     dim_names = {
         "rera_status": ("1. RERA Registration & Validity", "State RERA Portal", 30),
         "claim_match": ("2. Marketing Claim Discrepancies", "Brochure vs RERA Form B", 20),
@@ -118,8 +119,8 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
         "reputation": ("6. Public Sentiment & Grievances", "Consumer Forum & Media", 10),
     }
 
-    breakdown = report_data.get("breakdown", {})
-    dim_scores = breakdown.get("dimension_scores", {})
+    breakdown = report_data.get("breakdown") or {}
+    dim_scores = breakdown.get("dimension_scores") or {}
 
     for idx, (dim_key, (dim_title, source_lbl, max_p)) in enumerate(dim_names.items()):
         row_rect = fitz.Rect(margin_x, y, page_width - margin_x, y + 16)
@@ -127,20 +128,31 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
         page.draw_rect(row_rect, color=c_border, fill=row_bg)
 
         # Find matching check result
-        c_res = next((c for c in checks if c.get("check_type") == dim_key), {})
-        st = c_res.get("status", "passed").upper()
-        awarded = dim_scores.get(dim_key, c_res.get("score_contribution", max_p))
+        c_res = next((c for c in checks if (c.get("check_type") if isinstance(c, dict) else getattr(c, "check_type", None)) == dim_key), {})
+        if not isinstance(c_res, dict):
+            c_res = c_res.__dict__ if hasattr(c_res, "__dict__") else {}
+        raw_st = c_res.get("status")
+        if hasattr(raw_st, "value"):
+            raw_st = raw_st.value
+        st = str(raw_st or "passed").upper()
+        if st.startswith("CHECKSTATUS."):
+            st = st.replace("CHECKSTATUS.", "")
+        awarded_val = dim_scores.get(dim_key)
+        if awarded_val is None:
+            awarded_val = c_res.get("score_contribution")
+        if awarded_val is None:
+            awarded_val = max_p
 
         page.insert_text((margin_x + 10, y + 11), dim_title, fontsize=7.5, fontname="helv", color=c_dark)
         page.insert_text((margin_x + 220, y + 11), st, fontsize=7.5, fontname="helv", color=c_score if st == "PASSED" else (0.85, 0.4, 0.1))
-        page.insert_text((margin_x + 340, y + 11), f"{awarded} / {max_p} pts", fontsize=7.5, fontname="helv", color=c_dark)
+        page.insert_text((margin_x + 340, y + 11), f"{awarded_val} / {max_p} pts", fontsize=7.5, fontname="helv", color=c_dark)
         page.insert_text((page_width - margin_x - 90, y + 11), source_lbl, fontsize=7, fontname="helv", color=c_muted)
         y += 16
 
     y += 12
 
     # 5. Auditable Deductions
-    deductions = breakdown.get("deductions", [])
+    deductions = breakdown.get("deductions") or []
     if deductions:
         page.insert_text((margin_x, y), f"AUDITABLE SCORE DEDUCTIONS ({len(deductions)})", fontsize=10, fontname="helv", color=(0.85, 0.15, 0.15))
         y += 6
@@ -165,14 +177,19 @@ def generate_pdf_dossier(report_data: Dict[str, Any]) -> bytes:
     for c in checks:
         if evidence_count >= 3:
             break
-        ev_list = c.get("evidence", [])
+        ev_list = (c.get("evidence") if isinstance(c, dict) else getattr(c, "evidence", [])) or []
         if ev_list:
             ev = ev_list[0]
+            if not isinstance(ev, dict):
+                ev = ev.__dict__ if hasattr(ev, "__dict__") else {}
+            ev_title = ev.get('title') or 'Official Record'
+            ev_url = (ev.get('url') or '')[:75]
+            ev_ts = (ev.get('timestamp') or '')[:10]
             ev_box = fitz.Rect(margin_x, y, page_width - margin_x, y + 30)
             page.draw_rect(ev_box, color=c_border, fill=c_bg_light)
-            page.insert_text((margin_x + 8, y + 11), f"Source: {ev.get('title', 'Official Record')}", fontsize=8, fontname="helv", color=c_dark)
-            page.insert_text((margin_x + 8, y + 22), f"URL: {ev.get('url', '')[:75]}...", fontsize=7, fontname="helv", color=c_brand)
-            page.insert_text((page_width - margin_x - 110, y + 11), f"Timestamp: {ev.get('timestamp', '')[:10]}", fontsize=7, fontname="helv", color=c_muted)
+            page.insert_text((margin_x + 8, y + 11), f"Source: {ev_title}", fontsize=8, fontname="helv", color=c_dark)
+            page.insert_text((margin_x + 8, y + 22), f"URL: {ev_url}...", fontsize=7, fontname="helv", color=c_brand)
+            page.insert_text((page_width - margin_x - 110, y + 11), f"Timestamp: {ev_ts}", fontsize=7, fontname="helv", color=c_muted)
             y += 34
             evidence_count += 1
 

@@ -7,26 +7,18 @@ import {
   CheckType,
   CheckResult,
 } from '@/lib/types';
-import { getReport, addToWatchlist, resolveHITL, WORKER_URL } from '@/lib/api';
+import { getReport, resolveHITL, WORKER_URL } from '@/lib/api';
 import TrustGauge from '@/components/TrustGauge';
 import ProgressRail from '@/components/ProgressRail';
 import EvidenceCard from '@/components/EvidenceCard';
 import {
   Building2,
-  FileCheck2,
   Scale,
-  UserCheck,
-  CheckCircle,
-  MessageSquareWarning,
-  BookmarkPlus,
   Download,
-  Share2,
   AlertCircle,
-  Clock,
   ArrowLeft,
   ShieldAlert,
   Loader2,
-  Check,
   AlertTriangle,
 } from 'lucide-react';
 
@@ -39,7 +31,6 @@ export default function ReportDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<CheckType>('rera_status');
-  const [watchlistSaved, setWatchlistSaved] = useState(false);
   const [hitlActive, setHitlActive] = useState(false);
   const [hitlResolved, setHitlResolved] = useState(false);
 
@@ -71,15 +62,6 @@ export default function ReportDetailPage() {
     };
   }, [reportId]);
 
-  const handleAddToWatchlist = async () => {
-    try {
-      await addToWatchlist(reportId);
-      setWatchlistSaved(true);
-      setTimeout(() => setWatchlistSaved(false), 3000);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const handleResolveHITL = async () => {
     try {
@@ -131,6 +113,34 @@ export default function ReportDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 pb-24">
+      {/* 3-Screen Step Breadcrumb */}
+      <div className="flex items-center justify-center space-x-2 sm:space-x-4 text-xs font-semibold">
+        <button
+          onClick={() => router.push('/')}
+          className="flex items-center space-x-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">
+            1
+          </span>
+          <span className="hidden sm:inline">Input Listing</span>
+        </button>
+        <span className="text-slate-300">→</span>
+        <button
+          onClick={() => router.push(`/progress/${reportId}`)}
+          className="flex items-center space-x-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">
+            2
+          </span>
+          <span className="hidden sm:inline">Live Due Diligence</span>
+        </button>
+        <span className="text-slate-300">→</span>
+        <div className="flex items-center space-x-1.5 text-brand-700 font-bold bg-brand-50 px-3 py-1 rounded-full border border-brand-200 shadow-sm">
+          <ShieldAlert className="w-3.5 h-3.5 text-brand-600" />
+          <span>3. Verified Trust Report (Ready)</span>
+        </div>
+      </div>
+
       {/* Back button and quick actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <button
@@ -138,7 +148,7 @@ export default function ReportDetailPage() {
           className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>New Property Search</span>
+          <span>← Input Another Listing</span>
         </button>
 
         <div className="flex items-center space-x-2">
@@ -148,27 +158,6 @@ export default function ReportDetailPage() {
             className="px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100 transition-colors"
           >
             {hitlActive ? 'Hide HITL Challenge' : 'Simulate Captcha (HITL)'}
-          </button>
-
-          <button
-            onClick={handleAddToWatchlist}
-            className={`inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-              watchlistSaved
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-            }`}
-          >
-            {watchlistSaved ? (
-              <>
-                <Check className="w-4 h-4 text-emerald-600" />
-                <span>Added to Watchlist</span>
-              </>
-            ) : (
-              <>
-                <BookmarkPlus className="w-4 h-4 text-slate-500" />
-                <span>Save to Watchlist</span>
-              </>
-            )}
           </button>
 
           <button
@@ -335,21 +324,17 @@ export default function ReportDetailPage() {
             </div>
           )}
 
-          {/* 6-Tab Deep Dive & Evidence Inspector */}
+          {/* 2-Check Deep Dive & Evidence Inspector */}
           <div className="glass-card rounded-2xl p-6 border border-slate-200">
             <h3 className="font-bold text-slate-900 text-sm mb-4">
-              Comprehensive Evidence Inspector
+              Statutory Evidence & Regulatory Record Inspector
             </h3>
 
-            {/* Tab Bar */}
+            {/* Tab Bar: 2 Core Checks */}
             <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3 mb-6">
               {[
-                { type: 'rera_status', label: '1. RERA Status', icon: <Building2 className="w-4 h-4" /> },
-                { type: 'claim_match', label: '2. Claim Match', icon: <FileCheck2 className="w-4 h-4" /> },
-                { type: 'court_signals', label: '3. Court Signals', icon: <Scale className="w-4 h-4" /> },
-                { type: 'promoter_record', label: '4. Promoter Record', icon: <UserCheck className="w-4 h-4" /> },
-                { type: 'approvals', label: '5. Approvals & NOCs', icon: <CheckCircle className="w-4 h-4" /> },
-                { type: 'reputation', label: '6. Reputation', icon: <MessageSquareWarning className="w-4 h-4" /> },
+                { type: 'rera_status', label: '1. RERA Registration & Disclosures (60 pts)', icon: <Building2 className="w-4 h-4" /> },
+                { type: 'court_signals', label: '2. Litigation Signals & Court Records (40 pts)', icon: <Scale className="w-4 h-4" /> },
               ].map((tab) => (
                 <button
                   key={tab.type}

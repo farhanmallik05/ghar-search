@@ -44,7 +44,7 @@ export default function HomePage() {
           });
 
       const res = await triggerVerification(payload);
-      router.push(`/report/${res.report_id}`);
+      router.push(`/progress/${res.report_id}`);
     } catch (err: any) {
       setError(err.message || 'Verification initiation failed. Check worker connection.');
       setLoading(false);
@@ -52,31 +52,12 @@ export default function HomePage() {
   };
 
   const handleQuickDemo = (key: 'clean' | 'delayed' | 'flagged') => {
-    if (key === 'clean') {
-      handleStartVerification({
-        project_name: 'Sunshine Residency Phase 1',
-        promoter_name: 'Godrej Properties Limited',
-        rera_number: 'P52100012345',
-        state: 'Maharashtra',
-        city: 'Pune',
-      });
-    } else if (key === 'delayed') {
-      handleStartVerification({
-        project_name: 'Green Valley Towers Phase 2',
-        promoter_name: 'Apex Skyline Developers Pvt Ltd',
-        rera_number: 'P52100088765',
-        state: 'Maharashtra',
-        city: 'Pune',
-      });
-    } else {
-      handleStartVerification({
-        project_name: 'Royal Empire Luxury Towers',
-        promoter_name: 'Royal Imperial Realcon Ltd',
-        rera_number: 'P51700099881',
-        state: 'Maharashtra',
-        city: 'Thane',
-      });
-    }
+    const reportMap = {
+      clean: 'rpt_sunshine_clean',
+      delayed: 'rpt_green_valley_delayed',
+      flagged: 'rpt_royal_empire_flagged',
+    };
+    router.push(`/progress/${reportMap[key]}`);
   };
 
   return (
@@ -240,7 +221,7 @@ export default function HomePage() {
                   </>
                 ) : (
                   <>
-                    <span>Run 6-Point Due Diligence</span>
+                    <span>Run 2-Check Due Diligence</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -303,90 +284,60 @@ export default function HomePage() {
               </div>
               <div className="font-bold text-xs text-slate-900">Royal Empire (Thane)</div>
               <p className="text-[11px] text-slate-600 mt-0.5">
-                NCLT insolvency, 8 illegal floors (Score 28)
+                NCLT insolvency, 8 illegal floors (Score 18)
               </p>
             </button>
           </div>
         </div>
       </section>
 
-      {/* 6-Layer Architecture Feature Grid */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      {/* 2-Check Focus & 3-Screen Workflow Section */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-2xl font-bold text-slate-900">
-            6 Concurrent Checks. 1 Auditable Trust Dossier.
+            2 Core Statutory Checks. Zero Hallucinations.
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-2">
-            Every score deduction links to machine-captured evidence with primary source URLs,
-            timestamps, and screenshots.
+            Every score deduction links directly to official government portal records with primary source URLs, timestamps, and screenshots.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="glass-card p-6 rounded-2xl border border-slate-200/80">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-card p-6 rounded-2xl border border-slate-200/80 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
               <Building className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-sm text-slate-900 mb-1">1. RERA Portal Verification</h3>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 mb-1">Check 1 · 60% Weight</div>
+            <h3 className="font-bold text-base text-slate-900 mb-2">RERA Status & Regulatory Disclosures</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Validates registration certificate authenticity, expiry status, approved project phases,
-              and quarterly financial disclosures on official state portals.
+              Autonomous web agents query MahaRERA and State RERA portals to verify registration authenticity, certificate validity expiry, Section 7/8 revocation orders, designated 70% escrow accounts, and quarterly CA progress filings.
             </p>
           </div>
 
-          <div className="glass-card p-6 rounded-2xl border border-slate-200/80">
+          <div className="glass-card p-6 rounded-2xl border border-slate-200/80 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4">
-              <FileText className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-sm text-slate-900 mb-1">2. Claim Match & Concordance</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Detects discrepancies between builder marketing ads (carpet area, promised possession date,
-              luxury amenities) and official statutory filings.
-            </p>
-          </div>
-
-          <div className="glass-card p-6 rounded-2xl border border-slate-200/80">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
               <Scale className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-sm text-slate-900 mb-1">3. Court & NCLT Signals</h3>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-brand-600 mb-1">Check 2 · 40% Weight</div>
+            <h3 className="font-bold text-base text-slate-900 mb-2">Litigation Signals & Court News</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Autonomous scan of eCourts India, NCLT insolvency proceedings, consumer forum grievances,
-              and High Court stop-work injunctions.
+              Scans the National Judicial Data Grid (eCourts India), NCLT/IBBI corporate insolvency ledgers (Section 7 and Section 9 CIRP petitions), High Court stop-work injunctions, and consumer court delay compensation claims.
             </p>
           </div>
+        </div>
 
-          <div className="glass-card p-6 rounded-2xl border border-slate-200/80">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-sm text-slate-900 mb-1">4. Promoter Background & MCA21</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Director identification numbers (DIN), past delivery track record, sister entity liquidations,
-              and banking credit charge records.
-            </p>
+        {/* 3-Screen Workflow Pills */}
+        <div className="mt-10 p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 gap-4">
+          <div className="font-bold text-slate-900 flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-brand-600" />
+            <span>3-Screen Due Diligence Journey:</span>
           </div>
-
-          <div className="glass-card p-6 rounded-2xl border border-slate-200/80">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-sm text-slate-900 mb-1">5. Municipal Sanctions & NOCs</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Cross-checks Commencement Certificate (CC), provisional Fire NOC, Environmental Clearances,
-              and height clearances.
-            </p>
-          </div>
-
-          <div className="glass-card p-6 rounded-2xl border border-slate-200/80">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <h3 className="font-bold text-sm text-slate-900 mb-1">6. Public Grievances & Sentiment</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              NLP sentiment aggregation of buyer forum threads, consumer complaint portals, and media
-              investigations on construction halts.
-            </p>
+          <div className="flex items-center space-x-3 font-medium">
+            <span className="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-xs font-semibold text-slate-800">1. Input Listing</span>
+            <span className="text-slate-400">➔</span>
+            <span className="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-xs font-semibold text-slate-800">2. Live Agent Progress</span>
+            <span className="text-slate-400">➔</span>
+            <span className="bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-xs font-semibold text-slate-800">3. Verified Trust Report</span>
           </div>
         </div>
       </section>

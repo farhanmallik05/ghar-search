@@ -167,3 +167,100 @@ async def test_verification_graph_live_url_extraction():
     assert report.property_details["city"] == "Noida"
     assert report.trust_score == sum(c.score_contribution for c in report.checks)
     assert len(report.checks) == 6
+
+def test_strict_scoring_equality_invariant_all_fixtures():
+    """Validates the core invariant across ALL canonical fixtures:
+    trust_score == sum(dimension_scores) == sum(check_contributions)
+    """
+    for key, data in DEMO_PROPERTIES.items():
+        checks = [c.model_copy() for c in data["checks"]]
+        claims = data.get("claims")
+        breakdown = calculate_trust_score(checks, claims)
+
+        for c in checks:
+            c.score_contribution = breakdown.dimension_scores.get(c.check_type.value, c.score_contribution)
+
+        # Invariant 1: total_score strictly equals sum of all 6 dimension scores
+        dimension_sum = sum(breakdown.dimension_scores.values())
+        assert breakdown.total_score == dimension_sum, f"Fixture '{key}' total_score {breakdown.total_score} != dim sum {dimension_sum}"
+
+        # Invariant 2: total_score strictly equals sum of check score contributions
+        check_contrib_sum = sum(c.score_contribution for c in checks)
+        assert breakdown.total_score == check_contrib_sum, f"Fixture '{key}' total_score {breakdown.total_score} != check sum {check_contrib_sum}"
+
+        # Invariant 3: pairwise check contribution strictly equals corresponding dimension score
+        for c in checks:
+            assert c.score_contribution == breakdown.dimension_scores[c.check_type.value]
+
+        # Invariant 4: total_score is bounded within statutory 0-100 range
+        assert 0 <= breakdown.total_score <= 100
+
+@pytest.mark.asyncio
+async def test_strict_scoring_equality_invariant_dynamic_inputs():
+    """Validates the strict scoring equality invariant on dynamically executed VerificationGraph reports."""
+    graph = VerificationGraph()
+
+    test_inputs = [
+        PropertyInput(
+            manual_details=ManualDetails(
+                project_name="Green Valley Baner",
+                rera_number="P52100088765",
+                city="Pune",
+                state="Maharashtra"
+            )
+        ),
+        PropertyInput(
+            manual_details=ManualDetails(
+                project_name="Royal Empire Residency",
+                rera_number="P52100099999",
+                city="Mumbai",
+                state="Maharashtra"
+            )
+        ),
+        PropertyInput(
+            property_url="https://www.99acres.com/godrej-serene-baner-pune-npxid-r12345"
+        )
+    ]
+
+    for idx, inp in enumerate(test_inputs):
+        report = await graph.run(f"rpt_dyn_invariant_{idx}", inp)
+        assert report.status == "completed"
+
+        dim_sum = sum(report.breakdown.dimension_scores.values())
+        check_sum = sum(c.score_contribution for c in report.checks)
+
+        assert report.trust_score == dim_sum, f"Dynamic input {idx}: trust_score {report.trust_score} != dim_sum {dim_sum}"
+        assert report.trust_score == check_sum, f"Dynamic input {idx}: trust_score {report.trust_score} != check_sum {check_sum}"
+        assert 0 <= report.trust_score <= 100
+
+def test_scoring_math_synthetic_permutations():
+    """Tests extreme edge cases: perfect scores, severe failure across all checks, and partial deductions."""
+    # Scenario A: All checks failed with severe keywords
+    failing_checks = [
+        CheckResult(check_type=CheckType.RERA_STATUS, status=CheckStatus.FAILED, findings=["Deregistration Section 7 revocation"]),
+        CheckResult(check_type=CheckType.CLAIM_MATCH, status=CheckStatus.FAILED, findings=["Possession delay 24 months exceeding statutory schedule"]),
+        CheckResult(check_type=CheckType.COURT_SIGNALS, status=CheckStatus.FAILED, findings=["NCLT CIRP admitted against corporate debtor"]),
+        CheckResult(check_type=CheckType.PROMOTER_RECORD, status=CheckStatus.FAILED, findings=["Director disqualified under MCA21 Section 164"]),
+        CheckResult(check_type=CheckType.APPROVALS, status=CheckStatus.FAILED, findings=["Demolition notice issued by Municipal Corporation"]),
+        CheckResult(check_type=CheckType.REPUTATION, status=CheckStatus.FAILED, findings=["FIR filed against promoter with public protests"])
+    ]
+    breakdown_fail = calculate_trust_score(failing_checks)
+    for c in failing_checks:
+        c.score_contribution = breakdown_fail.dimension_scores.get(c.check_type.value, c.score_contribution)
+    assert breakdown_fail.total_score == sum(breakdown_fail.dimension_scores.values()) == sum(c.score_contribution for c in failing_checks)
+    assert 0 <= breakdown_fail.total_score <= 100
+
+    # Scenario B: All checks cleanly passed
+    passing_checks = [
+        CheckResult(check_type=CheckType.RERA_STATUS, status=CheckStatus.PASSED, findings=["Active valid registration"]),
+        CheckResult(check_type=CheckType.CLAIM_MATCH, status=CheckStatus.PASSED, findings=["Claims match perfectly"]),
+        CheckResult(check_type=CheckType.COURT_SIGNALS, status=CheckStatus.PASSED, findings=["Zero litigation found"]),
+        CheckResult(check_type=CheckType.PROMOTER_RECORD, status=CheckStatus.PASSED, findings=["Clean promoter track record"]),
+        CheckResult(check_type=CheckType.APPROVALS, status=CheckStatus.PASSED, findings=["All NOCs in place"]),
+        CheckResult(check_type=CheckType.REPUTATION, status=CheckStatus.PASSED, findings=["Clean sentiment with zero protests"])
+    ]
+    breakdown_pass = calculate_trust_score(passing_checks)
+    for c in passing_checks:
+        c.score_contribution = breakdown_pass.dimension_scores.get(c.check_type.value, c.score_contribution)
+    assert breakdown_pass.total_score == sum(breakdown_pass.dimension_scores.values()) == sum(c.score_contribution for c in passing_checks) == 100
+

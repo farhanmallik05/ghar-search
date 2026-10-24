@@ -75,9 +75,9 @@ CREATE TABLE IF NOT EXISTS public.report_checks (
 -- 5. Watchlist Table
 -- Properties tracked for nightly background due-diligence re-verification
 CREATE TABLE IF NOT EXISTS public.watchlist (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    property_id UUID REFERENCES public.properties(id) ON DELETE CASCADE NOT NULL,
+    id TEXT PRIMARY KEY DEFAULT ('wl_' || substr(md5(random()::text), 1, 8)),
+    user_id UUID,
+    property_id UUID REFERENCES public.properties(id) ON DELETE CASCADE,
     latest_report_id TEXT REFERENCES public.reports(id) ON DELETE SET NULL,
     alert_threshold INTEGER DEFAULT 10,
     notify_email BOOLEAN DEFAULT TRUE,
@@ -118,7 +118,15 @@ CREATE TABLE IF NOT EXISTS public.agent_logs (
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 8. Indexes for Rapid Querying
+-- 8. Compatibility Views for Alternate Naming Specifications
+-- Exposes verification_checks and watchlist_entries matching Requirement R3
+CREATE OR REPLACE VIEW public.verification_checks AS
+    SELECT * FROM public.report_checks;
+
+CREATE OR REPLACE VIEW public.watchlist_entries AS
+    SELECT * FROM public.watchlist;
+
+-- 9. Indexes for Rapid Querying
 CREATE INDEX IF NOT EXISTS idx_properties_rera_id ON public.properties(rera_id);
 CREATE INDEX IF NOT EXISTS idx_reports_property_id ON public.reports(property_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status ON public.reports(status);
@@ -128,7 +136,7 @@ CREATE INDEX IF NOT EXISTS idx_watchlist_user_id ON public.watchlist(user_id);
 CREATE INDEX IF NOT EXISTS idx_hitl_tasks_report_status ON public.hitl_tasks(report_id, status);
 CREATE INDEX IF NOT EXISTS idx_agent_logs_report_id ON public.agent_logs(report_id);
 
--- 9. Row Level Security (RLS)
+-- 10. Row Level Security (RLS)
 ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.report_checks ENABLE ROW LEVEL SECURITY;
@@ -146,12 +154,26 @@ CREATE POLICY "Public can view report checks by report id" ON public.report_chec
 CREATE POLICY "Public can view properties" ON public.properties
     FOR SELECT USING (true);
 
--- Service role bypasses RLS for worker writes
--- Authenticated users manage their own watchlist
+-- Allow public read of hitl tasks for human-in-the-loop resolution modal
+CREATE POLICY "Public can view hitl tasks" ON public.hitl_tasks
+    FOR SELECT USING (true);
+
+-- Authenticated users manage their own watchlist; public can read and insert for demo workflows
 CREATE POLICY "Users can manage their watchlist" ON public.watchlist
     FOR ALL USING (auth.uid() = user_id);
 
--- 10. Realtime Publications
+CREATE POLICY "Public can view watchlist" ON public.watchlist
+    FOR SELECT USING (true);
+
+CREATE POLICY "Public can insert to watchlist" ON public.watchlist
+    FOR INSERT WITH CHECK (true);
+
+-- 11. Realtime Publications & Replica Identity
+-- Ensure full row payload streaming on update/delete events
+ALTER TABLE public.reports REPLICA IDENTITY FULL;
+ALTER TABLE public.report_checks REPLICA IDENTITY FULL;
+ALTER TABLE public.hitl_tasks REPLICA IDENTITY FULL;
+
 -- Enable Realtime broadcasting for live progress in the Experience Layer
 DO $$
 BEGIN

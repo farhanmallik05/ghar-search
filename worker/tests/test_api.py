@@ -1,7 +1,8 @@
-"""API endpoint integration tests using FastAPI TestClient."""
-
+import fitz
 from fastapi.testclient import TestClient
-from main import app
+from main import app, seed_demo_store
+from core.supabase import memory_store
+from intelligence.pdf_generator import generate_pdf_dossier
 
 client = TestClient(app)
 
@@ -87,6 +88,81 @@ def test_pdf_report_export():
     # PDF files start with %PDF header
     assert res.content.startswith(b"%PDF")
     assert len(res.content) > 1000
+
+def test_pdf_report_export_all_fixtures_pymupdf_structure():
+    """Verifies that all 3 canonical fixtures export valid, well-structured binary PDFs verifiable via PyMuPDF."""
+    seed_demo_store()
+    fixtures = [
+        ("rpt_sunshine_clean", "Sunshine Residency", "92 / 100"),
+        ("rpt_green_valley_delayed", "Green Valley Towers", "68 / 100"),
+        ("rpt_royal_empire_flagged", "Royal Empire Luxury Towers", "18 / 100"),
+    ]
+    for report_id, expected_title, expected_score_str in fixtures:
+        res = client.get(f"/api/v1/report/{report_id}/pdf")
+        assert res.status_code == 200
+        assert res.headers["content-type"] == "application/pdf"
+        assert res.content.startswith(b"%PDF-")
+        assert len(res.content) >= 5000
+
+        # Open and parse binary stream using PyMuPDF (fitz)
+        doc = fitz.open(stream=res.content, filetype="pdf")
+        assert doc.page_count >= 1
+
+        page = doc[0]
+        text = page.get_text()
+        assert "GHAR SEARCH" in text
+        assert "CONFIDENTIAL AUDIT" in text
+        assert expected_title in text
+        assert expected_score_str in text
+        assert "6-DIMENSION STATUTORY COMPLIANCE BREAKDOWN" in text
+        doc.close()
+
+def test_pdf_export_queued_and_running_guard_409():
+    """Verifies that requesting PDF export on queued or running reports returns HTTP 409 Conflict."""
+    # Test queued status
+    memory_store.reports["rpt_test_queued_guard"] = {
+        "report_id": "rpt_test_queued_guard",
+        "status": "queued",
+        "trust_score": None,
+        "created_at": None
+    }
+    res_queued = client.get("/api/v1/report/rpt_test_queued_guard/pdf")
+    assert res_queued.status_code == 409
+    assert "queued" in res_queued.json()["detail"].lower()
+
+    # Test running status
+    memory_store.reports["rpt_test_running_guard"] = {
+        "report_id": "rpt_test_running_guard",
+        "status": "running",
+        "trust_score": None,
+        "created_at": None
+    }
+    res_running = client.get("/api/v1/report/rpt_test_running_guard/pdf")
+    assert res_running.status_code == 409
+    assert "running" in res_running.json()["detail"].lower()
+
+def test_pdf_generator_none_value_resilience():
+    """Directly tests that generate_pdf_dossier survives missing/None fields without TypeError."""
+    sparse_data = {
+        "report_id": "rpt_sparse_test",
+        "trust_score": None,
+        "trust_label": None,
+        "created_at": None,
+        "property_details": None,
+        "summary": None,
+        "checks": None,
+        "breakdown": None
+    }
+    pdf_bytes = generate_pdf_dossier(sparse_data)
+    assert isinstance(pdf_bytes, bytes)
+    assert pdf_bytes.startswith(b"%PDF-")
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    assert doc.page_count >= 1
+    page_text = doc[0].get_text()
+    assert "GHAR SEARCH" in page_text
+    assert "0 / 100" in page_text
+    doc.close()
 
 def test_verify_empty_payload_validation():
     # Neither listing_url nor manual_details provided

@@ -63,14 +63,11 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
 
   const allTypes: CheckType[] = [
     'rera_status',
-    'claim_match',
-    'promoter_record',
     'court_signals',
-    'approvals',
-    'reputation',
   ];
 
-  const completedCount = checks.filter(
+  const relevantChecks = checks.filter(c => c.check_type === 'rera_status' || c.check_type === 'court_signals');
+  const completedCount = relevantChecks.filter(
     (c) => c.status === 'passed' || c.status === 'flagged' || c.status === 'failed'
   ).length;
 
@@ -88,12 +85,12 @@ export default function ProgressRail({ checks, overallStatus }: ProgressRailProp
             )}
           </h3>
           <p className="text-xs text-slate-500">
-            6 parallel autonomous web agent checkers querying official portals
+            2 core statutory web agent checkers querying official portals & judicial ledgers
           </p>
         </div>
         <div className="text-right">
           <span className="text-xs font-semibold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-full border border-brand-100">
-            {completedCount} of 6 Checks Completed
+            {completedCount} of 2 Checks Completed
           </span>
         </div>
       </div>
