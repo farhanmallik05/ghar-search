@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   images: {
     remotePatterns: [
@@ -12,6 +13,15 @@ const nextConfig = {
         hostname: '*.supabase.co',
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/verify',
+        destination: '/#verify-section',
+        permanent: false,
+      },
+    ];
   },
 };
 

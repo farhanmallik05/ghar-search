@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { getAppUrl } from "@/lib/url";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ChevronDown, ShieldAlert, ArrowRight, Eye, CheckCircle2, Search, ExternalLink, Activity } from "lucide-react";
+import { ChevronDown, ShieldAlert, ShieldCheck, ArrowRight, Eye, CheckCircle2, Search, ExternalLink, Activity } from "lucide-react";
 
 interface ScrollCanvasProps {
   frameCount?: number;
@@ -15,6 +16,7 @@ export default function ScrollCanvas({
   sequencePath = "/sequence/frame_",
   fileExtension = "webp",
 }: ScrollCanvasProps) {
+  const [appUrl, setAppUrl] = useState(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
@@ -25,6 +27,10 @@ export default function ScrollCanvas({
   const [loadedCount, setLoadedCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeFrameDisplay, setActiveFrameDisplay] = useState<number>(0);
+
+  useEffect(() => {
+    setAppUrl(getAppUrl());
+  }, []);
 
   // Framer Motion scroll tracking over the 400vh container
   const { scrollYProgress } = useScroll({
@@ -484,18 +490,18 @@ export default function ScrollCanvas({
             {/* Call to Actions from Slide 8 */}
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 pointer-events-auto">
               <a
-                href="#live-verdict"
+                href={`${appUrl}/#verify-section`}
                 className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-emerald-400 text-black font-semibold text-sm tracking-tight hover:bg-emerald-300 transition-all duration-300 shadow-[0_0_35px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95"
               >
-                <Search className="w-4 h-4" />
-                <span>Launch Interactive Verdict Demo</span>
+                <ShieldCheck className="w-4 h-4" />
+                <span>Verify Listing on Main Portal</span>
               </a>
 
               <a
-                href="#pipeline"
+                href="#live-verdict"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-white/10 border border-white/20 text-white hover:text-white font-medium text-sm tracking-tight hover:bg-white/15 transition-all duration-300 backdrop-blur-md"
               >
-                <span>View 5-Layer Pipeline</span>
+                <span>Launch Interactive Demo</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>

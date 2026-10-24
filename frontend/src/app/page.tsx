@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Search,
   Link as LinkIcon,
@@ -20,8 +20,10 @@ import {
 } from 'lucide-react';
 import { triggerVerification } from '@/lib/api';
 
-export default function HomePage() {
+function HomeContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [activeTab, setActiveTab] = useState<'url' | 'manual'>('url');
   const [listingUrl, setListingUrl] = useState('');
   const [projectName, setProjectName] = useState('');
@@ -30,6 +32,8 @@ export default function HomePage() {
   const [stateName, setStateName] = useState('Maharashtra');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const autoTriggeredRef = useRef(false);
 
   const handleStartVerification = async (customPayload?: any) => {
     setLoading(true);
@@ -49,14 +53,16 @@ export default function HomePage() {
     }
 
     try {
-      const payload = customPayload || (activeTab === 'url'
-        ? { property_url: listingUrl }
-        : {
-            project_name: projectName,
-            promoter_name: promoterName,
-            rera_number: reraNumber,
-            state: stateName,
-          });
+      const payload =
+        customPayload ||
+        (activeTab === 'url'
+          ? { property_url: listingUrl }
+          : {
+              project_name: projectName,
+              promoter_name: promoterName,
+              rera_number: reraNumber,
+              state: stateName,
+            });
 
       const res = await triggerVerification(payload);
       router.push(`/progress/${res.report_id}`);
@@ -74,6 +80,113 @@ export default function HomePage() {
     };
     router.push(`/progress/${reportMap[key]}`);
   };
+
+  // Inbound query parameter ingestion & deep-link scrolling
+  useEffect(() => {
+    const urlParam = searchParams.get('url');
+    const reraParam = searchParams.get('rera');
+    const queryParam = searchParams.get('query');
+    const autoParam = searchParams.get('auto') === 'true';
+    const verifyParam = searchParams.get('verify') === 'true';
+    const stateParam = searchParams.get('state');
+    const projectParam = searchParams.get('project');
+    const promoterParam = searchParams.get('promoter');
+
+    if (stateParam) setStateName(stateParam);
+    if (projectParam) setProjectName(projectParam);
+    if (promoterParam) setPromoterName(promoterParam);
+
+    let resolvedTab: 'url' | 'manual' | null = null;
+    let resolvedUrl = '';
+    let resolvedRera = '';
+    let resolvedProject = projectParam || '';
+
+    // 1. Explicit url parameter
+    if (urlParam) {
+      resolvedTab = 'url';
+      resolvedUrl = urlParam;
+      setListingUrl(urlParam);
+      setActiveTab('url');
+    }
+
+    // 2. Explicit rera parameter
+    if (reraParam) {
+      resolvedTab = 'manual';
+      resolvedRera = reraParam;
+      setReraNumber(reraParam);
+      setActiveTab('manual');
+    }
+
+    // 3. Universal query parameter (from Landing Page LiveVerdictDemo)
+    if (queryParam) {
+      const trimmed = queryParam.trim();
+      const isUrlPattern =
+        /^https?:\/\//i.test(trimmed) ||
+        trimmed.includes('housing.com') ||
+        trimmed.includes('99acres.com') ||
+        trimmed.includes('magicbricks.com') ||
+        trimmed.includes('.com') ||
+        trimmed.includes('.in');
+
+      if (isUrlPattern) {
+        if (!urlParam) {
+          resolvedTab = 'url';
+          resolvedUrl = trimmed;
+          setListingUrl(trimmed);
+          setActiveTab('url');
+        }
+      } else {
+        if (!reraParam) {
+          resolvedTab = 'manual';
+          setActiveTab('manual');
+          if (/\s/.test(trimmed)) {
+            resolvedProject = trimmed;
+            setProjectName(trimmed);
+          } else if (/[0-9]/.test(trimmed)) {
+            resolvedRera = trimmed;
+            setReraNumber(trimmed);
+          } else {
+            resolvedProject = trimmed;
+            setProjectName(trimmed);
+          }
+        }
+      }
+    }
+
+    // 4. Smooth scroll to #verify-section if requested
+    if (verifyParam || (typeof window !== 'undefined' && window.location.hash === '#verify-section')) {
+      const scrollTimer = setTimeout(() => {
+        const el = document.getElementById('verify-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+      return () => clearTimeout(scrollTimer);
+    }
+
+    // 5. Automatic verification trigger
+    if (autoParam && !autoTriggeredRef.current) {
+      autoTriggeredRef.current = true;
+      let payloadToTrigger: any = null;
+
+      if (resolvedTab === 'url' && resolvedUrl) {
+        payloadToTrigger = { property_url: resolvedUrl };
+      } else if (resolvedTab === 'manual' && (resolvedRera || resolvedProject)) {
+        payloadToTrigger = {
+          project_name: resolvedProject,
+          promoter_name: promoterParam || '',
+          rera_number: resolvedRera,
+          state: stateParam || 'Maharashtra',
+        };
+      } else if (resolvedUrl) {
+        payloadToTrigger = { property_url: resolvedUrl };
+      }
+
+      if (payloadToTrigger) {
+        handleStartVerification(payloadToTrigger);
+      }
+    }
+  }, [searchParams]);
 
   return (
     <div className="space-y-20 pb-24">
@@ -376,5 +489,24 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function HomeFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+        <span className="text-xs font-mono text-slate-500">Loading due-diligence workspace...</span>
+      </div>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<HomeFallback />}>
+      <HomeContent />
+    </Suspense>
   );
 }

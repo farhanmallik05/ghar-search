@@ -2,9 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { getLandingUrl } from '@/lib/url';
 import { ShieldAlert, ExternalLink, ShieldCheck } from 'lucide-react';
 
 export default function Footer() {
+  const [landingUrl, setLandingUrl] = React.useState(process.env.NEXT_PUBLIC_LANDING_URL || 'http://localhost:3001');
+
+  React.useEffect(() => {
+    setLandingUrl(getLandingUrl());
+  }, []);
   return (
     <footer className="border-t border-slate-200/80 bg-slate-900 text-slate-400 text-sm mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -50,6 +56,7 @@ export default function Footer() {
               <li>Team Lead: <strong className="text-slate-200 font-semibold">Farhan Rahaman Mallik</strong></li>
               <li>UI / Frontend: <strong className="text-slate-200 font-semibold">Piyush Kumar Gautam</strong></li>
               <li className="font-mono text-[11px] text-slate-400">Next.js 14 · FastAPI · LangGraph · TinyFish</li>
+              <li><a href={landingUrl} className="inline-flex items-center space-x-1 text-emerald-400 hover:text-emerald-300 font-medium transition-colors"><span>Scrollytelling Landing Page</span><ExternalLink className="w-3 h-3" /></a></li>
               <li className="pt-2">
                 <a
                   href="https://github.com/farhanmallik05/ghar-search"

@@ -9,8 +9,9 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal)](https://fastapi.tiangolo.com/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2-purple)](https://www.langchain.com/langgraph)
 [![Supabase](https://img.shields.io/badge/Supabase-Postgres_15-emerald)](https://supabase.com/)
-[![Pytest](https://img.shields.io/badge/Tests-85_Unit_&_Integration-brightgreen)](https://docs.pytest.org/)
-[![E2E Runner](https://img.shields.io/badge/E2E-85_Tests_Passed_(5_Tiers)-success)](e2e_tests/)
+[![Pytest](https://img.shields.io/badge/Tests-113_Unit_&_Integration-brightgreen)](https://docs.pytest.org/)
+[![Empirics](https://img.shields.io/badge/Empirics-27_Stress_Tests_Passed-blue)](tests/)
+[![Unified Runner](https://img.shields.io/badge/Unified_Tests-140_Passed_(100%25)-success)](tests/run_all_tests.py)
 
 ---
 
@@ -43,6 +44,10 @@ Ghar Search condenses hours of complex due diligence into a **sub-90-second auto
 7. **Side-by-Side Comparison Matrix (`/compare`)**: Multi-property comparative benchmark evaluating 2–4 properties across all 6 statutory dimensions.
 8. **Automated Watchlist Re-check Engine (`/dashboard`)**: Simulates nightly `pg_cron` jobs at 02:00 IST detecting delta changes in litigation or RERA status.
 9. **PyMuPDF Vector PDF Export**: Generates multi-page, paginated, high-fidelity PDF dossiers ready for banking submission.
+10. **State RERA Normalizer & Heuristic Validator (`/api/v1/rera/validate`)**: Auto-detects and validates state formats across MahaRERA, UP RERA, K-RERA, D-RERA, HRERA, TSRERA, TNRERA, and GujRERA.
+11. **Mathematical Penalty Explainer & Risk Categorization**: Provides auditable penalty attribution, statutory clearance rate, and peer percentile benchmarks.
+12. **B2B Portfolio Risk Analytics & Banking CSV Stream (`/api/v1/reports/bulk/...`)**: Calculates portfolio mean, median, and risk distributions for institutional underwriters.
+13. **HIL Telemetry & Fallback Safety Policy (`/api/v1/hil/...`)**: Full audit logging of human challenges and timeout fallback policies.
 
 ---
 

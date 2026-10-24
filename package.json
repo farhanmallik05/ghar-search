@@ -1,0 +1,26 @@
+{
+  "name": "ghar-search",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ghar Search dual-app root orchestration workspace",
+  "scripts": {
+    "dev": "concurrently -n frontend,landing -c blue,green \"npm run dev:frontend\" \"npm run dev:landing\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:landing": "npm --prefix \"Landing Page\" run dev",
+    "build": "npm run build:frontend && npm run build:landing",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:landing": "npm --prefix \"Landing Page\" run build",
+    "start": "concurrently -n frontend,landing -c blue,green \"npm run start:frontend\" \"npm run start:landing\"",
+    "start:frontend": "npm --prefix frontend run start",
+    "start:landing": "npm --prefix \"Landing Page\" run start",
+    "lint": "npm run lint:frontend && npm run lint:landing",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint:landing": "npm --prefix \"Landing Page\" run lint",
+    "test": "python tests/run_all_tests.py",
+    "test:unit": "pytest -v",
+    "test:empirics": "node tests/test_m1_empirics.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

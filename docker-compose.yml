@@ -35,6 +35,7 @@ services:
         - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
         - NEXT_PUBLIC_WORKER_URL=${NEXT_PUBLIC_WORKER_URL:-http://localhost:8000}
+        - NEXT_PUBLIC_LANDING_URL=${NEXT_PUBLIC_LANDING_URL:-http://localhost:3001}
     container_name: ghar-search-frontend
     restart: unless-stopped
     ports:
@@ -43,6 +44,23 @@ services:
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - NEXT_PUBLIC_WORKER_URL=${NEXT_PUBLIC_WORKER_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_LANDING_URL=${NEXT_PUBLIC_LANDING_URL:-http://localhost:3001}
       - INTERNAL_SECRET=${INTERNAL_SECRET}
     depends_on:
       - worker
+
+  landing-page:
+    build:
+      context: "./Landing Page"
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    container_name: ghar-search-landing
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - PORT=3001
+    depends_on:
+      - frontend

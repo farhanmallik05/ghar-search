@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getAppUrl } from "@/lib/url";
 import { 
   Search, 
   ShieldCheck, 
@@ -27,6 +28,13 @@ export default function LiveVerdictDemo() {
   const [isLiveBrowserOpen, setIsLiveBrowserOpen] = useState(false);
   const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(false);
   const [exportedPdf, setExportedPdf] = useState(false);
+
+  const [appUrl, setAppUrl] = useState(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+
+  useEffect(() => {
+    setAppUrl(getAppUrl());
+  }, []);
+  const liveVerifyUrl = `${appUrl}/?verify=true&query=${encodeURIComponent(inputUrl.trim())}#verify-section`;
 
   const sampleListings = [
     {
@@ -154,20 +162,28 @@ export default function LiveVerdictDemo() {
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm tracking-tight transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium text-xs sm:text-sm tracking-tight transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isVerifying ? (
                   <>
-                    <span className="w-4 h-4 rounded-full border-2 border-black border-t-transparent animate-spin" />
-                    <span>Verifying...</span>
+                    <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    <span>Simulating...</span>
                   </>
                 ) : (
                   <>
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Verify</span>
+                    <Search className="w-4 h-4 text-emerald-400" />
+                    <span>Simulate Demo</span>
                   </>
                 )}
               </button>
+              <a
+                href={liveVerifyUrl}
+                className="px-8 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs sm:text-sm tracking-tight transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Verify on Core Portal</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </form>
           </div>
 
@@ -375,6 +391,18 @@ export default function LiveVerdictDemo() {
                       </>
                     )}
                   </button>
+                </div>
+
+                {/* Direct Cross-App Handoff CTA */}
+                <div className="mt-3">
+                  <a
+                    href={liveVerifyUrl}
+                    className="w-full py-3 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 hover:text-white font-semibold text-xs tracking-tight transition-all flex items-center justify-center gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Run Full Due Diligence on Main App</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
 

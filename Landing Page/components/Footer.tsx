@@ -1,7 +1,16 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Search, ShieldCheck } from "lucide-react";
+import { getAppUrl } from "@/lib/url";
 
 export default function Footer() {
+  const [appUrl, setAppUrl] = useState(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+
+  useEffect(() => {
+    setAppUrl(getAppUrl());
+  }, []);
+
   return (
     <footer className="relative bg-[#050505] border-t border-white/[0.08] text-white/50 text-xs font-mono py-16 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
@@ -21,7 +30,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-6 text-[11px] uppercase tracking-wider text-white/60">
+        <div className="flex flex-wrap items-center gap-6 text-[11px] uppercase tracking-wider text-white/60">
           <a href="#problem" className="hover:text-white transition-colors">
             01 // Problem
           </a>
@@ -36,6 +45,29 @@ export default function Footer() {
           </a>
           <a href="#tinyfish" className="hover:text-white transition-colors">
             05 // TinyFish
+          </a>
+          <span className="text-white/20 hidden sm:inline">|</span>
+          <a
+            href={`${appUrl}/#verify-section`}
+            className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors flex items-center gap-1"
+          >
+            <ShieldCheck className="w-3 h-3" />
+            <span>Verify Listing</span>
+            <ArrowUpRight className="w-3 h-3" />
+          </a>
+          <a
+            href={`${appUrl}/dashboard`}
+            className="hover:text-white transition-colors flex items-center gap-1"
+          >
+            <span>Watchlist</span>
+            <ArrowUpRight className="w-3 h-3" />
+          </a>
+          <a
+            href={`${appUrl}/compare`}
+            className="hover:text-white transition-colors flex items-center gap-1"
+          >
+            <span>Compare</span>
+            <ArrowUpRight className="w-3 h-3" />
           </a>
           <a
             href="https://rera.mohua.gov.in"

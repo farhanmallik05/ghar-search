@@ -72,6 +72,19 @@ export interface TrustScoreBreakdown {
   deductions: ScoreDeduction[];
   strengths: string[];
   recommendations: string[];
+  risk_category?: string;
+  statutory_compliance_rate?: number;
+  peer_percentile_benchmark?: string;
+  penalty_summary?: Array<{
+    dimension: string;
+    dimension_title: string;
+    points_awarded: number;
+    max_points: number;
+    points_lost: number;
+    percentage_loss: number;
+    severity: 'CLEAN' | 'LOW' | 'MODERATE' | 'CRITICAL';
+    primary_reason?: string;
+  }>;
 }
 
 export interface VerificationReport {

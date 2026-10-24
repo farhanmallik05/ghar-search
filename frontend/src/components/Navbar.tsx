@@ -3,15 +3,26 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Search, Github, ExternalLink, BookmarkCheck, GitCompare, Layers, Activity } from 'lucide-react';
+import { getLandingUrl } from '@/lib/url';
+import {
+  ShieldCheck,
+  Search,
+  Github,
+  ExternalLink,
+  BookmarkCheck,
+  GitCompare,
+  Layers,
+  ArrowLeft,
+} from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || 'http://localhost:3001';
 
   return (
     <header className="sticky top-0 z-50 glass-panel border-b border-slate-200/80 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand / Logo */}
+        {/* Brand / Logo — links back to the landing page */}
         <Link href="/" className="flex items-center space-x-3 group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 via-indigo-600 to-brand-800 flex items-center justify-center text-white shadow-sm shadow-brand-600/30 ring-1 ring-inset ring-white/20 group-hover:scale-105 group-hover:shadow-glow-brand transition-all duration-200">
             <ShieldCheck className="w-5 h-5" />
@@ -40,13 +51,22 @@ export default function Navbar() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <span className="font-mono text-[10px] text-slate-500 uppercase tracking-wider">Agents:</span>
-            <span className="font-semibold text-slate-700">Online & Synchronized</span>
+            <span className="font-semibold text-slate-700">Online &amp; Synchronized</span>
           </div>
 
+          {/* Back to Landing */}
+          <a
+            href={landingUrl}
+            className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-brand-600 hover:bg-slate-100 transition-all duration-150 active:scale-[0.98]"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Landing</span>
+          </a>
+
           <Link
-            href="/"
+            href="/verify"
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 active:scale-[0.98] ${
-              pathname === '/' ? 'bg-brand-50 text-brand-700 border border-brand-200/80' : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
+              pathname === '/verify' ? 'bg-brand-50 text-brand-700 border border-brand-200/80' : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
             }`}
           >
             <Search className="w-3.5 h-3.5 text-slate-400" />
@@ -94,7 +114,7 @@ export default function Navbar() {
           </a>
 
           <Link
-            href="/#verify-section"
+            href="/verify"
             className="inline-flex items-center space-x-1.5 bg-brand-600 hover:bg-brand-700 active:scale-[0.97] text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow-sm shadow-brand-600/20 hover:shadow-md transition-all duration-150 ml-1"
           >
             <span>Verify Listing</span>
