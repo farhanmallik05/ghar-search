@@ -17,8 +17,9 @@ import pytest
 # Ensure worker directory is on sys.path
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 WORKER_DIR = os.path.join(BASE_DIR, "worker")
-if WORKER_DIR not in sys.path:
-    sys.path.insert(0, WORKER_DIR)
+for p in [BASE_DIR, WORKER_DIR]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 TIER_FILES = {
     1: ("Tier 1: Feature Coverage (>=5 per feature)", "e2e_tests/test_tier1_features.py"),
