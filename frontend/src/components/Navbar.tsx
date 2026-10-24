@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Search, Github, ExternalLink, BookmarkCheck, GitCompare, Layers, Activity, Sparkles } from 'lucide-react';
+import { ShieldCheck, Search, Github, ExternalLink, BookmarkCheck, GitCompare, Layers, Activity } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -81,16 +81,6 @@ export default function Navbar() {
           >
             <Layers className="w-3.5 h-3.5 text-sky-600" />
             <span className="hidden sm:inline">Bulk B2B</span>
-          </Link>
-
-          <Link
-            href="/pitch"
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 active:scale-[0.98] ${
-              pathname === '/pitch' ? 'bg-brand-50 text-brand-700 border border-brand-200/80' : 'text-slate-700 hover:text-brand-600 hover:bg-slate-100'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span className="hidden sm:inline">Pitch</span>
           </Link>
 
           <a
