@@ -143,7 +143,7 @@ export default function DashboardPage() {
                   </span>
 
                   <Link
-                    href={`/report/${item.report_id || 'rpt_demo_test'}`}
+                    href={`/report/${item.report_id || 'rpt_sunshine_clean'}`}
                     className="inline-flex items-center space-x-1 text-brand-600 hover:text-brand-700 font-bold hover:underline"
                   >
                     <span>View Dossier</span>

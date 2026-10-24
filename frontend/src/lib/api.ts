@@ -1,6 +1,6 @@
 import { VerificationReport, FixtureProperty, WatchlistItem } from './types';
 
-const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8000';
+export const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8000';
 
 export async function getFixtures(): Promise<FixtureProperty[]> {
   try {
@@ -42,7 +42,7 @@ export async function getFixtures(): Promise<FixtureProperty[]> {
     {
       key: 'flagged',
       title: 'Royal Empire Luxury Towers',
-      badge: 'Critical Alert (Score: 28/100)',
+      badge: 'Critical Alert (Score: 18/100)',
       rera_id: 'P51700099881',
       project_name: 'Royal Empire Luxury Towers',
       promoter_name: 'Royal Imperial Realcon Ltd',
@@ -127,6 +127,7 @@ export async function getWatchlist(): Promise<{ items: WatchlistItem[]; total: n
     items: [
       {
         watchlist_id: 'wl_sunshine_baner',
+        report_id: 'rpt_sunshine_clean',
         property_name: 'Sunshine Residency Phase 1',
         promoter_name: 'Godrej Properties Limited',
         rera_id: 'P52100012345',
@@ -139,6 +140,7 @@ export async function getWatchlist(): Promise<{ items: WatchlistItem[]; total: n
       },
       {
         watchlist_id: 'wl_green_valley',
+        report_id: 'rpt_green_valley_delayed',
         property_name: 'Green Valley Towers Phase 2',
         promoter_name: 'Apex Skyline Developers Pvt Ltd',
         rera_id: 'P52100088765',

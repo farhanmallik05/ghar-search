@@ -7,7 +7,7 @@ import {
   CheckType,
   CheckResult,
 } from '@/lib/types';
-import { getReport, addToWatchlist, resolveHITL } from '@/lib/api';
+import { getReport, addToWatchlist, resolveHITL, WORKER_URL } from '@/lib/api';
 import TrustGauge from '@/components/TrustGauge';
 import ProgressRail from '@/components/ProgressRail';
 import EvidenceCard from '@/components/EvidenceCard';
@@ -92,7 +92,12 @@ export default function ReportDetailPage() {
   };
 
   const handleExportPDF = () => {
-    window.print();
+    try {
+      const pdfEndpoint = `${WORKER_URL}/api/v1/report/${reportId}/pdf`;
+      window.open(pdfEndpoint, '_blank');
+    } catch {
+      window.print();
+    }
   };
 
   if (loading && !report) {
