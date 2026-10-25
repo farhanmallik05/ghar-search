@@ -20,7 +20,7 @@ export default function Home() {
       {/* Slide 8 MVP Prototype: The Live Verdict Screen */}
       <LiveVerdictDemo />
 
-      {/* Slides 2 to 7: Problem, Solution, Users, 5-Layer Pipeline, TinyFish, Scalability & Team */}
+      {/* Slides 2 to 6: Problem, Solution, Users, 5-Layer Pipeline, TinyFish & Team */}
       <PdfContentSections />
 
       {/* Minimalist Hackathon Footer */}
