@@ -28,7 +28,7 @@ from intelligence.schemas import (
     WatchlistRecheckResponse
 )
 from fixtures.demo_properties import DEMO_PROPERTIES
-from graphs.verification_graph import VerificationGraph
+from graphs.verification_graph import VerificationGraph, parse_listing_url
 from intelligence.rule_engine import calculate_trust_score
 from intelligence.summarizer import generate_summary
 from intelligence.pdf_generator import generate_pdf_dossier
@@ -220,11 +220,103 @@ async def trigger_verification(payload: PropertyInput, background_tasks: Backgro
 
     report_id = f"rpt_{uuid.uuid4().hex[:8]}"
 
+    # Extract initial property details immediately so polling during queued/running state
+    # displays the accurate user query instead of a generic sample placeholder
+    query_text = ""
+    url_extracted = {}
+    if payload.property_url:
+        query_text = payload.property_url.strip()
+        url_extracted = parse_listing_url(query_text)
+    if payload.manual_details:
+        if payload.manual_details.project_name:
+            query_text = payload.manual_details.project_name.strip()
+        elif payload.manual_details.rera_number:
+            query_text = payload.manual_details.rera_number.strip()
+
+    lower_q = query_text.lower()
+    initial_prop_details: Dict[str, Any] = {}
+
+    if "clean" in lower_q or "sunshine" in lower_q or "baner" in lower_q or "p52100012345" in lower_q:
+        fixture = DEMO_PROPERTIES["clean"]
+        initial_prop_details = {
+            "project_name": fixture["project_name"],
+            "promoter_name": fixture["promoter_name"],
+            "rera_id": fixture["rera_id"],
+            "state": fixture["state"],
+            "city": fixture["city"],
+            "address": fixture["address"],
+            "listing_url": payload.property_url or fixture["listing_url"]
+        }
+    elif "delay" in lower_q or "green" in lower_q or "hinjewadi" in lower_q or "p52100088765" in lower_q:
+        fixture = DEMO_PROPERTIES["delayed"]
+        initial_prop_details = {
+            "project_name": fixture["project_name"],
+            "promoter_name": fixture["promoter_name"],
+            "rera_id": fixture["rera_id"],
+            "state": fixture["state"],
+            "city": fixture["city"],
+            "address": fixture["address"],
+            "listing_url": payload.property_url or fixture["listing_url"]
+        }
+    elif "flag" in lower_q or "royal" in lower_q or "thane" in lower_q or "p51700099881" in lower_q:
+        fixture = DEMO_PROPERTIES["flagged"]
+        initial_prop_details = {
+            "project_name": fixture["project_name"],
+            "promoter_name": fixture["promoter_name"],
+            "rera_id": fixture["rera_id"],
+            "state": fixture["state"],
+            "city": fixture["city"],
+            "address": fixture["address"],
+            "listing_url": payload.property_url or fixture["listing_url"]
+        }
+    else:
+        inferred_project = (
+            payload.manual_details.project_name.strip()
+            if payload.manual_details and payload.manual_details.project_name
+            else url_extracted.get("project_name", "Verified Residential Development")
+        )
+        inferred_promoter = (
+            payload.manual_details.promoter_name.strip()
+            if payload.manual_details and payload.manual_details.promoter_name
+            else url_extracted.get(
+                "promoter_name",
+                f"{inferred_project.split()[0].capitalize()} Properties Ltd"
+                if inferred_project != "Verified Residential Development"
+                else "Premier Developers Pvt Ltd"
+            )
+        )
+        inferred_rera = (
+            payload.manual_details.rera_number.strip()
+            if payload.manual_details and payload.manual_details.rera_number
+            else "P52100099999"
+        )
+        inferred_state = (
+            payload.manual_details.state.strip()
+            if payload.manual_details and payload.manual_details.state
+            else "Maharashtra"
+        )
+        inferred_city = (
+            payload.manual_details.city.strip()
+            if payload.manual_details and payload.manual_details.city
+            else url_extracted.get("city", "Mumbai")
+        )
+
+        initial_prop_details = {
+            "project_name": inferred_project,
+            "promoter_name": inferred_promoter,
+            "rera_id": inferred_rera,
+            "state": inferred_state,
+            "city": inferred_city,
+            "address": f"Survey No. 84, {inferred_city}, {inferred_state}",
+            "listing_url": payload.property_url or ""
+        }
+
     # Initialize record in memory store
     memory_store.reports[report_id] = {
         "report_id": report_id,
         "property_id": f"prop_{uuid.uuid4().hex[:8]}",
         "status": "queued",
+        "property_details": initial_prop_details,
         "estimated_completion_seconds": 3,
         "realtime_channel": f"report:{report_id}",
         "credits_estimated": 12,
@@ -239,6 +331,7 @@ async def trigger_verification(payload: PropertyInput, background_tasks: Backgro
     return {
         "report_id": report_id,
         "status": "queued",
+        "property_details": initial_prop_details,
         "estimated_completion_seconds": 3,
         "realtime_channel": f"report:{report_id}",
         "credits_estimated": 12

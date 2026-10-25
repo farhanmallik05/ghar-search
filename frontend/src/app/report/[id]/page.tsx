@@ -287,21 +287,21 @@ export default function ReportDetailPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-white/50 uppercase tracking-wider">
-              <span>{propDetails.city || 'Pune'}, {propDetails.state || 'Maharashtra'}</span>
+              <span>{propDetails.city || 'Mumbai'}, {propDetails.state || 'Maharashtra'}</span>
               <span>•</span>
               <span className="text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30 font-mono">
-                RERA: {propDetails.rera_id || 'P52100012345'}
+                RERA: {propDetails.rera_id || 'P52100099999'}
               </span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-light text-white tracking-tight">
-              {propDetails.project_name || 'Sunshine Residency Baner'}
+              {propDetails.project_name || 'Verified Real Estate Asset'}
             </h1>
 
             <p className="text-xs sm:text-sm text-white/60 font-light">
               Promoter &amp; Developer:{' '}
               <strong className="text-white font-medium">
-                {propDetails.promoter_name || 'Godrej Properties Limited'}
+                {propDetails.promoter_name || 'Promoter Entity Under Audit'}
               </strong>
             </p>
           </div>

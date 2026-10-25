@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState, useMemo, Suspense } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Building2,
   Scale,
@@ -117,9 +117,10 @@ const DIMENSIONS: DimensionDef[] = [
   },
 ];
 
-export default function ProgressScreen() {
+function ProgressScreenContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const reportId = params.id as string;
 
   const [report, setReport] = useState<VerificationReport | null>(null);
@@ -351,10 +352,30 @@ export default function ProgressScreen() {
   };
 
   const propDetails = useMemo(() => {
-    if (report?.property_details) {
+    if (report?.property_details?.project_name) {
       return report.property_details;
     }
-    if (reportId.includes('delayed')) {
+
+    // Check search params passed from intake
+    const projectParam = searchParams.get('project') || searchParams.get('query');
+    const promoterParam = searchParams.get('promoter');
+    const reraParam = searchParams.get('rera');
+    const stateParam = searchParams.get('state');
+    const cityParam = searchParams.get('city');
+
+    if (projectParam) {
+      const cleanProject = projectParam.trim();
+      const titleCase = cleanProject.charAt(0).toUpperCase() + cleanProject.slice(1);
+      return {
+        project_name: titleCase,
+        promoter_name: promoterParam || `${titleCase} Properties Ltd`,
+        rera_id: reraParam || 'P52100099999',
+        city: cityParam || 'Mumbai',
+        state: stateParam || 'Maharashtra',
+      };
+    }
+
+    if (reportId.includes('delayed') || reportId.includes('green_valley')) {
       return {
         project_name: 'Green Valley Towers Phase 2',
         promoter_name: 'Apex Skyline Developers Pvt Ltd',
@@ -372,14 +393,24 @@ export default function ProgressScreen() {
         state: 'Maharashtra',
       };
     }
+    if (reportId.includes('sunshine') || reportId.includes('clean')) {
+      return {
+        project_name: 'Sunshine Residency Phase 1',
+        promoter_name: 'Godrej Properties Limited',
+        rera_id: 'P52100012345',
+        city: 'Pune',
+        state: 'Maharashtra',
+      };
+    }
+
     return {
-      project_name: 'Sunshine Residency Phase 1',
-      promoter_name: 'Godrej Properties Limited',
-      rera_id: 'P52100012345',
-      city: 'Pune',
+      project_name: 'Verified Real Estate Asset',
+      promoter_name: 'Promoter Entity Under Audit',
+      rera_id: 'P52100099999',
+      city: 'Mumbai',
       state: 'Maharashtra',
     };
-  }, [report, reportId]);
+  }, [report, reportId, searchParams]);
 
   const getDimensionState = (type: CheckType) => {
     const checkObj = report?.checks?.find((c) => c.check_type === type);
@@ -440,19 +471,19 @@ export default function ProgressScreen() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="flex items-center space-x-2 text-xs font-mono text-white/50 uppercase tracking-wider">
-              <span>{propDetails.city || 'Pune'}, {propDetails.state || 'Maharashtra'}</span>
+              <span>{propDetails.city || 'Mumbai'}, {propDetails.state || 'Maharashtra'}</span>
               <span>•</span>
               <span className="text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30 font-mono">
-                RERA: {propDetails.rera_id || 'P52100012345'}
+                RERA: {propDetails.rera_id || 'P52100099999'}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-light text-white tracking-tight">
-              {propDetails.project_name || 'Sunshine Residency'}
+              {propDetails.project_name || 'Verified Real Estate Asset'}
             </h1>
             <p className="text-xs sm:text-sm text-white/60 font-light">
               Developer:{' '}
               <strong className="text-white font-medium">
-                {propDetails.promoter_name || 'Godrej Properties Limited'}
+                {propDetails.promoter_name || 'Promoter Entity Under Audit'}
               </strong>
             </p>
           </div>
@@ -749,5 +780,20 @@ export default function ProgressScreen() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function ProgressScreen() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[500px] flex items-center justify-center text-white/40 font-mono text-sm">
+          <Loader2 className="w-5 h-5 animate-spin mr-2 text-emerald-400" />
+          Initializing verification pipeline...
+        </div>
+      }
+    >
+      <ProgressScreenContent />
+    </Suspense>
   );
 }

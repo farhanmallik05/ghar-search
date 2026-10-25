@@ -79,19 +79,58 @@ function HomeContent() {
     }
 
     try {
-      const payload =
-        customPayload ||
-        (activeTab === 'url'
-          ? { property_url: listingUrl }
-          : {
-              project_name: projectName,
-              promoter_name: promoterName,
-              rera_number: reraNumber,
-              state: stateName,
-            });
+      let payload = customPayload;
+      let targetProject = projectName.trim();
+      let targetPromoter = promoterName.trim();
+      let targetRera = reraNumber.trim();
+      let targetState = stateName;
+
+      if (!payload) {
+        if (activeTab === 'url') {
+          const rawInput = listingUrl.trim();
+          const isUrl = /^https?:\/\//i.test(rawInput) || rawInput.includes('.');
+          if (isUrl) {
+            payload = { property_url: rawInput };
+          } else {
+            // User typed project name directly into the search bar (e.g. 'dlf')
+            targetProject = rawInput;
+            payload = {
+              property_url: rawInput,
+              manual_details: {
+                project_name: rawInput,
+                state: stateName || 'Maharashtra',
+              },
+            };
+          }
+        } else {
+          payload = {
+            project_name: projectName.trim(),
+            promoter_name: promoterName.trim(),
+            rera_number: reraNumber.trim(),
+            state: stateName,
+          };
+        }
+      }
 
       const res = await triggerVerification(payload);
-      router.push(`/progress/${res.report_id}`);
+
+      // Pass user query params so progress screen immediately displays the exact query
+      const queryParams = new URLSearchParams();
+      const projToPass = targetProject || (res as any)?.property_details?.project_name;
+      if (projToPass) queryParams.set('project', projToPass);
+      if (listingUrl.trim()) queryParams.set('query', listingUrl.trim());
+      if (targetPromoter || (res as any)?.property_details?.promoter_name) {
+        queryParams.set('promoter', targetPromoter || (res as any)?.property_details?.promoter_name);
+      }
+      if (targetRera || (res as any)?.property_details?.rera_id) {
+        queryParams.set('rera', targetRera || (res as any)?.property_details?.rera_id);
+      }
+      if (targetState || (res as any)?.property_details?.state) {
+        queryParams.set('state', targetState || (res as any)?.property_details?.state);
+      }
+
+      const qs = queryParams.toString();
+      router.push(`/progress/${res.report_id}${qs ? `?${qs}` : ''}`);
     } catch (err: any) {
       setError(err.message || 'Verification initiation failed. Check worker connection.');
       setLoading(false);

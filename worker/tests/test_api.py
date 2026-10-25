@@ -49,6 +49,26 @@ def test_verify_and_retrieve_report_flow():
     assert report_data["report_id"] == report_id
     assert report_data["status"] in ["queued", "running", "completed"]
 
+def test_verify_custom_query_dlf_not_sunshine():
+    """Verify that querying for 'dlf' immediately yields DLF property details and never defaults to Sunshine Residency."""
+    post_res = client.post("/api/v1/verify", json={"property_url": "dlf"})
+    assert post_res.status_code == 202
+    res_data = post_res.json()
+    assert "report_id" in res_data
+    assert "property_details" in res_data
+    assert res_data["property_details"]["project_name"] == "Dlf"
+    assert "Sunshine" not in res_data["property_details"]["project_name"]
+    assert "Godrej" not in res_data["property_details"]["promoter_name"]
+
+    # Immediate retrieval of queued/running report must also return DLF details
+    report_id = res_data["report_id"]
+    get_res = client.get(f"/api/v1/report/{report_id}")
+    assert get_res.status_code == 200
+    report_data = get_res.json()
+    assert "property_details" in report_data
+    assert report_data["property_details"]["project_name"] == "Dlf"
+    assert "Sunshine" not in report_data["property_details"]["project_name"]
+
 def test_watchlist_endpoints():
     # 1. Trigger report to get an id
     post_res = client.post("/api/v1/verify", json={
