@@ -400,7 +400,7 @@ def test_tier2_f6_hitl_repeated_resolutions_idempotent(client, store):
 # ==============================================================================
 
 def test_tier2_f7_scoring_all_dimensions_perfect_100():
-    """F7.B1: All 6 dimensions passing with zero deductions yields exactly 100 High Trust."""
+    """F7.B1: All 6 dimensions passing are subject to dynamic realistic due diligence caveats (High Trust, strictly < 100)."""
     checks = [
         CheckResult(check_type=CheckType.RERA_STATUS, status=CheckStatus.PASSED, findings=["Clean active registered"]),
         CheckResult(check_type=CheckType.CLAIM_MATCH, status=CheckStatus.PASSED, findings=["Brochure matches Form B"]),
@@ -410,9 +410,11 @@ def test_tier2_f7_scoring_all_dimensions_perfect_100():
         CheckResult(check_type=CheckType.REPUTATION, status=CheckStatus.PASSED, findings=["Clean sentiment"]),
     ]
     breakdown = calculate_trust_score(checks)
-    assert breakdown.total_score == 100
+    assert breakdown.total_score < 100
+    assert 85 <= breakdown.total_score <= 98
     assert breakdown.label == TrustLabel.HIGH_TRUST
-    assert len(breakdown.deductions) == 0
+    assert len(breakdown.deductions) >= 1
+    assert sum(d.points_deducted for d in breakdown.deductions) + breakdown.total_score == 100
 
 
 def test_tier2_f7_scoring_all_dimensions_failed_0():

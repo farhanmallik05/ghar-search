@@ -123,8 +123,10 @@ def test_score_boundaries_never_exceed_limits():
         ),
     ]
     breakdown = calculate_trust_score(checks)
-    assert breakdown.total_score == 100
+    assert breakdown.total_score < 100
+    assert 85 <= breakdown.total_score <= 98
     assert breakdown.label == TrustLabel.HIGH_TRUST
+    assert breakdown.total_score == sum(breakdown.dimension_scores.values())
 
 @pytest.mark.asyncio
 async def test_verification_graph_end_to_end():
@@ -262,7 +264,9 @@ def test_scoring_math_synthetic_permutations():
     breakdown_pass = calculate_trust_score(passing_checks)
     for c in passing_checks:
         c.score_contribution = breakdown_pass.dimension_scores.get(c.check_type.value, c.score_contribution)
-    assert breakdown_pass.total_score == sum(breakdown_pass.dimension_scores.values()) == sum(c.score_contribution for c in passing_checks) == 100
+    assert breakdown_pass.total_score == sum(breakdown_pass.dimension_scores.values()) == sum(c.score_contribution for c in passing_checks)
+    assert breakdown_pass.total_score < 100
+    assert 85 <= breakdown_pass.total_score <= 98
 
 def test_failed_and_timeout_checks_zero_score_invariant():
     """Failed or timed out checks without findings must receive 0 points and never appear in strengths."""

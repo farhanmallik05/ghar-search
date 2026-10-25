@@ -110,9 +110,9 @@ def classify_risk(breakdown: TrustScoreBreakdown) -> RiskClassification:
 
 def compute_peer_percentile(total_score: int) -> str:
     """Computes a deterministic percentile benchmark against state project databases."""
-    if total_score >= 90:
+    if total_score >= 88:
         return "Top 5% (Superior Regulatory Health)"
-    if total_score >= 80:
+    if total_score >= 78:
         return "Top 15% (Above State Average)"
     if total_score >= 65:
         return "Top 40% (Average Compliance)"

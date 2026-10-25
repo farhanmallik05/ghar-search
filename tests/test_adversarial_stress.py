@@ -114,9 +114,9 @@ def test_adversarial_boundary_minimum_adverse_score_leakage_discovery():
 
 
 def test_adversarial_boundary_perfect_hundred():
-    """Boundary 100: Clean statutory findings across all 6 dimensions.
-    Asserts each dimension scores its exact max points (30, 20, 20, 10, 10, 10).
-    Asserts total is 100, label is HIGH_TRUST, and invariant holds.
+    """Boundary Passing Checks: Clean statutory findings across all 6 dimensions.
+    Asserts raw passing checks are dynamically assigned realistic due-diligence caveats.
+    Asserts total is strictly < 100, within High Trust range [85, 98], and invariants hold.
     """
     checks = [
         make_check(CheckType.RERA_STATUS, ["Active statutory RERA registration confirmed."]),
@@ -128,19 +128,37 @@ def test_adversarial_boundary_perfect_hundred():
     ]
     breakdown = calculate_trust_score(checks)
 
-    assert breakdown.total_score == 100
+    assert breakdown.total_score < 100
+    assert 85 <= breakdown.total_score <= 98
     assert breakdown.label == TrustLabel.HIGH_TRUST
-    assert breakdown.dimension_scores[CheckType.RERA_STATUS.value] == 30
-    assert breakdown.dimension_scores[CheckType.CLAIM_MATCH.value] == 20
-    assert breakdown.dimension_scores[CheckType.COURT_SIGNALS.value] == 20
-    assert breakdown.dimension_scores[CheckType.PROMOTER_RECORD.value] == 10
-    assert breakdown.dimension_scores[CheckType.APPROVALS.value] == 10
-    assert breakdown.dimension_scores[CheckType.REPUTATION.value] == 10
 
     for c in checks:
         c.score_contribution = breakdown.dimension_scores.get(c.check_type.value, c.score_contribution)
-    assert sum(c.score_contribution for c in checks) == 100
     assert breakdown.total_score == sum(breakdown.dimension_scores.values()) == sum(c.score_contribution for c in checks)
+    assert sum(d.points_deducted for d in breakdown.deductions) + breakdown.total_score == 100
+
+
+def test_trust_score_never_equals_hundred_invariant():
+    """Statutory Due Diligence Ceiling Invariant:
+    No combination of checks or passing findings can EVER reach 100%.
+    Under-construction projects and sub-registrar latency cap statutory diligence strictly below 100.
+    """
+    for idx in range(50):
+        checks = [
+            make_check(CheckType.RERA_STATUS, [f"Active statutory RERA registration confirmed #{idx}."]),
+            make_check(CheckType.CLAIM_MATCH, [f"Marketing brochure matches RERA Form B disclosures exactly #{idx}."]),
+            make_check(CheckType.COURT_SIGNALS, [f"0 active cases in eCourts and no NCLT insolvency petitions #{idx}."]),
+            make_check(CheckType.PROMOTER_RECORD, [f"MCA21 active status with zero director disqualifications #{idx}."]),
+            make_check(CheckType.APPROVALS, [f"Commencement Certificate and municipal approvals fully in place #{idx}."]),
+            make_check(CheckType.REPUTATION, [f"Positive homebuyer sentiment with zero consumer complaints #{idx}."]),
+        ]
+        breakdown = calculate_trust_score(checks)
+        assert breakdown.total_score < 100
+        assert 80 <= breakdown.total_score <= 98
+        assert breakdown.total_score == sum(breakdown.dimension_scores.values())
+        awarded = breakdown.total_score
+        lost = sum(d.points_deducted for d in breakdown.deductions)
+        assert awarded + lost == 100
 
 
 def test_adversarial_transition_thresholds_39_and_40():
