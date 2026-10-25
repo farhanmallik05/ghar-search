@@ -38,6 +38,11 @@ export default function CrossAppLink({
         if (!url.searchParams.has("from")) {
           url.searchParams.set("from", "landing");
         }
+        // If user is stored, pass auth session
+        const rawUser = localStorage.getItem("ghar_auth_user");
+        if (rawUser && !url.searchParams.has("auth_user")) {
+          url.searchParams.set("auth_user", rawUser);
+        }
         setResolvedHref(url.toString());
       }
     } catch {

@@ -733,6 +733,128 @@ async def export_bulk_csv(batch_id: str):
     )
 
 
+# ==============================================================================
+# Authentication & Identity Endpoints
+# ==============================================================================
+
+from pydantic import BaseModel, Field
+
+class DemoUser(BaseModel):
+    id: str
+    name: str
+    email: str
+    role: str
+    organization: str
+    avatar: str
+    badge: str
+    bio: str
+    token: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str = "homebuyer"
+    organization: Optional[str] = None
+
+class AuthResponse(BaseModel):
+    status: str = "authenticated"
+    token: str
+    user: Dict[str, Any]
+
+CANONICAL_DEMO_USERS: List[Dict[str, Any]] = [
+    {
+        "id": "usr_demo_homebuyer",
+        "name": "Rohit Sharma",
+        "email": "rohit.sharma@gmail.com",
+        "role": "homebuyer",
+        "organization": "Individual Homebuyer • Pune Market",
+        "avatar": "RS",
+        "badge": "Homebuyer",
+        "bio": "Evaluating residential flats against MahaRERA disclosures, possession timelines, and OC certificates.",
+        "token": "ghar_jwt_demo_token_rohit_2026",
+    },
+    {
+        "id": "usr_demo_underwriter",
+        "name": "Priya Nair",
+        "email": "priya.nair@hdfcbank.com",
+        "role": "underwriter",
+        "organization": "HDFC Bank Mortgage Risk & Underwriting",
+        "avatar": "PN",
+        "badge": "Senior Underwriter",
+        "bio": "Reviewing bulk portfolio risks, NCLT insolvency scans, and statutory Section 7 notices for retail housing loans.",
+        "token": "ghar_jwt_demo_token_priya_2026",
+    },
+    {
+        "id": "usr_demo_broker",
+        "name": "Vikram Singhania",
+        "email": "vikram@singhania-law.in",
+        "role": "broker",
+        "organization": "Singhania & Partners • RERA Legal Advisory",
+        "avatar": "VS",
+        "badge": "RERA Legal Counsel",
+        "bio": "Conducting title due diligence, municipal sanction audits, and eCourts encumbrance checks.",
+        "token": "ghar_jwt_demo_token_vikram_2026",
+    },
+]
+
+@app.get("/api/v1/auth/demo-users", tags=["Authentication"])
+async def get_demo_users():
+    """Returns canonical demo personas for instant 1-click audit access."""
+    return CANONICAL_DEMO_USERS
+
+@app.post("/api/v1/auth/login", response_model=AuthResponse, tags=["Authentication"])
+async def auth_login(payload: LoginRequest):
+    """Authenticates credentials or provides seamless demo persona session."""
+    matched = next((u for u in CANONICAL_DEMO_USERS if u["email"].lower() == payload.email.strip().lower()), None)
+    if matched:
+        return AuthResponse(token=matched["token"], user=matched)
+
+    user_id = f"usr_{uuid.uuid4().hex[:8]}"
+    token = f"ghar_jwt_{uuid.uuid4().hex}"
+    name = payload.email.split("@")[0].replace(".", " ").title()
+    user_data = {
+        "id": user_id,
+        "name": name,
+        "email": payload.email.strip(),
+        "role": "homebuyer",
+        "organization": "Independent Homebuyer",
+        "avatar": name[:2].upper(),
+        "badge": "Homebuyer",
+        "token": token,
+    }
+    return AuthResponse(token=token, user=user_data)
+
+@app.post("/api/v1/auth/signup", response_model=AuthResponse, tags=["Authentication"])
+async def auth_signup(payload: SignupRequest):
+    """Creates a new homebuyer or underwriting workspace account."""
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+
+    user_id = f"usr_{uuid.uuid4().hex[:8]}"
+    token = f"ghar_jwt_{uuid.uuid4().hex}"
+    role_badge_map = {
+        "homebuyer": "Homebuyer",
+        "underwriter": "Loan Underwriter",
+        "broker": "RERA Legal / Broker",
+    }
+    user_data = {
+        "id": user_id,
+        "name": payload.name.strip(),
+        "email": payload.email.strip(),
+        "role": payload.role,
+        "organization": payload.organization or ("Mortgage Lender" if payload.role == "underwriter" else "Homebuyer"),
+        "avatar": "".join(w[0] for w in payload.name.split())[:2].upper() or "GS",
+        "badge": role_badge_map.get(payload.role, "Member"),
+        "token": token,
+    }
+    return AuthResponse(token=token, user=user_data)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host=settings.WORKER_HOST, port=settings.WORKER_PORT, reload=True)
