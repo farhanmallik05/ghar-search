@@ -242,7 +242,7 @@ Open `http://localhost:3000` to interact with Ghar Search.
 
 ---
 
-## 👥 Team — HackIIITD 2026
+## 👥 Team
 
 - **Farhan Rahaman Mallik** — Team Lead, AI Agents & Full-Stack
 - **Piyush Kumar Gautam** — UI / Frontend Developer
